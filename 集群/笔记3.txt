@@ -1,0 +1,1130 @@
+基于 Linux CentOS 7 的 Hadoop 3.1.2 环境搭·建
+1. 卸载 VMWare Workstation 14， 升级为 15
+    0. 原因：14 太慢，有卡顿，15快些，占用资源少。 
+    1. 步骤：
+        1. 关闭 VMWare Workstation 14 服务
+            windows键 + r 
+            输入 services.msc，开启 服务 控制台，停止所有VMWare相关的服务。
+        2. 看下网络配置，里面现在还有 VMWare 的虚拟网卡，一会卸载后，就没有了。
+        3. 进入控制面板，卸载 VMWare Workstation 14。
+            删除后，需要重新启动。
+        4. 验证 卸载 VMWare Workstation 14
+            看服务（没有VMWare的服务）、看网卡（没有VMWare的虚拟网卡）
+        5. 安装 VMWare Workstation Pro 15
+            重启后再验证下（看服务、看网卡）
+
+2. 安装微软环回网卡
+    0. 原因： 保证在没有外网的情况下，Windows宿主机和所有的虚拟机可以借助虚拟的环回网卡进行通讯。
+    1. 步骤：  
+        1. 执行硬件添加向导
+            Windows键 + r
+            输入 hdwwiz，按照向导进行安装
+			网络适配器
+			Microsoft ==》loopback
+        2. 验证安装，查看网卡
+            注意：本次安装，不再禁止原有的wifi网卡，这样可以保证 Windows 宿主机仍然可以上网。
+        3. 设置环回网卡的 IPAddress：
+            IP 地址：192.168.100.100
+            子网掩码：255.255.255.0
+            缺省网关：192.168.100.100
+            DNS：8.8.8.8 和 8.8.4.4 
+        4. 验证：
+            Windows键 + r
+            输入 cmd
+            在命令行窗口，输入： ping 192.168.100.100
+            验证成功。
+        5.如果不按照环回网卡。
+					0.确认你本机的ip地址。
+					1.在后面设置虚拟机的ip地址要和本机的ip地址，同网段，同网关。
+					假设本机的ip地址:
+					 IP 地址： 192.168.100.100（例如：172.168.90.2）
+                     子网掩码：255.255.255.0
+                     缺省网关：192.168.100.100
+					 设置虚拟机的IP地址的时候要
+					 虚拟机的ip地址192.168.100.（1~~254）（172.168.90.3）
+3. 创建虚拟机，安装 Linux 
+    注意：本次安装，为了适应部分同学的机器性能，镜像版本：centos7 1810；安装选择为基础网络版本，后面的所有的操作均没有GUI界面，使用字符界面操作。
+    0. 简单的规划：
+        三台机器：
+            HadoopMaster
+                主机名：master.hadoop
+                IP 地址：192.168.100.10
+                子网掩码：255.255.255.0
+                缺省网关：192.168.100.100
+                DNS：8.8.8.8 和 8.8.4.4 
+            HadoopSlave01
+                主机名：slave01.hadoop
+                IP 地址：192.168.100.11
+                子网掩码：255.255.255.0
+                缺省网关：192.168.100.100
+                DNS：8.8.8.8 和 8.8.4.4 
+            HadoopSlave02
+                主机名：slave02.hadoop
+                IP 地址：192.168.100.12
+                子网掩码：255.255.255.0
+                缺省网关：192.168.100.100
+                DNS：8.8.8.8 和 8.8.4.4 
+    1. 创建虚拟机，安装 Linux - CentOS 7
+        HadoopMaster：
+            创建之后，开始安装。
+            按上箭头，选中，开始安装。
+            安装过程：
+                1. 选择中文
+                2. 选择安装位置
+                3. 选择基础网络版本，所以不选择任何其他
+                4. 设置主机名和IP地址，直接开始安装
+                   此处没有设置主机名和IP地址的位置，后面在字符界面进行设置。
+                5.  root 密码为 root
+                    icss 密码为 icss 
+                    注意：均需要两次点击完成
+                        root 为管理员用户
+						icss 为普通用户
+                5. 重启 
+                6. 现在是字符界面的 Linux CentOS
+                    使用用户 icss/icss 登录
+                7. 关闭虚拟机，退出的 Linux 的命令为：
+                    shutdown now 
+            -- 至此，首台 HadoopMaster 的 Linux 安装完成。
+                选择最小化安装
+            安装上述步骤，依次安装 HadoopSlave01 和 HadoopSlave02
+        HadoopSlave01：
+            此处也先不设置主机名和IP地址。直接开始安装。
+        HadoopSlave02：
+            此处也先不设置主机名和IP地址。直接开始安装。
+          -- 至此，HadoopSlave01 和 HadoopSlave02 的 Linux CentOS 7 初步安装完成。
+    2. 设置主机名和IP地址 
+        HadoopMaster:
+            1. 设置主机名 
+                hostname : 查看主机名
+                    当前主机名为：localhost.localdomain
+                    改为： master.hadoop 
+                hostnamectl set-hostname : 设置主机名 
+                    hostnamectl set-hostname master.hadoop 
+                    需要输入密码
+                    已经改好，重启下虚拟机，看看。
+                        reboot -n 立刻重启Linux
+                    此时 显示 icss@master，说明主机名已经修改
+            2. 设置IP地址 
+                要求以 root 用户操作
+                    su - root   切换为 root 用户 
+                ifconfig ： 查看网卡的名称
+                    ens33 是当前机器的网卡的名称
+                编辑 /etc/sysconfig/network-scripts/ 目录下对应网卡名的文件进行IP嗲之的设置
+                    切换到 /etc/sysconfig/network-scripts/ 目录
+                    ls 列目录
+                        其中的 ifcfg-ens33 文件，编辑该文件设置当前机器的 IP地址等配置
+                        使用 vi 命令编辑该文件
+                            vi ifcfg-ens33 
+                            按 i 键，进入编辑状态
+                            依次修改或添加以下文本：
+                                onboot 表示是否开机就启动网络，改为：yes
+                                bootproto 表示ip地址的获取方式
+                                    现在为 dhcp ，表示使用 DHCP 的方式获取，改为静态获取
+                                    改为：static
+                                添加：针对 HadoopMaster 的ip地址、子网掩码、缺省网关、DNS 
+                                    IPADDR=192.168.100.10   
+                                    NETMASK=255.255.255.0
+                                    GATEWAY=192.168.100.100
+                                    DNS1=8.8.8.8
+                        输入完成后，按 esc 键，输入  :wq!  回车，存盘退出。
+                重启网络服务，让配置生效：
+                    systemctl 控制系统服务的启动、关闭、重启、禁用和查看状态
+                    1. 关闭并且禁用 NetworkManager 服务
+                        查看 NetworkManager 状态 
+                            systemctl status NetworkManager
+                                现在是活跃状态
+                        关闭该服务
+                            systemctl stop NetworkManager
+                        再次查看，已经关闭。
+                        禁用该服务，保证该服务不会开机启动
+                            systemctl disable NetworkManager
+                      -- 禁用该服务的原因是因为该服务会和 network 服务冲突。
+                    2. 重启 network 服务 
+                        systemctl restart network
+                    3. 查看IP地址
+                        ifconfig
+                    4. 重启下虚拟机，再看看IP地址。
+                        ip地址应该还是一样，192.168.100.10
+                        - 在 Windows 宿主机中 ping 192.168.100.10
+                        注意： 
+                            这里有两个小坑：
+                                1. windows 网卡的优先级
+                                    我们现在同时有 wifi 和 loopback 两个网卡，所以很可能在ping的时候，不通
+                                        原因是 windows 可能优先使用 wifi网卡
+                                        解决方法有两个：
+                                            1 - 先禁用wifi网卡，ping下虚拟机，联通后，再启用WiFi网卡
+                                                断开连接即可！
+                                                在 windows 宿主机中 ping 192.168.100.10
+                                                现在网络联通，再连接WiFi。
+                                                再 ping 仍然联通。
+                                                此时：Windows 主机可以借助 WiFi 联网浏览网站；
+                                                    同时借助 loopback 网卡可以和虚拟机联通。
+                                            2 - 设置 Windows 宿主机的多个网卡的优先级，
+                                                Windows 10 中通过设置网卡的跃点值来设置，越小优先级越高。
+                                                    -- 此法不推荐。
+                                                    演示下》如前演示，如果把lookback网卡的跃点数设置的
+                                                        小于WiFi网卡的跃点数，就会优先使用 lookback网卡！
+                                2. 设置Windows宿主机的防火墙配置，保证虚拟机可以ping通windows
+                                    windows 防火墙要关闭：开始==》控制面板==》系统和安全==》windows防火墙==》打开或关闭防火墙==》关闭。
+									简单的关闭防火墙，不可取。 
+                                    在 linux 中 ping windows 主机的loopback 的IP地址 
+                                        ping 192.168.100.100
+                                        现在不通，是因为Windows防火墙的缘故。
+                                    设置 windows 防火墙的入站规则
+                                        此时虚拟机可以ping通外部的Windows宿主机
+                    ===此时，虚拟机和windows 宿主机可以互相借助IP地址ping通
+        HadoopSlave01 和 HadoopSlave02 使用上述步骤，完成主机名和IP地址的设置
+        此时，外部的Windows宿主机和所有的虚拟机之间，均可以借助IP地址互联互通。
+            而且，外部的Windows宿主机可以连接外网浏览
+        此时，初步的虚拟机安装 Linux CentOS 7的字符界面的安装完成。
+        0遇到的问题：
+		虚拟机 ping本机，一直没有任何信息？本机防火墙没关。（ctrl+z）
+		4. 安装远程控制软件 
+    Xshell & xftp 安装 
+        0. 作用: 
+            命令行界面的远程控制 Linux 的软件, 可以多标签的方式运行.
+            一般多是用于控制远程的 Linux 服务器, 支持中文, 很方便. 
+        1. 下载: 
+            * 这个才是真正的官方网站:
+                http://www.netsarang.com/
+                可以提交email地址,下载 for Evaluation user / Home & School user 的免费版
+                    http://www.netsarang.com/download/down_form.html?code=622
+                        填写自己的邮箱后,接收邮件,内有下载链接.
+            !!! 这个不是官方网站,是假的,不要上,但是可以看看它的中文教程. :->
+                http://www.xshellcn.com/ 
+            * 下载 xftp(图形界面的上传下载, 可以替代 SSH Secure Shell Client 软件)
+        2. 安装: 
+            step by step 
+            next and next 
+        3. 使用: 
+            *每个标签对应一个远程主机, 单击"+"新建新的连接标签, (4个标签的限制!)
+            文件/新建/连接/填入:名称-主机(IPAddress)/用户身份验证/选Password-填入用户名&密码(icss&icss)
+            左侧, 右键/新建/会话    ...
+            单击"新建Alt+n"按钮   ...
+            // 接受未知主机的密钥 - "接受并保存"
+            * 单击 "xftp", 打开图形界面的 xftp 完成上传下载
+            -- 首先启动 HadoopMaster、HadoopSlave01和HadoopSlave02
+                但是不登录！
+            -- 然后启动 xshell 登录上述三台虚拟机
+        4. 建议使用 Xshell 管理 Linux 服务器主机.
+		注意事项：
+		修改文件：/etc/ssh/sshd_config
+        输入命令：vi /etc/ssh/sshd_config（root cd）
+        修改大概129行的
+        #UseDNS yes 为 UseDNS no
+		然后要进行重启sshd ：systemctl  restart  sshd
+	安装hadoop的前期准备
+	0.时钟同步（目的保证hdfs存储文件的时间一致）
+	date -s "HH:mm:ss yyyy-MM-dd"
+	clock --systohc
+	clock -w
+	有网配置
+	1. 配置时钟同步 
+        0. 目的 
+            保证所有集群中的 Linux 主机时间同步, 在集群中交换数据和操作数据时要保证时钟同步. 
+            注意：因为本次安装配置，是基于 loopback 网卡，所以，所有的虚拟机是不能连接外网的
+                所以，只需要保证每台虚拟机的时间和外部Windows宿主机时间一致即可。 
+            我也演示下下面的操做。 
+        --- 以下操作在每台机器上执行：均在xshell中执行，不再登录虚拟机了。 
+        HadoopMaster 、HadoopSlave01、 HadoopSlave02
+            最小化安装时，ntpdate不是必带软件，需要自行安装。 
+            安装步骤：
+                下载：https://centos.pkgs.org/7/centos-x86_64/ntpdate-4.2.6p5-28.el7.centos.x86_64.rpm.html
+                    ntpdate-4.2.6p5-28.el7.centos.x86_64.rpm
+                上传：使用xftp上传到icss用户的主目录下的software目录下
+                安装：root 用户， 执行：rpm -ivh ntpdate-4.2.6p5-28.el7.centos.x86_64.rpm
+                    切换用户是，不用 中间 的 - 号，就在当前目录位置不变。
+                    安装完成。 
+        1. 配置过程: 
+            0. 使用 root 用户完成本操作 
+                su - root 
+                su 或者 su - 或者 su root 均可. 
+            1. 操作过程: 
+                0. 每台机器都需要做. 
+                1. 使用 Linux 定时任务完成时钟同步 
+                    crontab -e
+                    此处是 vi 编辑模式, 按 i 进入插入模式, 输入以下内容， 按 ESC, 输入 :wq! 保存退出. 
+                    0 1 * * * /usr/sbin/ntpdate  cn.pool.ntp.org 
+                    含义: 每天1点钟完成时钟同步操作
+                    因为是本地离线安装，不用特别指定/usr/sbin/的目录位置。
+                2. 手工完成时钟同步(此步可以不做) 
+                    输入: /usr/sbin/ntpdate cn.pool.ntp.org 
+                    有的时候，可能 cn.pool.ntp.org 解析的 ip 不对，可以使用以下命令：
+                        ## 强制调试状态执行，连接授时服务器的IPAddress
+                        /usr/sbin/ntpdate -d 182.92.12.11
+                        说明： 肯定是连接不上的！因为我们是loopback网卡的方式。 
+                3. 退出 root 用户状态 
+                    exit 
+            2. 补充说明：
+                全球很多网络时间同步器，考虑数据在网络上流动的延迟，因此选择服务器越近的服务器进行同步，时间越准。
+                时间服务器分为两种，一种是一级时间服务器，另外一种是二级时间服务器。
+                如果是同步自己的服务器的时间，那么选择二级时间服务器，因为一级时间服务器是为二级时间服务器提供时间校对服务器，
+                尽量不要增加一级服务器的压力。（层级的概念和DNS的层级概念是一致的）。
+                一级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumOneTimeServers
+                二级时间服务器列表：http://support.ntp.org/bin/view/Servers/StratumTwoTimeServers
+                附：常见二级服务器列表：
+                    0.pool.ntp.org  有域名负载均衡
+                    0.cn.pool.ntp.org  有域名负载均衡
+                    ntp.tuna.tsinghua.edu.cn 清华大学
+                    time.windows.com    微软
+        2. 验证:
+            date 查看当前时间 
+            CST 是北京时区
+            先看下windows的时间：
+            然后再设置Linux的时间
+            然后需要设置虚拟机的硬件时钟和系统时钟同步。
+                hwclock --hctosys
+                也可以使用：clock --hctosys
+                改成：
+                    clock --systohc
+                    clock -w 
+                重启，看看是否设置成功。 
+		2. 配置网络环境, 并设置开机启动网络连接
+        0. 目的: 
+            保证所有集群中的主机网络环境配置正确, 并保证开机就自动启动网络环境. 
+            已经配置完成！
+    3. 配置主机名, hosts 文件
+         0. 目的: 
+                设置集群中计算机的主机名, 并设置 hosts 文件, 保证借助主机名可以连通网络. 
+                主机名已经配置完成， 主要配置 hosts 文件。
+                root 用户操作 
+        1. 设置 hosts 文件 
+            *** HadoopMaster 
+                vi /etc/hosts 
+                修改|加入: 
+                    # 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+                    # ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+                    # localhost 配置
+                    127.0.0.1       localhost localhost.localdomain localhost4 localhost4.localdomain4
+                    # Loopback 环回网卡设置
+                    192.168.100.10  master master.hadoop
+                    192.168.100.11  slave01 slave01.hadoop
+                    192.168.100.12  slave02 slave02.hadoop
+                    192.168.100.100  thehost
+            *** HadoopSlave01 
+                hosts 文件同上 
+            *** HadoopSlave02 
+                hosts 文件同上 
+        2. 验证：
+            所有机器，均可通过主机名进行通讯。
+			2. 配置网络环境, 并设置开机启动网络连接
+        0. 目的: 
+            保证所有集群中的主机网络环境配置正确, 并保证开机就自动启动网络环境. 
+            已经配置完成！
+    3. 配置主机名, hosts 文件
+         0. 目的: 
+                设置集群中计算机的主机名, 并设置 hosts 文件, 保证借助主机名可以连通网络. 
+                主机名已经配置完成， 主要配置 hosts 文件。
+                root 用户操作 
+        1. 设置 hosts 文件 
+            *** HadoopMaster 
+                vi /etc/hosts 
+                修改|加入: 
+                    # 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+                    # ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+                    # localhost 配置
+                    127.0.0.1       localhost localhost.localdomain localhost4 localhost4.localdomain4
+                    # Loopback 环回网卡设置
+                    192.168.100.10  master master.hadoop
+                    192.168.100.11  slave01 slave01.hadoop
+                    192.168.100.12  slave02 slave02.hadoop
+                    192.168.100.100  thehost
+            *** HadoopSlave01 
+                hosts 文件同上 
+            *** HadoopSlave02 
+                hosts 文件同上 
+        2. 验证：
+            所有机器，均可通过主机名进行通讯。
+    4. 安装 JDK 
+        0. 目的: 
+            Hadoop 是基于 Java 开发的, 运行也需要 Java, 所以安装\配置\运行 Hadoop 需要基于安装了 Java 环境的 Linux 主机. 
+            特别注意: 不同的 Java SE 的版本匹配不同的 Hadoop 的版本, 需要查看: 
+                https://wiki.apache.org/hadoop/HadoopJavaVersions   --- 自己看下！
+        1. 配置过程: 
+            0. 下载: 
+                Java SE Development Kit 8u211 == 不下载最新版本， 只要能支持Hadoop版本就行。 
+                下载for Linux x64 可以解压缩的版本
+                    jdk-8u211-linux-x64.tar.gz
+                网址：                
+                    http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+                    http://download.oracle.com/otn-pub/java/jdk/8u211-b12/0da788060d494f5095bf8624735fa2f1/jdk-8u211-linux-x64.tar.gz
+            --- 以下操作 HadoopMaster/HadoopSlave01/HadoopSlave02 均要实现 
+            1. 上传文件  jdk-8u211-linux-x64.tar.gz 到 ~/icss/software 文件夹下 
+                SSHSecureShellClient 或者 xftp 均可以完成
+            *** 切换成 root 
+            2. 复制|移动 Java SE 安装文件到指定位置 
+                切换成 root 用户
+                su root 
+                创建 /usr下的 /java 目录 
+                mkdir /usr/java
+                转入icss 的主目录下的software目录
+                cd /home/icss/software
+                将icss主目录下的jdk-8u211-linux-x64.tar.gz移动到 /usr/java 目录下
+                mv /home/icss/software/jdk-8u211-linux-x64.tar.gz /usr/java/
+            3. 解压缩 Jave SE 文件 
+                转让 /usr/java 目录
+                cd /usr/java
+                解压文件
+                tar -xzvf jdk-8u211-linux-x64.tar.gz 
+            *** 切换成 icss 
+            4. 配置环境变量 
+                su icss | exit      // 切换成|回 icss 用户 
+                cd | cd ~           // 切换回 icss 主目录
+                !!! 因为 Hadoop 是局限于某个用户,而且只要该用户登录后不用进入 shell 就需要起作用, 所以需要配置 .bash_profile 文件, 设置环境变量
+                vi .bash_profile         就是/home/icss/.bash_profile 文件
+                复制以下内容到文件末尾： 
+                    # for Java SE 
+                    export JAVA_HOME=/usr/java/jdk1.8.0_211     # 设置Java主目录
+                    export PATH=$JAVA_HOME/bin:$PATH        # 加入path路径
+                == 保存退出
+             5. 让设置的环境变量起作用 
+                source .bash_profile        // 使改动的环境变量生效
+        2. 验证: 
+            export                  // 查看所有的环境变量
+            export $PATH    // 查看所有的 PATH 的环境变量
+            echo $PATH      // 显示 PATH 的环境变量的值
+            java -version       // 测试配置是否生效
+            javac -version      // 测试配置是否生效
+    5. 实现 ssh 免密登录 == 在主目录下执行
+        本步骤，逻辑简单，但是操作麻烦，一定要按照我给的顺序执行！
+        0. 目的: 
+            配置 ssh 免密登录, 保证在各个机器间批量复制文件时不需要反复多次询问用户密码. 
+            配置思路: 
+                master 中生成公钥和私钥, 然后将公钥内容复制|追加到slave01的authorized_keys文件中，实现master免密码ssh登陆slave01
+                slave01 中生成公钥和私钥, 然后将公钥内容复制|追加到slave02的authorized_keys文件中，实现master&slave01免密码ssh登陆slave02 
+                然后将slave02的authorized_keys文件复制到master和slave01中的.ssh目录中；
+                注意：
+                    所有的 authorized_keys 的权限均需要：
+                        chmod 600 authorized_keys
+        --- 以下操作 HadoopMaster/HadoopSlave01/HadoopSlave02 均要实现 
+        1. 配置过程: 
+            0. 所有操作均在 icss 用户下执行, 切换成|回 icss 用户
+                su - icss
+                如果当前是 icss 用户，可以直接操作的。 
+            1. 完成 ssh 不免密登录, 验证没有免密同时加入各个机器的访问路径信息
+                同时生成 .ssh 目录
+                ** HadoopMaster 下: 
+                    ssh localhost 
+                    ssh master 
+                    ssh slave01 
+                    ssh slave02 
+                    !!! 每条命令后, 都要 exit 退出, 返回当前用户
+                    验证: ~/ 出现 .ssh 目录(该目录不要手工创建)
+                ** HadoopSlave01 和 HadoopSlave02 均执行上述命令 
+            2. HadoopMaster 节点, icss 用户 
+                1. 终端生成密钥
+                    ssh-keygen -t rsa
+                    一路回车, 生成密钥
+                2. 验证: 查看下 /home/icss/.ssh 下面的信息
+                    cd .ssh 
+                    ls -lA | ls -la         // A 不显示 . 和 .. 的目录文件
+                        *.pub 是公钥文件 
+                        另一个是私钥文件
+                3. 复制公钥文件 
+                    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+                4. 查看文件权限 
+                    cd ~/.ssh
+                    ls -l
+                5. 修改 authorized_keys 文件的权限 
+                    chmod 600 ~/.ssh/authorized_keys
+                    ls -l authorized_keys   再次查看权限修改后的样子
+                6. 将 authorized_keys 文件复制到 slave01 节点
+                    scp ~/.ssh/authorized_keys icss@slave01:~/
+                        提示输入 yes/no 时， 输入 yes 
+                        密码： icss 
+            3. HadoopSlave01 节点, icss 用户 
+                0. 拷贝|移动 authorized_keys 到 .ssh 目录中
+                    mv authorized_keys .ssh/ 
+                *** 此时, 在 HadoopMaster 上, ssh slave01, 已经可以免密登录了. 
+                1. 终端生成密钥
+                    ssh-keygen -t rsa
+                    一路回车, 生成密钥
+                2. 验证: 查看下 /home/icss/.ssh 下面的信息
+                    cd .ssh 
+                    ls -lA | ls -la         // A 不显示 . 和 .. 的目录文件
+                        *.pub 是公钥文件 
+                        另一个是私钥文件
+                3. 复制公钥文件 
+                    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys     // >> 是追加文件内容
+                4. 查看文件权限 
+                    cd ~/.ssh
+                    ls -l
+                5. 修改 authorized_keys 文件的权限 
+                    chmod 600 ~/.ssh/authorized_keys
+                    ls -l authorized_keys   再次查看权限修改后的样子
+                6. 将 authorized_keys 文件复制到 slave02 节点 
+                    scp ~/.ssh/authorized_keys icss@slave02:~/
+                        提示输入 yes/no 时， 输入 yes 
+                        密码： icss 
+            4. HadoopSlave02 节点, icss 用户 
+                0. 拷贝|移动 authorized_keys 到 .ssh 目录中
+                    mv authorized_keys .ssh/ 
+                *** 此时, 在 HadoopMaster|HadoopSlave01 上, ssh slave02, 已经可以免密登录了. 
+                1. 终端生成密钥
+                    ssh-keygen -t rsa
+                    一路回车, 生成密钥
+                2. 验证: 查看下 /home/icss/.ssh 下面的信息
+                    cd .ssh 
+                    ls -lA | ls -la         // A 不显示 . 和 .. 的目录文件
+                        *.pub 是公钥文件 
+                        另一个是私钥文件
+                3. 复制公钥文件 
+                    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys     // >> 是追加文件内容
+                4. 查看文件权限 
+                    cd ~/.ssh
+                    ls -l
+                5. 修改 authorized_keys 文件的权限 
+                    chmod 600 ~/.ssh/authorized_keys
+                    ls -l authorized_keys   再次查看权限修改后的样子
+                6. 将 authorized_keys 文件复制到 master 和 slave01 节点的 .ssh/ 中, 并覆盖原先的 authorized_keys 文件 
+                    scp authorized_keys icss@slave01:~/.ssh/ 
+                    scp authorized_keys icss@master:~/.ssh/ 
+                7. 确认 master/slave01/slave02 中 authorized_keys 的权限
+                    在每台机器上的 .ssh/ 目录中, ls -l, authorized_keys 保证权限是 600.
+                        视需要, chmod 600 authorized_keys
+        2. 验证: 
+            1. 验证 authorized_keys 文件内容, 应该包含 master/slave01/slave02 的公钥信息
+                master/slave01/slave02 中: 
+                    cat /home/icss/.ssh/authorized_keys 
+            2. 验证 ssh 免密登录 
+                HadoopMaster | HadoopSlave01 | HadoopSlave02, 分别执行以下命令: 
+                    ssh master 
+                    ssh slave01 
+                    ssh slave02 
+                都是不需要输入密码, 实现 ssh 免密码登录. 
+    6. 关闭防火墙 
+        0. 目的: 
+            关闭防火墙, 分布式集群必须配置!
+            关闭防火墙操作, 建议在 root 用户下执行.
+            Cent OS 7 防火墙以系统服务的形式存在
+        --- 以下操作 HadoopMaster/HadoopSlave01/HadoopSlave02 均要实现 
+        1. 配置过程: 
+            0. 切换用户: 
+                su root 
+            1. 关闭防火墙
+                systemctl stop firewalld.service           #停止firewall
+                systemctl disable firewalld.service     #禁止firewall开机启动
+        2. 验证: 
+            https://linux.cn/article-5926-1.html
+            systemctl list-unit-files                           #列出所有可用单元
+                systemctl list-unit-files --type=service    #列出所有服务（包括启用的和禁用的）
+            systemctl list-units                            #列出所有运行中单元
+            systemctl status firewalld.service            #显示一个服务的状态
+            systemctl is-enabled firewalld.service         #查看服务是否开机启动
+            systemctl is-active httpd.service              #查看服务是否可用
+            # systemctl start httpd.service         启动
+            # systemctl restart httpd.service       重启
+            # systemctl stop httpd.service          停止
+            # systemctl reload httpd.service        重载
+            # systemctl status httpd.service        检查状态
+    至此，为了准备安装 Hadoop 所作的前期准备工作均已完成。
+		！！！问题：1.路径 2.java环境变量 3.root关闭防火墙没用反应 4.一定要ssh之后exit
+		            5.在用户icss下执行 ssh  master  == ssh icss@master
+					  由于每台虚拟机的用户名不一致
+					  icss1  master      ssh slave01    用icss1账号登录slave01 
+					  icss2  slave01
+					  icss3  slave02
+					  ssh slave01   ssh  icss2@slave01
+					  ssh master    ssh  icss1@master
+					  环回网卡按不了  安装windows10的更新包
+					  安装centos7 虚拟机的时候安装过程出现直接重新下载镜像
+					  6. Hadoop 3.x 安装说明 
+    安装之前, 需要明确几个点: 安装方式, Hadoop 三种运行模式, 运行 Hadoop 的用户, Hadoop 下载, 相关配置 
+    0. 安装方式: 
+        1. 确定运行模式 
+        2. 确定运行用户 
+        3. 下载 Hadoop 安装文件 
+        4. 上传 Hadoop 安装文件 
+        5. 解压 Hadoop 安装文件 
+        6. 配置: 
+            配置 xml 文件, 配置集群组成文件, 配置 Linux 环境变量, 配置 Hadoop 环境变量 
+    1. Hadoop 三种运行模式 
+        1. 独立(本地)模式: 
+            无需任何守护进程, 所有程序都在同一个 JVM 上执行. 
+            一般在独立模式下测试和调试 MapReduce 程序, 多在开发阶段使用该模式. 
+        2. 伪分布模式: 
+            Hadoop 守护进程运行在本地机器上, 模拟一个小规模的集群. 
+            此种方式，特别针对部分同学机器性能不能支撑的情况，后面可以采用此种模式进行操作。
+        3. 集群(全分布)模式: 
+            Hadoop 守护进程运行在一个集群的多台机器上. 
+        思考: 守护进程是什么? 有什么? 
+    2. 运行 Hadoop 的用户 
+        一般以指定用户用户运行 Hadoop, 即以指定用户执行 Hadoop 的守护进程. 
+        我们的例子的, 使用 icss 用户. 
+    3. Hadoop 下载: 
+        1. Apache Hadoop 
+            http://hadoop.apache.org/index.html 
+        2. Hadoop releases 
+            http://hadoop.apache.org/releases.html 
+        3. 下载 hadoop-3.1.2
+            1 - 安装文件： hadoop-3.x.x.tar.gz 
+            2 - 源代码： hadoop-3.x.x-src.tar.gz
+    4. 相关配置: 
+        Hadoop 的各个组件均可以利用 XML 文件进行配置, 相关的 XML 文件如下: 
+            1. core-site.xml 
+                核心配置文件, 用于配置核心通用属性. 
+            2. hdfs-site.xml 
+                hdfs 配置文件, 用于配置 HDFS 属性. 
+            3. mapred-site.xml 
+                MapReduce 配置文件, 用于配置 MapReduce 属性. 
+            4. yarn-site.xml 
+                YARN 配置文件, 用于配置 YARN 资源管理框架属性.
+        上述 XML 配置文件均在 Hadoop 安装路径下的 etc/hadoop 子目录中. 
+        除此之外，还有集群分布式模式，还有涉及其他配置文件和配置方法。
+    
+7. 独立(本地)模式配置和部署 
+    这种模式，只需要在 master 机器上单机执行，即可。 
+    说明：之前，我已经将前面的配置的虚拟机备份了，做完本次操作后，只需要还原到上一步状态，就可以进行后面的 8 、 9 的操作。
+    所有操作用户均为: icss 
+    所有操作均在 master 上执行：只启动 master 
+    下载, 上传, 解压, 配置, 运行, 验证. 
+    0. 下载 如上. 
+    1. 上传 
+        上传 Hadoop 安装文件 hadoop-3.1.2.tar.gz 到 HadoopMaster 的主目录的 software 目录下. 
+    2. 解压 
+        转到当前icss用户的主目录
+        cd 
+        将software目录下的hadoop-3.1.2.tar.gz文件移动到icss用户的主目录下
+        mv ~/software/hadoop-3.1.2.tar.gz ~/
+        解压文件
+        tar -xzvf hadoop-3.1.2.tar.gz
+        将解压生成的hadoop-3.1.2文件夹改名为hadoop3
+        mv hadoop-3.1.2 hadoop3
+    3. 配置环境 
+        1. 配置 Hadoop 环境
+            vi  ~/hadoop3/etc/hadoop/hadoop-env.sh 
+            == 加入：
+            export JAVA_HOME=/usr/java/jdk1.8.0_211
+            == 修改权限
+            chmod +x hadoop-env.sh 
+            == 执行 
+            ./hadoop-env.sh
+        2. 配置 Linux 环境 
+            编辑./bash_profile 
+                提供 JAVA_HOME 和 HADOOP_HOME 目录, 
+                增加 PATH 路径：JAVA_HOME/bin, HADOOP_HOME/bin, HADOOP_HOME/sbin
+            方法: (以 ./bash_profile 文件为例)
+                cd  返回当前用户主目录
+                vi .bash_profile
+                == 加入： 
+                    export HADOOP_HOME=$HOME/hadoop3
+                    export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+                    export  HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native:$HADOOP_COMMON_LIB_NATIVE_DIR"
+                    export YARN_HOME=$HOME/hadoop3
+                    export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    export YARN_CONF_DIR=$YARN_HOME/etc/hadoop
+                    export HDFS_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    export PATH=.:$JAVA_HOME/lib:$HADOOP_HOME/sbin:$HADOOP_HOME/bin:$PATH
+                使用: source  .bash_profile 
+    4. 运行 & 验证: 
+        以 icss 用户完成本操作
+        cd 
+        hadoop  运行 hadoop 即可出现用法提示，表示生效。
+            hadoop version
+        == 运行: 
+            0. 让运行环境变量生效
+                source .bash_profile
+                只用在不运行守护进程是才需要执行下述操作
+                    在 ~/hadoop3/etc/hadoop/ 目录下, 执行 
+                        ./hadoop-env.sh 
+            1. 运行 
+                1. 运行守护进程 ( 独立(本地)模式 不需要)
+                2. 运行应用程序 (即: 运行应用程序进行验证)
+        ==验证： 
+        1. 测试文件正则式匹配：实际上是执行了一个 MapReduce 的操作 
+            cd 
+            cd hadoop3
+            mkdir input
+            cp etc/hadoop/*.xml input/
+            hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.2.jar grep input output/xml 'dfs[a-z.]+'
+            'dfs[a-z.]+' 这个是一个正则表达式！
+            cat output/xml/*
+        2. 测试计算PI值
+            cd 
+            cd hadoop3 
+            hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.2.jar pi 100 1000000
+            值可以先给的小一点。。。再给的大一点，求PI会精确些。
+            hadoop jar share/hadoop/mapreduce/hadoop-*-examples-3.1.2.jar pi 100 1000000
+            参看： 
+                《通过扔飞镖也能得出PI的值？》
+                http://blog.csdn.net/minglaihan/article/details/38942263
+                http://san-yun.iteye.com/blog/2018348
+                https://www.evget.com/article/2014/9/10/21564.html
+                http://blog.sina.com.cn/s/blog_61ef49250100v44t.html
+        做完本次操作后，会将当前master备份。
+		    问题：Hadoop java.lang.OutOfMemoryError: Java heap space的解决方法
+            解决方法：
+			修改hadoop_env.sh（/etc/hadoop/hadoop_env.sh或者hadoop/conf/hadoop_env.sh）
+            export HADOOP_CLIENT_OPTS="-Xmx2048m"
+			./hadoop-env.sh
+		8. 伪分布式模式配置和部署
+    所有操作用户均为: icss 
+    所有操作均在 master 上执行 ，只启动 master 即可。 
+    下载, 上传, 解压, 配置, 运行, 验证. 
+    0. 验证环境准备 
+        ssh localhost 
+    1. 下载\上传\解压 
+        移动
+        mv ~/software/hadoop-3.1.2.tar.gz ~/
+        解压
+        tar -xzvf ~/hadoop-3.1.2.tar.gz 
+        目录改名
+        mv ~/hadoop-3.1.2 ~/hadoop3
+    2. 配置 & 运行 
+        伪分布式配置，需要配置 3 个部分：配 Hadoop 运行环境、配 Linux 运行环境、配 Hadoop 的 xml 配置文件
+        1. 配置: 
+            1. 配置 Hadoop 运行环境 : hadoop-env.sh
+                vi ~/hadoop3/etc/hadoop/hadoop-env.sh 
+                加入:
+                    # 设置 JAVA_HOME 环境变量, 可以使用 Linux 的 ~/.bash_profile 设置的环境变量, 推荐使用此处配置
+                    export JAVA_HOME=/usr/java/jdk1.8.0_211
+
+            2. 配置 Linux 运行环境 : ~/.bash_profile 
+                vi ~/.bash_profile
+                加入: 
+                    # for Hadoop
+                    export HADOOP_HOME=$HOME/hadoop3
+                    export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+                    export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native:$HADOOP_COMMON_LIB_NATIVE_DIR"
+                    export YARN_HOME=$HOME/hadoop3
+                    export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    # export YARN_CONF_DIR=$YARN_HOME/etc/hadoop
+                    # YARN_CONF_DIR 是降级的环境变量, 应该用 HADOOP_CONF_DIR 替换
+                    export HDFS_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                                        
+                    export PATH=.:$JAVA_HOME/lib:$HADOOP_HOME/sbin:$HADOOP_HOME/bin:$PATH
+            3. 配置 xml 文件 之一: 配置 Hadoop核心和分布式文件系统
+                1. vi ~/hadoop3/etc/hadoop/core-site.xml 
+                    加入: 
+                        <configuration>
+                          <property>
+                            <name>fs.defaultFS</name>
+                            <value>hdfs://master:9000</value>
+                            <description>
+							!!!删除
+                                设置分布式文件系统的访问端口号, 此处必须设置为 localhost
+                            </description>
+                          </property>
+                        </configuration>
+                2. vi ~/hadoop3/etc/hadoop/hdfs-site.xml 
+                    加入: 
+                        <configuration>
+                          <property>
+                            <name>dfs.replication</name>
+                            <value>1</value>
+                            <description>
+                                设置分布式文件系统的文件分块的复制块数, 推荐最大设置为3且不能大于集群中 Datanode 节点的数量
+                                此处为单机版的伪分布式模式, 只有一个节点, 故此设置为 1 
+                            </description>
+                          </property>
+                        </configuration>
+
+                /// 运行 & 启动 Hadoop HDFS 
+                    *** 日志: /home/icss/hadoop3/logs
+                    0. 让运行环境变量生效
+                        source .bash_profile
+                    1. 启动 Hadoop HDFS 
+                        1. 格式化 HDFS文件系统, 首先格式 namenode (! 最初只做一次)
+                            hdfs namenode -format 
+                            只要都是 INFO 的信息，就是没有错误。
+                        2. 启动守护进程(Hadoop 的 HDFS 的守护进程)
+                            start-dfs.sh 
+                            // 退出守护进程(Hadoop 的 HDFS 的守护进程)
+                            stop-dfs.sh 
+                    3. 验证: 
+                        jps
+                            1569 NameNode
+                            1861 SecondaryNameNode
+                            1672 DataNode
+                            有这三个进程，就是配置正确了！前面的进程号不重要。
+                        http://localhost:9870
+                            这个操作执行不了， 因为我们使用字符界面。
+                        hdfs dfsadmin -report       // 查看 hdfs 的信息
+
+            3. 配置 xml 文件 之二: 配置 MapReduce 和 YARN
+                3. vi ~/hadoop3/etc/hadoop/mapred-site.xml
+                    加入: 
+                    <configuration>
+                        <property>
+                            <name>mapreduce.framework.name</name>
+                            <value>yarn</value>
+                        </property>
+						<property>
+							<name>mapreduce.application.classpath</name>
+							<value>/home/icss/hadoop3/etc/hadoop:/home/icss/hadoop3/share/hadoop/common/lib/*:/home/icss/hadoop3/share/hadoop/common/*:/home/icss/hadoop3/share/hadoop/hdfs:/home/icss/hadoop3/share/hadoop/hdfs/lib/*:/home/icss/hadoop3/share/hadoop/hdfs/*:/home/icss/hadoop3/share/hadoop/mapreduce/lib/*:/home/icss/hadoop3/share/hadoop/mapreduce/*:/home/icss/hadoop3/share/hadoop/yarn:/home/icss/hadoop3/share/hadoop/yarn/lib/*:/home/icss/hadoop3/share/hadoop/yarn/*</value>
+						</property>
+                    </configuration>
+                4. vi ~/hadoop3/etc/hadoop/yarn-site.xml
+                    加入: 
+                        <configuration>
+							<property>
+								<name>yarn.nodemanager.aux-services</name>
+								<value>mapreduce_shuffle</value>
+							</property>
+							<property>
+							<property>
+								<name>yarn.resourcemanager.address</name>
+								<value>master:18040</value>
+							</property>
+							<property>
+								<name>yarn.resourcemanager.scheduler.address</name>
+								<value>master:18030</value>
+							</property>
+							<property>
+								<name>yarn.resourcemanager.resource-tracker.address</name>
+								<value>master:18025</value>
+							</property>
+							<property>
+								<name>yarn.resourcemanager.admin.address</name>
+								<value>master:18141</value>
+							</property>
+							<property>
+								<name>yarn.resourcemanager.webapp.address</name>
+								<value>master:18080</value>
+								</property>
+							</property>
+							<property>
+								<name>yarn.application.classpath</name>
+								<value>
+								/home/icss/hadoop3/etc/hadoop:/home/icss/hadoop3/share/hadoop/common/lib/*:/home/icss/hadoop3/share/hadoop/common/*:/home/icss/hadoop3/share/hadoop/hdfs:/home/icss/hadoop3/share/hadoop/hdfs/lib/*:/home/icss/hadoop3/share/hadoop/hdfs/*:/home/icss/hadoop3/share/hadoop/mapreduce/lib/*:/home/icss/hadoop3/share/hadoop/mapreduce/*:/home/icss/hadoop3/share/hadoop/yarn:/home/icss/hadoop3/share/hadoop/yarn/lib/*:/home/icss/hadoop3/share/hadoop/yarn/*
+								</value>	
+							</property>
+						</configuration>
+
+        /// 运行 & 启动 Hadoop  
+            *** 日志: /home/icss/hadoop3/logs
+            1. 启动 Hadoop HDFS 
+                1. 启动守护进程(Hadoop 的 HDFS 的守护进程)
+                    start-dfs.sh 
+                    // 退出守护进程(Hadoop 的 HDFS 的守护进程)
+                    stop-dfs.sh 
+            2. 启动 Hadoop YARN 
+                2. 启动守护进程(Hadoop 的 MapReduce & YARN 的守护进程)
+                    start-yarn.sh 
+                    // 退出守护进程(Hadoop 的 MapReduce & YARN 的守护进程)
+                    stop-yarn.sh 
+        -- 启动全部守护进程 : start-all.sh
+        -- 退出全部守护进程 : stop-all.sh
+        
+        2. 验证: 
+            jps
+            http://localhost:9870
+            yarn resourcemanager -status    // 查看 YARN 的ResourceManager 节点的状态
+        /*
+            start-all.sh 和 start-dfs.sh & start-yarn.sh 自己看下！
+                参看: https://www.cnblogs.com/zhwl/p/3670997.html
+                关键内容: 
+                    start-all.sh脚本现在已经废弃，推荐使用start-dfs.sh和start-yarn.sh分别启动HDFS和YARN。
+                    在新一代的Hadoop里面HDFS称为统一存储的平台，而YARN称为统一计算的平台。
+                    （1）调用start-dfs.sh启动HDFS。之后JPS会出现NameNode,DataNode,SecondaryNameNode
+                    （2）调用start-yarn.sh启动YARN。之后JPS会出现ResourceManager,NodeManager
+                    对于每个start脚本首先甚至启动过程中用到的所有脚本，首先都是调用libexec/hadoop-config.sh配置相关环境变量
+                    hadoop-config.sh
+                        设置各种环境变量，包括：
+                            HADOOP_PREFIX   整个Hadoop的安装目录
+                            HADOOP_CONF_DIR   配置文件的目录，一般是Hadoop安装目录下的etc/hadoop/
+                            JAVA_HOME   从操作系统环境变量获取，但是在SSH登陆到slave节点可能会出现问题，所以推荐在hadoop-env.sh中也设置一下。
+                            JAVA_HEAP_MAX   启动每个JVM默认的堆大小，目前是-Xmx1000m
+                            CLASSPATH   找Jar包的地方，一般情况下Jar包存在Hadoop安装目录下的share/hadoop/目录下的common,hdfs,httpfs,mapreduce,tools几个子目录下
+                            HADOOP_LOG_DIR 就是存放日志的地方，默认是Hadoop安装目录下的logs目录，这个很重要，运行中出了问题都是要通过log定位的。
+                                NameNode，DataNode，SecondNameNode，ResourceManager，NodeManager的日志默认都在这个目录下。
+                                不过要注意默认的container的log是在/tmp/logs目录下。
+                            HADOOP_LOGFILE
+                            HADOOP_POLICYFILE
+                            JAVA_LIBRARY_PATH  Java运行时需要通过JNI调用native lib的环境变量。因为在Hadoop代码中与操作系统紧密相关的一些操作和一些压缩算法是有通过C编写的native的系统实现的。就是libhadoop.so和libhdfs.so这样的系统库，通常放在Hadoop安装目录下的lib/native/里面。
+                            HADOOP_OPTS  这个是启动每个JVM时传递过去的参数
+                            HADOOP_COMMON_HOME
+                            HADOOP_HDFS_HOME
+                            YARN_HOME
+                            HADOOP_MAPRED_HOME
+                                这些环境变量是运行Hadoop和YARN程序的环境变量，和把Hadoop安装在哪个目录下有关系。
+                    start-dfs.sh
+                        (1) 执行hdfs-config.sh设置HDFS专有的环境变量。目前没有HDFS专有的环境变量，在这个文件里再次执行了下hadoop-config.sh
+                        (2) 启动参数:upgrade,rollback还是正常启动。
+                        (3) 然后就是分别调用对应的脚本启动对应的模块
+                                NameNode\DataNode\SecondaryNameNode\ZooKeeper Failover
+                            每个模块都是调用hadoop-daemos.sh启动的。
+                            hadoop-daemons.sh和hadoop-daemon.sh的区别是：
+                                前者启动多台机器上的daemon，后者负责在一台机器上启动daemon，前者调用后者。
+                                连接这两着的桥梁就是sbin/workers.sh，就是通过ssh登陆到slave机器上，然后在每台slave机器上执行hadoop-daemon.sh。
+                            首先看看hadoop-daemons.sh
+                                这个脚本的参数类似这样：
+                                    --config /home/orange/hadoop-2.0.0-alpha/etc/hadoop --hostnames localhost --script /home/orange/hadoop-2.0.0-alpha/sbin/hdfs start namenode
+                                因为上面这个例子是启动NameNode，所以带了–hostnames参数，用于指明分别到哪台机器上去运行hadoop-daemon.sh去启动namenode。
+                                如果是启动DataNode则不需要这个参数，因为如果不设定这个参数，会通过读取etc/hadoop/workers文件获取slaves机器信息。
+                                这个脚本的最后有个非常长的命令：
+                                    exec "$bin/workers.sh" --config $HADOOP_CONF_DIR cd "$HADOOP_PREFIX" \; "$bin/hadoop-daemon.sh" --config $HADOOP_CONF_DIR "$@"
+                                这个命令表示：在本shell内执行workers.sh脚本，参数是后面那么一堆东西。
+                                workers.sh接收到的参数：
+                                    --config /home/orange/hadoop-2.0.0-alpha/etc/hadoop cd /home/orange/hadoop-2.0.0-alpha ; /home/orange/hadoop-2.0.0-alpha/sbin/hadoop-daemon.sh 
+                                    --config /home/orange/hadoop-2.0.0-alpha/etc/hadoop --script /home/orange/hadoop-2.0.0-alpha/sbin/hdfs start namenode
+                                在这个脚本里面通过ssh登陆到各个slave节点上，然后执行后面的cd进入slave节点的Hadoop安装目录，然后调用hadoop-daemon.sh去执行对应的操作。
+                                hadoop-daemon.sh的参数是
+                                    localhost: --config /home/orange/hadoop-2.0.0-alpha/etc/hadoop --script /home/orange/hadoop-2.0.0-alpha/sbin/hdfs start namenode
+                                执行hadoop-env.sh设置环境变量，因为即将启动的JVM是由这个shell启动的，所以这个环境变量会传给JVM。
+                                配置启动单点NameNode或者DataNode的运行环境：
+                                除了hadoop-config.sh里面的以外还有HADOOP_LOG_DIR，HADOOP_PID_DIR，HADOOP_IDENT_STRING等，
+                                这些都是与运行这个daemon的本机相关的变量
+                                最后通过
+                                    nohup nice -n $HADOOP_NICENESS $hdfsScript --config $HADOOP_CONF_DIR $command "$@" > "$log" 2>&1 < /dev/null &
+                                    启动对应的进程，也就是hdfs start namenode命令。其实是调用 bin/hdfs脚本，启动JVM。
+                                hadoop-daemon.sh这个脚本是在每台机器上启动各种JVM前的准备工作，包括设置环境变量什么的。
+                                因为每个脚本基本都会调用hadoop-config.sh，这个也不例外，
+                                所以一般情况下hadoop-config.sh里面的环境变量。
+                                但是从实际使用经验来看，由于操作系统和SSH的问题，会导致SSH登陆到slave节点之后执行shell脚本的时候获取系统环境变量失效的问题。例如，$JAVA_HOME环境变量，看hadoop-config.sh这个文件可知$JAVA_HOME直接从操作系统环境变量获取。
+                                但是当hadoop-daemons.sh调用workers.sh通过ssh登陆到各个slave节点之后去执行hadoop-daemon.sh时，在获取$JAVA_HOME时出现失败的情况。而如果在对应的那台机器上执行 echo $JAVA_HOME是没有问题的。也就是SSH之后的环境变量获取失败。
+                                    debian上就出现了这个问题，而在CentOS上却没有这样的问题。
+                                    通过搜索网络得知是因为~/.bashrc不会被SSH调用，而~/.bash_profile或者~/.profile是会被SSH调用的。
+                                    所以需要在~/.bash_profile或者~/.profile中通过类似下面的语句执行~/.bashrc
+                                        if [ -f ~/.bashrc ]; then
+                                        . ~/.bashrc
+                                        fi
+                                hadoop社区为了防止类似的问题，也做了很严谨的策略。在SSH登陆到每台slave之后，都会去调用hadoop-env.sh。
+                                这个文件很重要啊。
+                                    要在这个hadoop-env.sh文件里设置$JAVA_HOME，但是系统环境变量里已经设置了$JAVA_HOME，难道一个应用程序的环境变量比系统的还管用？
+                                    所以就试了下这个hadoop-env.sh不设置$JAVA_HOME，结果就出现了上面所说的问题。
+                                    看来hadoop-env.sh正如其名，有关Hadoop的环境变量应该设置在这里，这样才能在无论什么样的底层系统环境下都能稳定运行。
+                    start-yarn.sh
+                        注意到这个脚本里不再执行hadoop-config.sh，而是执行yarn-config.sh。配置环境变量。
+                            （实际上yarn-config.sh还是会调用hadoop-config.sh的）
+                            "$bin"/yarn-daemon.sh --config $YARN_CONF_DIR  start resourcemanager
+                        指定日志和pid的格式，也就是：yarn-orange-nodemanager-orange.log
+                            yarn-orange-resourcemanager-orange.log
+                            yarn-orange-nodemanager.pid
+                            yarn-orange-resourcemanager.pid
+                        通过执行下面这行代码，启动ResourceManager对应的JVM
+                            nohup nice -n $YARN_NICENESS "$YARN_HOME"/bin/yarn --config $YARN_CONF_DIR $command "$@" &gt; "$log" 2&gt;&amp;1 &lt; /dev/null &amp;
+                            "$bin"/yarn-daemons.sh --config $YARN_CONF_DIR  start nodemanager
+                            和启动DataNode类似，也是通过SSH到每台slave节点上之后，执行yarn-daemon.sh启动对应的NodeManager。
+                            exec "$bin/slaves.sh" --config $YARN_CONF_DIR cd "$YARN_HOME" \; "$bin/yarn-daemon.sh" --config $YARN_CONF_DIR "$@"
+                        注意这里面也存在和上面一样的问题，所以推荐在yarn-env.sh里面也设置相关环境变量，要不然就会出现启动Job的时候找不到类。。。
+                         !!总的来说这个启动过程分为多个层次，分别是：整个集群级别的配置，单台机器OS级别的配置，单个JVM级别的配置。
+                            对那句话“系统总是不可靠的，我们要通过软件冗余来使得系统更加可靠”有了更深层次的认识。
+        */
+        至此，伪分布式模式安装配置完成。 
+        备份，并还原，以便 集群（分布式）的安装。
+		算pi出现内存不够的错误：配置 yarn-site.xml
+		<property>
+			<name>mapreduce.map.memory.mb</name>
+			<value>4096</value>
+			<source>mapred-default.xml</source>
+		</property>
+		<property>
+			<name>mapreduce.reduce.memory.mb</name>
+			<value>4096</value>
+			<source>mapred-default.xml</source>
+		</property>
+9. 集群(全分布)模式配置和部署 
+    安装的总体思路:
+        icss 在 master 完成配置, 并将相关的配置文件复制到其他集群中的机器上
+    00. 概述： 
+        0. 所有的操作都是 icss 用户， 切换 icss 用户命令： 
+            su - icss
+        1. 每个节点 Hadoop 配置基本相同
+            在 HadoopMaster 节点操作， 然后复制到其他节点上。 
+        2. Hadoop 3 需要配置的文件有: 
+            hadoop-env.sh、yarn-env.sh、
+            core-site.xml、hdfs-site.xml、yarn-site.xml、mapred-site.xml、
+            workers
+    0. 当前状态: 启动三台虚拟机。
+        三台准备环境配置完成, 所有的网络互通
+    1. 下载\上传\解压 
+        同上 只上传到 master 下 icss 的 software目录下
+    2. 配置 & 运行 
+        1. 配置 Hadoop 运行环境 
+            !! 这两个环境变量, 主要是为了在 ssh 方式下安装 slave 节点的时候使用, 参看前面的描述. 
+            vi ~/hadoop3/etc/hadoop/hadoop-env.sh
+            加入:
+                export JAVA_HOME=/usr/java/jdk1.8.0_211
+            同时删除
+                export JAVA_HOME=${JAVA_HOME}       这句话也可能没有
+            vi ~/hadoop3/etc/hadoop/yarn-env.sh
+            加入:
+                export JAVA_HOME=/usr/java/jdk1.8.0_211
+        2. 配置 xml 配置文件  ~/hadoop3/etc/hadoop 目录下
+            1. core-site.xml 
+                <configuration>
+                  <property>
+                    <name>fs.defaultFS</name>
+                    <value>hdfs://master:9000</value>
+                  </property>
+                  <property>
+                    <name>hadoop.tmp.dir</name>
+                    <value>/home/icss/hadoopdata</value>
+                  </property>
+                </configuration>
+                !! 记得创建 /home/icss/hadoopdata 目录 
+            2. hdfs-site.xml 
+                <configuration>
+                  <property>
+                    <name>dfs.replication</name>
+                    <value>2</value>
+                  </property>
+                 <!-- 取消“访问控制检查”, 保证WebUI模式可以进行文件上传 -->
+                <property>
+                    <name>dfs.permissions</name>
+                    <value>false</value>
+                </property> 
+                </configuration>
+            -- Web 模式下, 上传文件报错: Couldn't upload the file
+                参看: https://blog.csdn.net/bikun/article/details/25506489
+                1. 开放“/user”目录的“写”权限
+                    hadoop  fs  -chmod  777  /user
+                2. 在 hdfs-site.xml 中, 取消“访问控制检查” 
+                    加入: 
+                    <property>
+                        <name>dfs.permissions</name>
+                        <value>false</value>
+                    </property> 
+            3. yarn-site.xml 
+                    ** hadoop classpath 获取 参数 mapreduce.application.classpath 的 value 的值
+                <configuration>
+                    <property>
+                        <name>yarn.nodemanager.aux-services</name>
+                        <value>mapreduce_shuffle</value>
+                        <description>
+                        NodeManager上运行的附属服务。需配置成mapreduce_shuffle，才可运行MapReduce程序。
+                        </description>
+                    </property>
+                        
+                    <property>
+                        <name>yarn.resourcemanager.address</name>
+                        <value>master:18040</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.scheduler.address</name>
+                        <value>master:18030</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.resource-tracker.address</name>
+                        <value>master:18025</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.admin.address</name>
+                        <value>master:18141</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.webapp.address</name>
+                        <value>master:18080</value>
+                    </property>
+                    <property>
+                    <name>yarn.application.classpath</name>
+                    <value>/home/icss/hadoop3/etc/hadoop:/home/icss/hadoop3/share/hadoop/common/lib/*:/home/icss/hadoop3/share/hadoop/common/*:/home/icss/hadoop3/share/hadoop/hdfs:/home/icss/hadoop3/share/hadoop/hdfs/lib/*:/home/icss/hadoop3/share/hadoop/hdfs/*:/home/icss/hadoop3/share/hadoop/mapreduce/lib/*:/home/icss/hadoop3/share/hadoop/mapreduce/*:/home/icss/hadoop3/share/hadoop/yarn:/home/icss/hadoop3/share/hadoop/yarn/lib/*:/home/icss/hadoop3/share/hadoop/yarn/*</value>
+                    </property>
+                </configuration>
+                注意： Hadoop 3.0 必须加入 yarn.application.classpath 节点配置，否则会在使用 yarn 执行 MapReduce 时出现找不到类的错误。 
+                    获取全部的 classpath 方法，执行：
+                        hadoop classpath
+                        此时还没有配置 hadoop 的信息，所以报错。一会看！
+                        获取一个输出，将该输出内容设置为
+                            yarn-siet.xml中yarn.application.classpath的值。
+                            而且要使用硬编码目录信息， 不能在 Hadoop 配置文件中使用$方式的环境变量。
+                == 参考： http://wenda.chinahadoop.cn/question/3069
+            4. mapred-site.xml 
+                    ** hadoop classpath 获取 参数 mapreduce.application.classpath 的 value 的值
+                <configuration>
+                  <property>
+                    <name>mapreduce.framework.name</name>
+                    <value>yarn</value>
+                  </property>
+                  <property>
+                    <name>mapreduce.application.classpath</name>
+                    <value>/home/icss/hadoop3/etc/hadoop:/home/icss/hadoop3/share/hadoop/common/lib/*:/home/icss/hadoop3/share/hadoop/common/*:/home/icss/hadoop3/share/hadoop/hdfs:/home/icss/hadoop3/share/hadoop/hdfs/lib/*:/home/icss/hadoop3/share/hadoop/hdfs/*:/home/icss/hadoop3/share/hadoop/mapreduce/lib/*:/home/icss/hadoop3/share/hadoop/mapreduce/*:/home/icss/hadoop3/share/hadoop/yarn:/home/icss/hadoop3/share/hadoop/yarn/lib/*:/home/icss/hadoop3/share/hadoop/yarn/*</value>
+                  </property>
+                </configuration>
+                注意： Hadoop 3.x 必须加入 mapreduce.application.classpath 节点配置，否则会在使用 yarn 执行 MapReduce 时出现找不到类的错误。
+                    获取全部 classpath 的方法， 类似上面yarn-site.xml 的方法。
+                == 参考： https://www.cnblogs.com/forbeat/p/8179877.html
+        3. 配置集群组成的声明文件  (以前是slaves)
+            vi ~/hadoop3/etc/hadoop/workers 
+                删掉原先的 localhost 
+            加入: 
+                slave01
+                slave02
+        ---- 将上述 master 上的 Hadoop 相关配置, 复制到集群中其他节点上
+                -r 表示连子目录一起复制，因为配置了 ssh 免密，所以批量复制不需要密码。
+            scp -r hadoop3 slave01:~/
+            scp -r hadoop3 slave02:~/
+        4. 配置 Linux 运行环境 
+            -- master 
+                vi ~/.bash_profile, 加入:
+                    export HADOOP_HOME=$HOME/hadoop3
+                    export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+                    export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native:$HADOOP_COMMON_LIB_NATIVE_DIR"
+                    export YARN_HOME=$HOME/hadoop3
+                    export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    #export YARN_CONF_DIR=$YARN_HOME/etc/hadoop
+                    export HDFS_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    export PATH=.:$JAVA_HOME/lib:$HADOOP_HOME/sbin:$HADOOP_HOME/bin:$PATH  
+                运行, 让环境变量起作用
+                    source .bash_profile 
+            -- slave01 & slave02 同上
+        !!! 在集群所有节点上, 创建 hadoopdata 目录
+            mkdir /home/icss/hadoopdata 
+        === 启动集群, master 上执行 
+            格式化 namenode (首次启动集群之前, 执行一次)
+                hdfs namenode -format 
+                都是 INFO 就是成功的。 
+            启动守护进程: 
+                start-all.sh 
+            停止守护进程: (停止 Hadoop)
+                stop-all.sh 
+            --- 停止 Hadoop 集群的时候 ,报错: WARNING: nodemanager did not stop gracefully after 5 seconds: Trying to kill with kill -9
+                参看:http://blog.sina.com.cn/s/blog_ad795db30102w4a8.html
+                解决方法：这个可以不用管，可以先不做。
+                    在所有的节点上: 　
+                    1. 在 Hadoop 安装目录中, 创建保存所有的守护进程的进程id的目录 pid 
+                        mkdir /home/icss/hadoop3/pid 
+                    2. 在 sbin/hadoop-daemon.sh 脚本中添加保存守护进程id的目录位置的声明 
+                        # 设置保存守护进程id的目录位置
+                        HADOOP_PID_DIR=/home/icss/hadoop3/pid
+                    3. 修改 sbin/yarn-daemon.sh, 添加保存所有的守护进程的进程id的目录 pid 
+                        # 设置保存守护进程id的目录位置
+                        YARN_PID_DIR=/home/icss/hadoop3/pid
+    3. 验证 & 简单操作
+        1. jps -- 集群所有节点的守护进程正常运行的, 进程号可能不同
+            [icss@master ~]$ jps
+                4672 Jps
+                3896 NameNode
+                4139 SecondaryNameNode
+                4367 ResourceManager
+                正确！
+            [icss@slave01 ~]$ jps
+                3480 NodeManager
+                3609 Jps
+                3355 DataNode
+                正确！
+            [icss@slave02 ~]$ jps
+                3312 DataNode
+                3449 NodeManager
+                3578 Jps
+                正确！ 
+        2. hadoopdata 数据目录 
+            master : dfs/name & dfs/namesecondary
+            slave01 : dfs/data
+            slave02和slave01 也是一样
+        3. 查看活跃节点个数 ： 
+            WebUI 
+                http://master:9870/
+                在 windows 宿主机中执行，使用 master 的IP地址
+            建议在 外部的Windows宿主机中配置 hosts文件：
+                
+            CLI
+                hdfs dfsadmin -report
+        4. 操作 HDFS 
+            hdfs dfs -ls /
+            hdfs dfs -mkdir /user
+                逐一创建 /user/icss/input 
+            hdfs dfs -put 本地文件 /user/icss/input 
+        5. MR 
+            1. 算 pi  ===   会较慢
+                hadoop jar hadoop3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.2.jar pi 5 5
+                数字变大，pi会更准确。
+            2. Wordcount 
+                hdfs dfs -put  ~/hadoop3/etc/hadoop/*.xml  /user/icss/input
+                hadoop jar hadoop3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.2.jar grep /user/icss/input /output/xml 'dfs[a-z.]+'
+                hdfs dfs -cat /output/xml/*

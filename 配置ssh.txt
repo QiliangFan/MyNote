@@ -1,0 +1,3 @@
+vi /etc/ssh/sshd_config
+ÐÞ¸Ä #useDNS yes ¸ÄÎª useDNS no
+systemctl restart sshd

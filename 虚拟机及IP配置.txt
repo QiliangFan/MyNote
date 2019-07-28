@@ -1,0 +1,180 @@
+基于 Linux CentOS 7 的 Hadoop 3.1.2 环境搭·建
+1. 卸载 VMWare Workstation 14， 升级为 15
+    0. 原因：14 太慢，有卡顿，15快些，占用资源少。 
+    1. 步骤：
+        1. 关闭 VMWare Workstation 14 服务
+            windows键 + r 
+            输入 services.msc，开启 服务 控制台，停止所有VMWare相关的服务。
+        2. 看下网络配置，里面现在还有 VMWare 的虚拟网卡，一会卸载后，就没有了。
+        3. 进入控制面板，卸载 VMWare Workstation 14。
+            删除后，需要重新启动。
+        4. 验证 卸载 VMWare Workstation 14
+            看服务（没有VMWare的服务）、看网卡（没有VMWare的虚拟网卡）
+        5. 安装 VMWare Workstation Pro 15
+            重启后再验证下（看服务、看网卡）
+
+2. 安装微软环回网卡
+    0. 原因： 保证在没有外网的情况下，Windows宿主机和所有的虚拟机可以借助虚拟的环回网卡进行通讯。
+    1. 步骤：  
+        1. 执行硬件添加向导
+            Windows键 + r
+            输入 hdwwiz，按照向导进行安装
+			网络适配器
+			Microsoft ==》loopback
+        2. 验证安装，查看网卡
+            注意：本次安装，不再禁止原有的wifi网卡，这样可以保证 Windows 宿主机仍然可以上网。
+        3. 设置环回网卡的 IPAddress：
+            IP 地址：192.168.100.100
+            子网掩码：255.255.255.0
+            缺省网关：192.168.100.100
+            DNS：8.8.8.8 和 8.8.4.4 
+        4. 验证：
+            Windows键 + r
+            输入 cmd
+            在命令行窗口，输入： ping 192.168.100.100
+            验证成功。
+        5.如果不按照环回网卡。
+					0.确认你本机的ip地址。
+					1.在后面设置虚拟机的ip地址要和本机的ip地址，同网段，同网关。
+					假设本机的ip地址:
+					 IP 地址： 192.168.100.100（例如：172.168.90.2）
+                     子网掩码：255.255.255.0
+                     缺省网关：192.168.100.100
+					 设置虚拟机的IP地址的时候要
+					 虚拟机的ip地址192.168.100.（1~~254）（172.168.90.3）
+3. 创建虚拟机，安装 Linux 
+    注意：本次安装，为了适应部分同学的机器性能，镜像版本：centos7 1810；安装选择为基础网络版本，后面的所有的操作均没有GUI界面，使用字符界面操作。
+    0. 简单的规划：
+        三台机器：
+            HadoopMaster
+                主机名：master.hadoop
+                IP 地址：192.168.100.10
+                子网掩码：255.255.255.0
+                缺省网关：192.168.100.100
+                DNS：8.8.8.8 和 8.8.4.4 
+            HadoopSlave01
+                主机名：slave01.hadoop
+                IP 地址：192.168.100.11
+                子网掩码：255.255.255.0
+                缺省网关：192.168.100.100
+                DNS：8.8.8.8 和 8.8.4.4 
+            HadoopSlave02
+                主机名：slave02.hadoop
+                IP 地址：192.168.100.12
+                子网掩码：255.255.255.0
+                缺省网关：192.168.100.100
+                DNS：8.8.8.8 和 8.8.4.4 
+    1. 创建虚拟机，安装 Linux - CentOS 7
+        HadoopMaster：
+            创建之后，开始安装。
+            按上箭头，选中，开始安装。
+            安装过程：
+                1. 选择中文
+                2. 选择安装位置
+                3. 选择基础网络版本，所以不选择任何其他
+                4. 设置主机名和IP地址，直接开始安装
+                   此处没有设置主机名和IP地址的位置，后面在字符界面进行设置。
+                5.  root 密码为 root
+                    icss 密码为 icss 
+                    注意：均需要两次点击完成
+                        root 为管理员用户
+						icss 为普通用户
+                5. 重启 
+                6. 现在是字符界面的 Linux CentOS
+                    使用用户 icss/icss 登录
+                7. 关闭虚拟机，退出的 Linux 的命令为：
+                    shutdown now 
+            -- 至此，首台 HadoopMaster 的 Linux 安装完成。
+                选择最小化安装
+            安装上述步骤，依次安装 HadoopSlave01 和 HadoopSlave02
+        HadoopSlave01：
+            此处也先不设置主机名和IP地址。直接开始安装。
+        HadoopSlave02：
+            此处也先不设置主机名和IP地址。直接开始安装。
+          -- 至此，HadoopSlave01 和 HadoopSlave02 的 Linux CentOS 7 初步安装完成。
+    2. 设置主机名和IP地址 
+        HadoopMaster:
+            1. 设置主机名 
+                hostname : 查看主机名
+                    当前主机名为：localhost.localdomain
+                    改为： master.hadoop 
+                hostnamectl set-hostname : 设置主机名 
+                    hostnamectl set-hostname master.hadoop 
+                    需要输入密码
+                    已经改好，重启下虚拟机，看看。
+                        reboot -n 立刻重启Linux
+                    此时 显示 icss@master，说明主机名已经修改
+            2. 设置IP地址 
+                要求以 root 用户操作
+                    su - root   切换为 root 用户 
+                ifconfig ： 查看网卡的名称
+                    ens33 是当前机器的网卡的名称
+                编辑 /etc/sysconfig/network-scripts/ 目录下对应网卡名的文件进行IP嗲之的设置
+                    切换到 /etc/sysconfig/network-scripts/ 目录
+                    ls 列目录
+                        其中的 ifcfg-ens33 文件，编辑该文件设置当前机器的 IP地址等配置
+                        使用 vi 命令编辑该文件
+                            vi ifcfg-ens33 
+                            按 i 键，进入编辑状态
+                            依次修改或添加以下文本：
+                                onboot 表示是否开机就启动网络，改为：yes
+                                bootproto 表示ip地址的获取方式
+                                    现在为 dhcp ，表示使用 DHCP 的方式获取，改为静态获取
+                                    改为：static
+                                添加：针对 HadoopMaster 的ip地址、子网掩码、缺省网关、DNS 
+                                    IPADDR=192.168.100.10   
+                                    NETMASK=255.255.255.0
+                                    GATEWAY=192.168.100.100
+                                    DNS1=8.8.8.8
+                        输入完成后，按 esc 键，输入  :wq!  回车，存盘退出。
+                重启网络服务，让配置生效：
+                    systemctl 控制系统服务的启动、关闭、重启、禁用和查看状态
+                    1. 关闭并且禁用 NetworkManager 服务
+                        查看 NetworkManager 状态 
+                            systemctl status NetworkManager
+                                现在是活跃状态
+                        关闭该服务
+                            systemctl stop NetworkManager
+                        再次查看，已经关闭。
+                        禁用该服务，保证该服务不会开机启动
+                            systemctl disable NetworkManager
+                      -- 禁用该服务的原因是因为该服务会和 network 服务冲突。
+                    2. 重启 network 服务 
+                        systemctl restart network
+                    3. 查看IP地址
+                        ifconfig
+                    4. 重启下虚拟机，再看看IP地址。
+                        ip地址应该还是一样，192.168.100.10
+                        - 在 Windows 宿主机中 ping 192.168.100.10
+                        注意： 
+                            这里有两个小坑：
+                                1. windows 网卡的优先级
+                                    我们现在同时有 wifi 和 loopback 两个网卡，所以很可能在ping的时候，不通
+                                        原因是 windows 可能优先使用 wifi网卡
+                                        解决方法有两个：
+                                            1 - 先禁用wifi网卡，ping下虚拟机，联通后，再启用WiFi网卡
+                                                断开连接即可！
+                                                在 windows 宿主机中 ping 192.168.100.10
+                                                现在网络联通，再连接WiFi。
+                                                再 ping 仍然联通。
+                                                此时：Windows 主机可以借助 WiFi 联网浏览网站；
+                                                    同时借助 loopback 网卡可以和虚拟机联通。
+                                            2 - 设置 Windows 宿主机的多个网卡的优先级，
+                                                Windows 10 中通过设置网卡的跃点值来设置，越小优先级越高。
+                                                    -- 此法不推荐。
+                                                    演示下》如前演示，如果把lookback网卡的跃点数设置的
+                                                        小于WiFi网卡的跃点数，就会优先使用 lookback网卡！
+                                2. 设置Windows宿主机的防火墙配置，保证虚拟机可以ping通windows
+                                    windows 防火墙要关闭：开始==》控制面板==》系统和安全==》windows防火墙==》打开或关闭防火墙==》关闭。
+									简单的关闭防火墙，不可取。 
+                                    在 linux 中 ping windows 主机的loopback 的IP地址 
+                                        ping 192.168.100.100
+                                        现在不通，是因为Windows防火墙的缘故。
+                                    设置 windows 防火墙的入站规则
+                                        此时虚拟机可以ping通外部的Windows宿主机
+                    ===此时，虚拟机和windows 宿主机可以互相借助IP地址ping通
+        HadoopSlave01 和 HadoopSlave02 使用上述步骤，完成主机名和IP地址的设置
+        此时，外部的Windows宿主机和所有的虚拟机之间，均可以借助IP地址互联互通。
+            而且，外部的Windows宿主机可以连接外网浏览
+        此时，初步的虚拟机安装 Linux CentOS 7的字符界面的安装完成。
+        

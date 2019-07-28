@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- <mapper namespace="my.mybatis.dao"> -->
+<mapper namespace="com.test.ssm.dao.UserDao">
+	<select id="findById" parameterType="int" resultType="User">
+		select * 
+		from Users 
+		where id = #{id}
+	</select>
+	<select id="findAll" resultType="User">
+		select * 
+		from Users
+	</select>
+	<insert id="insert" parameterType="User"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into Users 
+		values (null, #{name}, #{age}, #{salary}, #{regtime})
+	</insert>
+	<update id="update" parameterType="User">
+		update Users 
+		set name = #{name}, age = #{age}, salary = #{salary}, regtime = #{regtime} 
+		where id = #{id} 
+	</update>
+	<delete id="delete" parameterType="int">
+		delete from Users 
+		where id = #{id}
+	</delete>
+</mapper>

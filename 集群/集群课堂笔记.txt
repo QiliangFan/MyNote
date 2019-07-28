@@ -1,0 +1,21 @@
+temp 临时文件需要在重新操作时删除
+<name>hadoop.tmp.dir</name>
+<value>/home/liangliang/hadoopdata</value>  则hadoopdata为临时文件存放文件
+
+
+hadoop-site.xml
+<name>```.depre..</name>
+<value>2</value>   //老师使用了3
+
+
+内存硬盘扩容
+（其中有10的那块代码）
+
+
+传递hadoop3
+
+在其余两台上创建hadoopdata文件
+
+三台都要关闭防火墙
+
+格式化

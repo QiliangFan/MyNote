@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- MyBatis 系统全局配置文件 -->
+<configuration>
+	<!-- 0. 读入属性配置文件 -->
+	<properties resource="dbconfig.properties"/>
+	<!-- 1. 设置实体类别名, 实体类别名是伙伴  -->
+	<typeAliases>
+		<typeAlias type="com.test.ssm.domain.po.User" alias="User"/>
+	</typeAliases>
+	<!-- 2. 配置环境，并指定默认的环境 -->
+	<environments default="devlopment">
+		<environment id="devlopment">
+			<!-- 2.1 指明事务管理器 -->
+			<transactionManager type="JDBC"/>
+			<!-- 2.2 指明、设置数据源 -->
+			<dataSource type="POOLED">
+				<!-- 通过四个属性，给出数据源的信息 -->
+				<property name="driver" value="${driver}"/>
+				<property name="url" value="${url}"/>
+				<property name="username" value="${usn}"/>
+				<property name="password" value="${pwd}"/>
+			</dataSource>
+		</environment>
+	</environments>
+	<!-- 3. 指明映射配置文件的名称和位置 -->
+	<!-- 推荐：映射配置文件和实体类同位置，名称实体类名称.xml -->
+	<mappers>
+		<mapper resource="com/test/ssm/domain/po/User.xml"/>
+	</mappers>
+</configuration>

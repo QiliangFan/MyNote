@@ -1,0 +1,15 @@
+cmd中  time显示当前时间
+linux中， date -s “HH:mm:ss yyyy-MM-dd”
+
+
+linux系列：(时钟同步）——保证hdfs存储文件的时间一致：）
+clock --systohc
+clock -w
+date
+
+
+设置host文件：
+添加：
+192.168.100.10 master master.hadoop
+192.168.100.11 slave01 slave01.hadoop
+192.168.100.12 slave02 slave02.hadoop

@@ -1,0 +1,263 @@
+20190726 
+使用 MyBatis 完成 Dao 层的搭建
+0. why&what
+    Spring (IoC|DI、AOP)
+    Spring MVC (替代 Controller)
+    Mybatis(Dao 替代 JDBC)
+    --Springboot
+    介绍内容：
+1. 软件分层
+    单层、两层、三层-多层
+    逻辑分层、物理分层
+    MVC
+    View：视图层
+    Controller：控制器层
+        1. 获取数据
+            视图层|其他控制器传过来的
+        2. 调用方法
+            业务逻辑层的
+        3. 执行跳转(转向、转发)
+            -- 将方法的返回值进行暂存
+            根据方法的返回值
+    Model：模型层
+        biz-impl\dao-jdbcimpl
+        实体类：domain.po
+            model\entity\domain\po\ 
+            vo  dto
+2. ORMapping - 对象关系映射
+    实体：
+        静态 - 属性
+        动态 - 行为
+        实体间的关系：
+            泛化
+            依赖
+            关联关系：1:1、1:n、m:n
+                关联、组合、聚合
+      -- ER 图
+    表：
+        实体表：对应描述实体
+            表(字段|属性<实体>)
+                CRUD
+        对应描述实体间的关系（关系表、也可以借助表中的外键字段）
+        关系：
+            继承可以 - TPC\TPH\TPT
+            //《实现不可以、依赖不可以》
+            关联关系实现：
+                1:n | n:1 - 在多表的一边添加一表的主键字段作为外键字段
+                    图书-出版社
+                    父，一的一边
+                        Presses(id, name, address, empnum)
+                    子，多的一边
+                        Books(id, name, isbn, price, cover, pressId)
+                1:1
+                    人-护照
+                    主，拥有者
+                        Peoples(id, name, age, gender)
+                    从，被拥有的
+                        Passports(id, serialno, expire)
+                    实现方式：
+                        *1 - 唯一索引字段做外键
+                            Peoples(id, name, age, gender, passportId-唯一约束|对该列添加一个唯一索引)
+                            Passports(id, serialno, expire)
+                        2 - 主键做外键（两个表的对应记录的主键id必须相等一致）
+                            Peoples(id, name, age, gender)
+                            Passports(id, serialno, expire)
+                        3 - 新建关系表，至少包含主、从表中的各自主键字段
+                            Peoples(id, name, age, gender)
+                            Passports(id, serialno, expire)
+                            PeopleOwernPassport(id, peopleId, passportId)
+                m:n - 把一个多对多拆分为两个一对多
+                    图书-作者
+                    多的一边：
+                        Books(id, name, isbn, price, cover)
+                    多的一边：
+                        Authors(id, name, gender)
+                    -- 新建关系表，至少包含两个多表中的各自主键字段
+                        BookAndAuthor(id, bookId, authorId) - 纯粹关系表
+                        Scores(id, studentId, courseId, score)  - 业务关系表
+    类： java class
+        属性 - 实体的静态的属性
+        方法 - 实体的动态的行为
+        实体间的关系：
+            泛化：继承=父类-子类、实现=接口
+            依赖：
+                A类（一个类）的方法的调用（功能的实现）
+                    需要借助B类（另一个类）的方法的调用（功能的实现）来实现
+                A类 依赖 B类
+                    1 - B是A的一个属性
+                        public class A{
+                            B b = new B();
+                            public void methodA(){
+                                ....
+                                b.methodB();
+                                ....
+                            }
+                        }
+                    2 - B是A的一个方法的形式参数
+                        public class A{
+                            public void methodA(B b){
+                                ....
+                                b.methodB();
+                                ....
+                            }
+                        }
+                    3 - B是A的一个方法中的一个局部变量
+                        public class A{
+                            public void methodA(){
+                                B b = new B();
+                                ....
+                                b.methodB();
+                                ....
+                            }
+                        }
+            关联关系： 
+                Press(id, name, address, empnum, Set<Book> books = new HashSet<Book>())
+                Book(id, name, isbn, price, Press press /*pressId*/, Set<Author> authors = new HashSet<>())
+                People(id, name, age, gender, Passport passport /*passportId*/)
+                Passport(id, serialno, expire, People people)
+                Author(id, name, gender, Set<Book> books = new HashSet<Book>())
+                
+    数据库表  <==> 实体 <==> 类
+        ==》》 数据库表  <==> 类
+            静态：
+                表名      ==      类名
+                字段      ==      属性 
+                表结构  ==       类描述
+                一条记录 ==     一个类实例对象
+                记录(s)   ==      List<类>\Set<类>
+                单向实现 (关联关系) 双向实现
+            动态：
+                CURD-SQL        JDBC-method
+    对应数据库表的实体类 -- po
+3. JDBC 回顾
+    0. 回顾：
+        三个接口：
+            Connection、PreparedStatement、ResultSet
+    1. 编程步骤
+        0. 项目导入数据库驱动 jar 
+        1. 加载、注册数据库驱动
+            Class.forName("com.mysql.jdbc.Driver");
+        2. 创建、获取数据库连接
+            url = "jdbc:mysql://127.0.0.1:3306/mydb?serverTimezone=UTC&useSSL=false";
+            usn = "root";
+            pwd = "root";
+            Connection conn = DriverManager.getConnection(url, usn, pwd);
+        3. 创建、生成 sql 语句
+            String sql = ".... ?, ? ";
+                ? == 命令参数的占位符
+            SQL 分类：
+                DDL : create\drop\alter
+                DML : 
+                    DSL|DQL：Select
+                    DUL：Insert\Update\Delete
+                        DTL : commit\rollback
+                DCL : grant\deny - revoke
+        4. 创建、生成SQL语句的命令对象容器
+            PreparedStatement pstmt = conn.preparedStatement(sql);
+        5. (可选) 设置命令参数占位符对应的实际参数
+            pstmt.setXxx(index, value);
+            pstmt.setObject(index, value);
+        6. 执行SQL语句的命令对象
+            --DUL :
+                int result = pstmt.executeUpdate();
+            --DQL :
+                ResultSet rs = pstmt.executeQuery();
+        7. 对返回的执行(ResultSet)结果进行解析并处理
+            while(rs.next()){
+                rs.getXxx(int index)
+                rs.getXxx(String columnName)
+            }
+        8. 释放资源、关闭连接
+            rs\pstmt\conn 
+            conn
+    2. 问题
+        1. ConnectionPool = c3p0\dbcp
+        2. SQL语句是硬编码 == 含有SQL语句标签的映射配置文件
+        3. 参数也是硬编码 == 分离处理、当成方法的参数并借助映射配置文件中的sql语句标签传递参数值
+        4. ORMapping也必须借助繁琐的硬编码实现
+4. MyBatis 基础使用
+    * 借助 MyBatis 实现单表的 CRUD
+    0. what
+        ibatis - apache ==>> MyBatis
+        ！别名是伙伴、映射是朋友。
+    项目的生命周期管理：项目构建的工具
+        Ant、Maven(依赖管理-jar)、Graddle
+        ** Maven 的配置、关联IDE
+        1. 下载
+            http://maven.apache.org/
+                https://www-eu.apache.org/dist/maven/maven-3/3.6.1/binaries/apache-maven-3.6.1-bin.zip
+        2. 安装
+            1. 解压 到 指定文件夹下
+                c:\Dev\Maven
+            2. 配置环境变量
+                1 - 新建
+                    MAVEN_HOME
+                        c:\Dev\Maven\apache-maven-3.6.1
+                    M2_HOME
+                        c:\Dev\Maven\apache-maven-3.6.1
+                2 - 添加 path 环境变量
+                    path=%MAVEN_HOME%\bin;原先的path的既有的环境变量值 
+            3. 验证：
+                cmd
+        3. 配置 Maven 本地仓库，指定新位置
+            默认：
+                C:\Users\当前用户\.m2\repository
+            修改：
+                C:\Dev\Maven\.m2\repository
+              修改方法：
+                打开 C:\Dev\Maven\apache-maven-3.6.1\conf\settings.xml
+                添加：
+                    <localRepository>c:/Dev/Maven/.m2/repository</localRepository>
+        4. 关联 IDE 
+            1 - Eclipse
+            2 - IntelliJ - IDEA
+        5. 创建 Maven 的 Web Project 
+            1. 新建一个 动态的web项目
+            2. 将其转换为 Maven 项目
+                
+    介绍：
+        MyBatis 操作数据的基本步骤：
+            1 - 读入系统|全局配置文件
+            2 - 据此创建 SessionFactory（MyBaits == SqlSeesionFactory)
+            3 - 据此SessionFactory 创建 session 
+            4 - 借助 session 完成 CRUD 
+    1. 引入 MyBatis 依赖
+    2. 创建项目构架 - package、
+        com.test.ssm.biz
+        com.test.ssm.dao 
+        com.test.ssm.domain.po
+        com.test.ssm.web.controller
+    3. new db-dbtable 
+        net start mysql  == 管理员身份执行 
+        启动 navicat
+            new db = mydb 
+            new table = Users （id\name\age\salary\regtime==timestamp）
+    4. 创建 MyBatis 全局|系统配置文件
+        默认：src\mybatis-config.xml
+            位置和名称均可以自定义
+        内容： 
+            1. 设置别名
+            2. 配置环境 
+            3. 指明映射配置文件
+    5. 创建映射配置文件 
+        com.test.ssm.domain.po 
+            User.xml 
+            完成基于sql标签的sql语句
+                findById、findAll 
+    6. 使用 MyBatis 实现 DB 操作 
+        0-4步
+    7. 优化
+        1. properties 
+            src\dbconfig.properties
+        2. 接口绑定
+            1. 声明 Dao 接口、声明其中的方法
+            2. 保证相应的映射配置文件的namespace的名称是：
+                对应的接口的全限定名称
+        
+            
+    
+    
+    
+    
+    
+    

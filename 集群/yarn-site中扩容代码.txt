@@ -1,0 +1,216 @@
+9. 集群(全分布)模式配置和部署 
+    安装的总体思路:
+        icss 在 master 完成配置, 并将相关的配置文件复制到其他集群中的机器上
+    00. 概述： 
+        0. 所有的操作都是 icss 用户， 切换 icss 用户命令： 
+            su - icss
+        1. 每个节点 Hadoop 配置基本相同
+            在 HadoopMaster 节点操作， 然后复制到其他节点上。 
+        2. Hadoop 3 需要配置的文件有: 
+            hadoop-env.sh、yarn-env.sh、
+            core-site.xml、hdfs-site.xml、yarn-site.xml、mapred-site.xml、
+            workers
+    0. 当前状态: 启动三台虚拟机。
+        三台准备环境配置完成, 所有的网络互通
+    1. 下载\上传\解压 
+        同上 只上传到 master 下 icss 的 software目录下
+    2. 配置 & 运行 
+        1. 配置 Hadoop 运行环境 
+            !! 这两个环境变量, 主要是为了在 ssh 方式下安装 slave 节点的时候使用, 参看前面的描述. 
+            vi ~/hadoop3/etc/hadoop/hadoop-env.sh
+            加入:
+                export JAVA_HOME=/usr/java/jdk1.8.0_211
+            同时删除
+                export JAVA_HOME=${JAVA_HOME}       这句话也可能没有
+            vi ~/hadoop3/etc/hadoop/yarn-env.sh
+            加入:
+                export JAVA_HOME=/usr/java/jdk1.8.0_211
+        2. 配置 xml 配置文件  ~/hadoop3/etc/hadoop 目录下
+            1. core-site.xml 
+                <configuration>
+                  <property>
+                    <name>fs.defaultFS</name>
+                    <value>hdfs://master:9000</value>
+                  </property>
+                  <property>
+                    <name>hadoop.tmp.dir</name>
+                    <value>/home/liangliang/hadoopdata</value>
+                  </property>
+                </configuration>
+                !! 记得创建 /home/icss/hadoopdata 目录 
+            2. hdfs-site.xml 
+
+//原先是2
+                <configuration>
+                  <property>
+                    <name>dfs.replication</name>
+                    <value>3</value>  
+                  </property>
+                 <!-- 取消“访问控制检查”, 保证WebUI模式可以进行文件上传 -->
+                <property>
+                    <name>dfs.permissions</name>
+                    <value>false</value>
+                </property> 
+                </configuration>
+            -- Web 模式下, 上传文件报错: Couldn't upload the file
+                参看: https://blog.csdn.net/bikun/article/details/25506489
+                1. 开放“/user”目录的“写”权限
+                    hadoop  fs  -chmod  777  /user
+                2. 在 hdfs-site.xml 中, 取消“访问控制检查” 
+                    加入: 
+                    <property>
+                        <name>dfs.permissions</name>
+                        <value>false</value>
+                    </property> 
+            3. yarn-site.xml 
+                    ** hadoop classpath 获取 参数 mapreduce.application.classpath 的 value 的值
+                <configuration>
+                    <property>
+                        <name>yarn.nodemanager.aux-services</name>
+                        <value>mapreduce_shuffle</value>
+                        <description>
+                        NodeManager上运行的附属服务。需配置成mapreduce_shuffle，才可运行MapReduce程序。
+                        </description>
+                    </property>
+                        
+                    <property>
+                        <name>yarn.resourcemanager.address</name>
+                        <value>master:18040</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.scheduler.address</name>
+                        <value>master:18030</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.resource-tracker.address</name>
+                        <value>master:18025</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.admin.address</name>
+                        <value>master:18141</value>
+                    </property>
+
+                    <property>
+                        <name>yarn.resourcemanager.webapp.address</name>
+                        <value>master:18080</value>
+                    </property>
+                    <property>
+                    <name>yarn.application.classpath</name>
+                    <value>/home/liangliang/hadoop3/etc/hadoop:/home/liangliang/hadoop3/share/hadoop/common/lib/*:/home/liangliang/hadoop3/share/hadoop/common/*:/home/liangliang/hadoop3/share/hadoop/hdfs:/home/liangliang/hadoop3/share/hadoop/hdfs/lib/*:/home/liangliang/hadoop3/share/hadoop/hdfs/*:/home/liangliang/hadoop3/share/hadoop/mapreduce/lib/*:/home/liangliang/hadoop3/share/hadoop/mapreduce/*:/home/liangliang/hadoop3/share/hadoop/yarn:/home/liangliang/hadoop3/share/hadoop/yarn/lib/*:/home/liangliang/hadoop3/share/hadoop/yarn/*</value>
+                    </property>
+                </configuration>
+                注意： Hadoop 3.0 必须加入 yarn.application.classpath 节点配置，否则会在使用 yarn 执行 MapReduce 时出现找不到类的错误。 
+                    获取全部的 classpath 方法，执行：
+                        hadoop classpath
+                        此时还没有配置 hadoop 的信息，所以报错。一会看！
+                        获取一个输出，将该输出内容设置为
+                            yarn-siet.xml中yarn.application.classpath的值。
+                            而且要使用硬编码目录信息， 不能在 Hadoop 配置文件中使用$方式的环境变量。
+                == 参考： http://wenda.chinahadoop.cn/question/3069
+            4. mapred-site.xml 
+                    ** hadoop classpath 获取 参数 mapreduce.application.classpath 的 value 的值
+                <configuration>
+                  <property>
+                    <name>mapreduce.framework.name</name>
+                    <value>yarn</value>
+                  </property>
+                  <property>
+                    <name>mapreduce.application.classpath</name>
+                    <value>/home/liangliang/hadoop3/etc/hadoop:/home/liangliang/hadoop3/share/hadoop/common/lib/*:/home/liangliang/hadoop3/share/hadoop/common/*:/home/liangliang/hadoop3/share/hadoop/hdfs:/home/liangliang/hadoop3/share/hadoop/hdfs/lib/*:/home/liangliang/hadoop3/share/hadoop/hdfs/*:/home/liangliang/hadoop3/share/hadoop/mapreduce/lib/*:/home/liangliang/hadoop3/share/hadoop/mapreduce/*:/home/liangliang/hadoop3/share/hadoop/yarn:/home/liangliang/hadoop3/share/hadoop/yarn/lib/*:/home/liangliang/hadoop3/share/hadoop/yarn/*</value>
+                  </property>
+                </configuration>
+                注意： Hadoop 3.x 必须加入 mapreduce.application.classpath 节点配置，否则会在使用 yarn 执行 MapReduce 时出现找不到类的错误。
+                    获取全部 classpath 的方法， 类似上面yarn-site.xml 的方法。
+                == 参考： https://www.cnblogs.com/forbeat/p/8179877.html
+        3. 配置集群组成的声明文件  (以前是slaves)
+            vi ~/hadoop3/etc/hadoop/workers 
+                删掉原先的 localhost 
+            加入: 
+                slave01
+                slave02
+        ---- 将上述 master 上的 Hadoop 相关配置, 复制到集群中其他节点上
+                -r 表示连子目录一起复制，因为配置了 ssh 免密，所以批量复制不需要密码。
+            scp -r hadoop3 slave01:~/
+            scp -r hadoop3 slave02:~/
+        4. 配置 Linux 运行环境 
+            -- master 
+                vi ~/.bash_profile, 加入:
+                    export HADOOP_HOME=$HOME/hadoop3
+                    export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+                    export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native:$HADOOP_COMMON_LIB_NATIVE_DIR"
+                    export YARN_HOME=$HOME/hadoop3
+                    export HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    #export YARN_CONF_DIR=$YARN_HOME/etc/hadoop
+                    export HDFS_CONF_DIR=$HADOOP_HOME/etc/hadoop
+                    export PATH=.:$JAVA_HOME/lib:$HADOOP_HOME/sbin:$HADOOP_HOME/bin:$PATH  
+                运行, 让环境变量起作用
+                    source .bash_profile 
+            -- slave01 & slave02 同上
+        !!! 在集群所有节点上, 创建 hadoopdata 目录
+            mkdir /home/liangliang/hadoopdata 
+        === 启动集群, master 上执行 
+            格式化 namenode (首次启动集群之前, 执行一次)
+                hdfs namenode -format 
+                都是 INFO 就是成功的。 
+            启动守护进程: 
+                start-all.sh 
+            停止守护进程: (停止 Hadoop)
+                stop-all.sh 
+            --- 停止 Hadoop 集群的时候 ,报错: WARNING: nodemanager did not stop gracefully after 5 seconds: Trying to kill with kill -9
+                参看:http://blog.sina.com.cn/s/blog_ad795db30102w4a8.html
+                解决方法：这个可以不用管，可以先不做。
+                    在所有的节点上: 　
+                    1. 在 Hadoop 安装目录中, 创建保存所有的守护进程的进程id的目录 pid 
+                        mkdir /home/liangliang/hadoop3/pid 
+                    2. 在 sbin/hadoop-daemon.sh 脚本中添加保存守护进程id的目录位置的声明 
+                        # 设置保存守护进程id的目录位置
+                        HADOOP_PID_DIR=/home/liangliang/hadoop3/pid
+                    3. 修改 sbin/yarn-daemon.sh, 添加保存所有的守护进程的进程id的目录 pid 
+                        # 设置保存守护进程id的目录位置
+                        YARN_PID_DIR=/home/liangliang/hadoop3/pid
+    3. 验证 & 简单操作
+        1. jps -- 集群所有节点的守护进程正常运行的, 进程号可能不同
+            [liangliang@master ~]$ jps
+                4672 Jps
+                3896 NameNode
+                4139 SecondaryNameNode
+                4367 ResourceManager
+                正确！
+            [liangliang@slave01 ~]$ jps
+                3480 NodeManager
+                3609 Jps
+                3355 DataNode
+                正确！
+            [liangliang@slave02 ~]$ jps
+                3312 DataNode
+                3449 NodeManager
+                3578 Jps
+                正确！ 
+        2. hadoopdata 数据目录 
+            master : dfs/name & dfs/namesecondary
+            slave01 : dfs/data
+            slave02和slave01 也是一样
+        3. 查看活跃节点个数 ： 
+            WebUI 
+                http://master:9870/
+                在 windows 宿主机中执行，使用 master 的IP地址
+            建议在 外部的Windows宿主机中配置 hosts文件：
+                
+            CLI
+                hdfs dfsadmin -report
+        4. 操作 HDFS 
+            hdfs dfs -ls /
+            hdfs dfs -mkdir /user
+                逐一创建 /user/liangliang/input 
+            hdfs dfs -put 本地文件 /user/liangliang/input 
+        5. MR 
+            1. 算 pi  ===   会较慢
+                hadoop jar hadoop3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.2.jar pi 5 5
+                数字变大，pi会更准确。
+            2. Wordcount 
+                hdfs dfs -put  ~/hadoop3/etc/hadoop/*.xml  /user/liangliang/input
+                hadoop jar hadoop3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.2.jar grep /user/liangliang/input /output/xml 'dfs[a-z.]+'
+                hdfs dfs -cat /output/xml/*
