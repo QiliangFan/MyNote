@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_186">B.6  使用Microsoft ASP</h2><p class="calibre2">Microsoft ASP是创建基于Web应用的脚本平台。在ASP页内测试SQL语句，必须创建一个通过从Web浏览器调用来执行的页面。下面是在ASP页面内执行SQL语句所需的步骤：</p>
+
+<ol class="calibre21">
+<li class="calibre9">ASP使用ODBC与数据库交互，因此在继续进行之前必须给出ODBC数据源（请参阅本附录最后面的内容）。 </li>
+<li class="calibre9">用任意文本编辑器创建新ASP页面（带ASP扩展）。</li>
+<li class="calibre9">使用<code class="calibre11">Server.CreateObject</code>创建<code class="calibre11">ADODB.Connection</code>对象的一个实例。</li>
+<li class="calibre9">使用<code class="calibre11">Open</code>方法打开所需的ODBC数据源。</li>
+<li class="calibre9">将SQL语句传递到一个对<code class="calibre11">Execute</code>方法的调用。<code class="calibre11">Execute</code>方法返回结果集。使用<code class="calibre11">Set</code>命令将返回的结果保存到结果集。</li>
+<li class="calibre9">为显示结果，应该对检索出的数据应用<code class="calibre11">&lt;% Do While NOT EOF %&gt;</code>循环。</li>
+<li class="calibre9">在Web服务器根目录下的任意可执行目录中保存此页面。</li>
+<li class="calibre9">通过从Web浏览器调用，执行此页面。</li>
+</ol>
+</body>
+</html>

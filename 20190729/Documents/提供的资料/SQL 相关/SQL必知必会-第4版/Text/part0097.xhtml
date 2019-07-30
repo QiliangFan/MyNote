@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_146">19.1  存储过程</h2><p class="calibre2">迄今为止，我们使用的大多数SQL语句都是针对一个或多个表的单条语句。并非所有操作都这么简单，经常会有一些复杂的操作需要多条语句才能完成。例如以下的情形：</p>
+
+<ul class="calibre8">
+<li class="calibre9">为了处理订单，必须核对以保证库存中有相应的物品。</li>
+<li class="calibre9">如果物品有库存，需要预定，不再出售给别的人，并且减少物品数据以反映正确的库存量。</li>
+<li class="calibre9">库存中没有的物品需要订购，这需要与供应商进行某种交互。</li>
+<li class="calibre9">关于哪些物品入库（并且可以立即发货）和哪些物品退订，需要通知相应的顾客。</li>
+</ul>
+
+<p class="calibre2">这显然不是一个完整的例子，它甚至超出了本书中所用样例表的范围，但足以表达我们的意思了。执行这个处理需要针对许多表的多条SQL语句。此外，需要执行的具体SQL语句及其次序也不是固定的，它们可能会根据物品是否在库存中而变化。</p>
+
+<p class="calibre2">那么，怎样编写代码呢？可以单独编写每条SQL语句，并根据结果有条件地执行其他语句。在每次需要这个处理时（以及每个需要它的应用中），都必须做这些工作。</p>
+
+<p class="calibre2">可以创建存储过程。简单来说，存储过程就是为以后使用而保存的一条或多条SQL语句。可将其视为批文件，虽然它们的作用不仅限于批处理。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：具体DBMS的支持</strong><br class="calibre14"/>
+  Microsoft Access和SQLite不支持存储过程。因此，本课的内容不适用它们。</p>
+  
+  <p class="calibre2">MySQL 5已经支持存储过程。因此，本课的内容不适用MySQL较早的版本。</p>
+</blockquote>
+
+<p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：还有更多内容</strong><br class="calibre14"/>
+  存储过程很复杂，全面介绍它需要很大篇幅。本课不打算讲解存储过程的所有内容，只给出简单介绍，让读者对它们的功能有所了解。因此，这里给出的例子只提供Oracle和SQL Server的语法。</p>
+</blockquote>
+</body>
+</html>

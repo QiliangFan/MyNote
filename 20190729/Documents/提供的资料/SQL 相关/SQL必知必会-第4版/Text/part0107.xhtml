@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_159">21.1  游标</h2><p class="calibre2">SQL检索操作返回一组称为结果集的行，这组返回的行都是与SQL语句相匹配的行（零行或多行）。简单地使用<code class="calibre11">SELECT</code>语句，没有办法得到第一行、下一行或前10行。但这是关系DBMS功能的组成部分。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">结果集（result set）</strong><br class="calibre14"/>
+  SQL查询所检索出的结果。</p>
+</blockquote>
+
+<p class="calibre2">有时，需要在检索出来的行中前进或后退一行或多行，这就是游标的用途所在。游标（cursor）是一个存储在DBMS服务器上的数据库查询，它不是一条<code class="calibre11">SELECT</code>语句，而是被该语句检索出来的结果集。在存储了游标之后，应用程序可以根据需要滚动或浏览其中的数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：具体DBMS的支持</strong><br class="calibre14"/>
+  Microsoft Access不支持游标，所以本课的内容不适用于Microsoft Access。</p>
+  
+  <p class="calibre2">MySQL 5已经支持存储过程。因此，本课的内容不适用MySQL较早的版本。</p>
+  
+  <p class="calibre2">SQLite支持的游标称为步骤（step），本课讲述的基本概念适用于SQLite的步骤，但语法可能完全不同。</p>
+</blockquote>
+
+<p class="calibre2">不同的DBMS支持不同的游标选项和特性。常见的一些选项和特性如下。</p>
+
+<ul class="calibre8">
+<li class="calibre9">能够标记游标为只读，使数据能读取，但不能更新和删除。</li>
+<li class="calibre9">能控制可以执行的定向操作（向前、向后、第一、最后、绝对位置、相对位置等）。</li>
+<li class="calibre9">能标记某些列为可编辑的，某些列为不可编辑的。</li>
+<li class="calibre9">规定范围，使游标对创建它的特定请求（如存储过程）或对所有请求可访问。</li>
+<li class="calibre9">指示DBMS对检索出的数据（而不是指出表中活动数据）进行复制，使数据在游标打开和访问期间不变化。</li>
+</ul>
+
+<p class="calibre2">游标主要用于交互式应用，其中用户需要滚动屏幕上的数据，并对数据进行浏览或做出更改。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：游标与基于Web的应用</strong><br class="calibre14"/>
+  游标对基于Web的应用（如ASP、ASP.NET、ColdFusion、PHP、Python、Ruby、JSP等）用处不大。虽然游标在客户端应用和服务器会话期间存在，但这种客户/服务器模式不适合Web应用，因为应用服务器是数据库客户端而不是最终用户。所以，大多数Web应用开发人员不使用游标，他们根据自己的需要重新开发相应的功能。</p>
+</blockquote>
+</body>
+</html>

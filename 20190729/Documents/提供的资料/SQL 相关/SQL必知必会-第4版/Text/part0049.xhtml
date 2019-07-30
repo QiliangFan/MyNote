@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_74">9.3  组合聚集函数</h2><p class="calibre2">目前为止的所有聚集函数例子都只涉及单个函数。但实际上，<code class="calibre11">SELECT</code>语句可根据需要包含多个聚集函数。请看下面的例子：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT COUNT(*) AS num_items,
+       MIN(prod_price) AS price_min,
+       MAX(prod_price) AS price_max,
+       AVG(prod_price) AS price_avg
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">num_items      price_min           price_max p         rice_avg
+----------     ---------------     ---------------     ---------
+9              3.4900              11.9900             6.823333
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这里用单条<code class="calibre11">SELECT</code>语句执行了4个聚集计算，返回4个值（<code class="calibre11">Products</code>表中物品的数目，产品价格的最高值、最低值以及平均值）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：取别名</strong><br class="calibre14"/>
+  在指定别名以包含某个聚集函数的结果时，不应该使用表中实际的列名。虽然这样做也算合法，但许多SQL实现不支持，可能会产生模糊的错误消息。</p>
+</blockquote>
+</body>
+</html>

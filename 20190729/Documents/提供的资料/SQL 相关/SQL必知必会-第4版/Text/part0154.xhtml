@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_215">D.4  二进制数据类型</h2><p class="calibre2">二进制数据类型是最不具有兼容性（幸运的是，也是最少使用）的数据类型。与迄今为止介绍的所有数据类型（它们具有特定的用途）不一样，二进制数据类型可包含任何数据，甚至可包含二进制信息，如图像、多媒体、字处理文档等（参见表D-4）。</p>
+
+<p class="calibre2"><strong class="calibre3">表D-4  二进制数据类型</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">数据类型</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">BINARY</td>
+      <td class="calibre19">定长二进制数据（最大长度从255字节到8000字节，有赖于具体的实现）</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">LONG RAW</td>
+      <td class="calibre19">变长二进制数据，最长2 GB</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">RAW（某些实现为BINARY）</td>
+      <td class="calibre19">定长二进制数据，最多255字节</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">VARBINARY</td>
+      <td class="calibre19">变长二进制数据（最大长度一般在255字节到8000字节间变化，依赖于具体的实现）</td>
+   </tr>
+</table>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：数据类型对比</strong><br class="calibre14"/>
+  如果你想看一个数据库比较的实际例子，请考虑本书中用来建立样例表的表创建脚本（参看附录A）。通过比较这些用于不同DBMS的脚本，可看到数据类型匹配是一项多么复杂的任务。</p>
+</blockquote>
+<p class="calibre5" id="calibre_pb_213"> </p>
+</body>
+</html>

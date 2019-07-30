@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_42">5.2  IN操作符</h2><p class="calibre2"><code class="calibre11">IN</code>操作符用来指定条件范围，范围中的每个条件都可以进行匹配。<code class="calibre11">IN</code>取一组由逗号分隔、括在圆括号中的合法值。下面的例子说明了这个操作符：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, prod_price
+FROM Products
+WHERE vend_id IN ( 'DLL01', 'BRS01' )
+ORDER BY prod_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name               prod_price
+-------------------     ----------
+12 inch teddy bear      8.9900
+18 inch teddy bear      11.9900
+8 inch teddy bear       5.9900
+Bird bean bag toy       3.4900
+Fish bean bag toy       3.4900
+Rabbit bean bag toy     3.4900
+Raggedy Ann             4.9900 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此<code class="calibre11">SELECT</code>语句检索由供应商<code class="calibre11">DLL01</code>和<code class="calibre11">BRS01</code>制造的所有产品。<code class="calibre11">IN</code>操作符后跟由逗号分隔的合法值，这些值必须括在圆括号中。</p>
+
+<p class="calibre2">你可能会猜测<code class="calibre11">IN</code>操作符完成了与<code class="calibre11">OR</code>相同的功能，恭喜你猜对了！下面的SQL语句完成与上面的例子相同的工作：   </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, prod_price
+FROM Products
+WHERE vend_id = 'DLL01' OR vend_id = 'BRS01'
+ORDER BY prod_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name               prod_price
+-------------------     ----------
+12 inch teddy bear      8.9900
+18 inch teddy bear      11.9900
+8 inch teddy bear       5.9900
+Bird bean bag toy       3.4900
+Fish bean bag toy       3.4900
+Rabbit bean bag toy     3.4900
+Raggedy Ann             4.9900
+</code></pre>
+
+<p class="calibre2">为什么要使用<code class="calibre11">IN</code>操作符？其优点为：  </p>
+
+<ul class="calibre8">
+<li class="calibre9">在有很多合法选项时，<code class="calibre11">IN</code>操作符的语法更清楚，更直观。</li>
+<li class="calibre9">在与其他<code class="calibre11">AND</code>和<code class="calibre11">OR</code>操作符组合使用<code class="calibre11">IN</code>时，求值顺序更容易管理。</li>
+<li class="calibre9"><code class="calibre11">IN</code>操作符一般比一组<code class="calibre11">OR</code>操作符执行得更快（在上面这个合法选项很少的例子中，你看不出性能差异）。</li>
+<li class="calibre9"><code class="calibre11">IN</code>的最大优点是可以包含其他<code class="calibre11">SELECT</code>语句，能够更动态地建立<code class="calibre11">WHERE</code>子句。第11课会对此进行详细介绍。</li>
+</ul>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3"><code class="calibre11">IN</code></strong><br class="calibre14"/>
+  <code class="calibre11">WHERE</code>子句中用来指定要匹配值的清单的关键字，功能与<code class="calibre11">OR</code>相当。</p>
+</blockquote>
+</body>
+</html>

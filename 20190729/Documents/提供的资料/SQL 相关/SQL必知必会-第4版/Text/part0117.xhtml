@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_176">A.1  样例表</h2><p class="calibre2">本书中所用的表是一个假想玩具经销商使用的订单录入系统的组成部分。这些表用来完成以下几项任务：</p>
+
+<ul class="calibre8">
+<li class="calibre9">管理供应商；</li>
+<li class="calibre9">管理产品目录；</li>
+<li class="calibre9">管理顾客列表；</li>
+<li class="calibre9">录入顾客订单。</li>
+</ul>
+
+<p class="calibre2">完成它们需要5个表（它们作为一个关系数据库设计的组成部分紧密关联）。以下各节给出每个表的描述。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：简化的例子</strong><br class="calibre14"/>
+  这里使用的表不完整，现实世界中的订单录入系统还会记录这里所没有的大量数据（如工资和记账信息、发货追踪信息等）。不过，这些表确实示范了现实世界中你将遇到的各种数据的组织和关系。读者可以将这些技术用于自己的数据库。 </p>
+</blockquote>
+
+<h3 class="calibre7"><strong class="calibre22">表的描述</strong></h3>
+
+<p class="calibre2">下面介绍5个表及每个表内的列名。</p>
+
+<p class="calibre2"><strong class="calibre3">1. <code class="calibre11">Vendors</code>表</strong></p>
+
+<p class="calibre2"><code class="calibre11">Vendors</code>表存储销售产品的供应商。每个供应商在这个表中有一个记录，供应商ID列（<code class="calibre11">vend_id</code>）用于进行产品与供应商的匹配。</p>
+
+<p class="calibre2"><strong class="calibre3">表A-1  <code class="calibre11">Vendors</code>表的列</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">列</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">vend_id</td>
+      <td class="calibre19">唯一的供应商ID</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">vend_name</td>
+      <td class="calibre19">供应商名</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">vend_address</td>
+      <td class="calibre19">供应商的地址</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">vend_city</td>
+      <td class="calibre19">供应商所在城市</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">vend_state</td>
+      <td class="calibre19">供应商所在州</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">vend_zip</td>
+      <td class="calibre19">供应商地址邮政编码</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">vend_country</td>
+      <td class="calibre19">供应商所在国家</td>
+   </tr>
+</table>
+
+<ul class="calibre8">
+<li class="calibre9">所有表都应该有主键。这个表应该用<code class="calibre11">vend_id</code>作为其主键。</li>
+</ul>
+
+<p class="calibre2"><strong class="calibre3">2. <code class="calibre11">Products</code>表</strong></p>
+
+<p class="calibre2"><code class="calibre11">Products</code>表包含产品目录，每行一个产品。每个产品有唯一的ID（<code class="calibre11">prod_id</code>列），并且借助<code class="calibre11">vend_id</code>（供应商的唯一ID）与供应商相关联。</p>
+
+<p class="calibre2"><strong class="calibre3">表A-2  <code class="calibre11">Products</code>表的列</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">列</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">prod_id</td>
+      <td class="calibre19">唯一的产品ID</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">vend_id</td>
+      <td class="calibre19">产品供应商ID（关联到Vendors表的vend_id）</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">prod_name</td>
+      <td class="calibre19">产品名</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">prod_price</td>
+      <td class="calibre19">产品价格</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">prod_desc</td>
+      <td class="calibre19">产品描述</td>
+   </tr>
+</table>
+
+<ul class="calibre8">
+<li class="calibre9">所有表都应该有主键。这个表应该用<code class="calibre11">prod_id</code>作为其主键。</li>
+<li class="calibre9">为实施引用完整性，应该在<code class="calibre11">vend_id</code>上定义一个外键，关联到<code class="calibre11">Vendors</code>的<code class="calibre11">vend_id</code>列。</li>
+</ul>
+
+<p class="calibre2"><strong class="calibre3">3. <code class="calibre11">Customers</code>表</strong></p>
+
+<p class="calibre2"><code class="calibre11">Customers</code>表存储所有顾客信息。每个顾客有唯一的ID（<code class="calibre11">cust_id</code>列）。</p>
+
+<p class="calibre2"><strong class="calibre3">表A-3  <code class="calibre11">Customers</code>表的列</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">列</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">cust_id</td>
+      <td class="calibre19">唯一的顾客ID</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">cust_name</td>
+      <td class="calibre19">顾客名</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">cust_address</td>
+      <td class="calibre19">顾客的地址</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">cust_city</td>
+      <td class="calibre19">顾客所在城市</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">cust_state</td>
+      <td class="calibre19">顾客所在州</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">cust_zip</td>
+      <td class="calibre19">顾客地址邮政编码</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">cust_country</td>
+      <td class="calibre19">顾客所在国家</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">cust_contact</td>
+      <td class="calibre19">顾客的联系名</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">cust_email</td>
+      <td class="calibre19">顾客的电子邮件地址</td>
+   </tr>
+</table>
+
+<ul class="calibre8">
+<li class="calibre9">所有表都应该有主键。这个表应该用<code class="calibre11">cust_id</code>作为它的主键。</li>
+</ul>
+
+<p class="calibre2"><strong class="calibre3">4. <code class="calibre11">Orders</code>表</strong></p>
+
+<p class="calibre2"><code class="calibre11">Orders</code>表存储顾客订单（不是订单细节）。每个订单唯一编号（<code class="calibre11">order_num</code>列）。<code class="calibre11">Orders</code>表按<code class="calibre11">cust_id</code>列（关联到<code class="calibre11">Customers</code>表的顾客唯一ID）关联到相应的顾客。</p>
+
+<p class="calibre2"><strong class="calibre3">表A-4  <code class="calibre11">Orders</code>表的列</strong></p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">列</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">order_num</td>
+      <td class="calibre19">唯一的订单号</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">order_date</td>
+      <td class="calibre19">订单日期</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">cust_id </td>
+      <td class="calibre19">订单顾客ID（关联到Customers表的cust_id）</td>
+   </tr>
+</table>
+
+<ul class="calibre8">
+<li class="calibre9">所有表都应该有主键。这个表应该用<code class="calibre11">order_num</code>作为其主键。</li>
+<li class="calibre9">为实施引用完整性，应该在<code class="calibre11">cust_id</code>上定义一个外键，关联到<code class="calibre11">Customers</code>的<code class="calibre11">cust_id</code>列。</li>
+</ul>
+
+<p class="calibre2"><strong class="calibre3">5. <code class="calibre11">OrderItems</code>表</strong></p>
+
+<p class="calibre2"><code class="calibre11">OrderItems</code>表存储每个订单中的实际物品，每个订单的每个物品一行。对于<code class="calibre11">Orders</code>表的每一行，在<code class="calibre11">OrderItems</code>表中有一行或多行。每个订单物品由订单号加订单物品（第一个物品、第二个物品等）唯一标识。订单物品用<code class="calibre11">order_num</code>列（关联到<code class="calibre11">Orders</code>表中订单的唯一ID）与其相应的订单相关联。此外，每个订单物品包含该物品的产品ID（把物品关联到<code class="calibre11">Products</code>表）。</p>
+
+<p class="calibre2"><strong class="calibre3">表A-5  <code class="calibre11">OrderItem</code>s表的列</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">列</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">order_num</td>
+      <td class="calibre19">订单号（关联到Orders表的order_num）</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">order_item</td>
+      <td class="calibre19">订单物品号（订单内的顺序）</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">prod_id</td>
+      <td class="calibre19">产品ID（关联到Products表的prod_id）</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">quantity</td>
+      <td class="calibre19">物品数量</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">item_price</td>
+      <td class="calibre19">物品价格</td>
+   </tr>
+</table>
+
+<ul class="calibre8">
+<li class="calibre9">所有表都应该有主键。这个表应该用<code class="calibre11">order_num</code>和<code class="calibre11">order_item</code>作为其主键。</li>
+<li class="calibre9">为实施引用完整性，应该在<code class="calibre11">order_num</code>和<code class="calibre11">prod_id</code>上定义外键，关联<code class="calibre11">order_num</code>到<code class="calibre11">Orders</code>的<code class="calibre11">order_num</code>列，关联<code class="calibre11">prod_id</code>到<code class="calibre11">Products</code>的<code class="calibre11">prod_id</code>列。</li>
+</ul>
+
+<p class="calibre2">数据库管理员通常使用关系图来说明数据库表的关联方式。要记住，正如上面表描述提到的，外键定义了这些关系。图A-1是本附录描述的五个表的关系图。</p>
+
+<p class="p-img"><img alt="enter image description here" class="calibre12" src="../Images/image00173.jpeg"/></p>
+
+<p class="calibre2"><strong class="calibre3">图A-1 样例表关系图</strong></p>
+</body>
+</html>

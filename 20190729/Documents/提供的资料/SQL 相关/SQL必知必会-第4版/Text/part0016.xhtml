@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_21">2.7 使用注释</h2><p class="calibre2">可以看到，SQL语句是由DBMS处理的指令。如果你希望包括不进行处理和执行的文本，该怎么办呢？为什么你想要这么做呢？原因有以下几点。</p>
+
+<ul class="calibre8">
+<li class="calibre9"><p class="calibre2">我们这里使用的SQL语句都很短，也很简单。然而，随着你的SQL语句变长，复杂性增加，你就会想添加一些描述性的注释，这便于你自己今后参考，或者供项目后续参与人员参考。这些注释需要嵌入在SQL脚本中，但显然不能进行实际的DBMS处理。（相关示例可以参见附录B中使用的create.sql和populate.sql。）</p></li>
+<li class="calibre9"><p class="calibre2">这同样适用于SQL文件开始处的内容，它可能包含程序员的联系方式、程序描述以及一些说明。（相关示例也可参见附录B中的那些.sql文件。）</p></li>
+<li class="calibre9"><p class="calibre2">注释的另一个重要应用是暂时停止要执行的SQL代码。如果你碰到一个长SQL语句，而只想测试它的一部分，那么应该注释掉一些代码，以便MariaDB将其视为注释而加以忽略。</p></li>
+</ul>
+
+<p class="calibre2">很多DBMS都支持各种形式的注释语法。我们先来看行内注释：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name    -- 这是一条注释 
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2">注释使用<code class="calibre11">--</code> （两个连字符）嵌在行内。<code class="calibre11">--</code> 之后的文本就是注释，例如，这用来描述<code class="calibre11">CREATE TABLE</code>语句中的列就很不错。</p>
+
+<p class="calibre2">下面是另一种形式的行内注释（虽然这种形式很少得到支持）。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11"># 这是一条注释
+SELECT prod_name 
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2">在一行的开始处使用<code class="calibre11">#</code>，这一整行都将作为注释。你在本书提供的脚本create.sql和populate.sql中可以看到这种形式的注释。 </p>
+
+<p class="calibre2">你也可以进行多行注释，注释可以在脚本的任何位置停止和开始。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">/* SELECT prod_name, vend_id 
+FROM Products; */ 
+SELECT prod_name 
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2">注释从<code class="calibre11">/*</code>开始，到<code class="calibre11">*/</code>结束，<code class="calibre11">/*</code>和<code class="calibre11">*/</code>之间的任何内容都是注释。这种方式常用于给代码加注释，就如这个例子演示的，这里定义了两个<code class="calibre11">SELECT</code>语句，但是第一个不会执行，因为它已经被注释掉了。</p>
+</body>
+</html>

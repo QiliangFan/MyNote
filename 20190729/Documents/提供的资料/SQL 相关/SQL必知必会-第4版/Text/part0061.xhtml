@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_86">11.3  作为计算字段使用子查询</h2><p class="calibre2">使用子查询的另一方法是创建计算字段。假如需要显示<code class="calibre11">Customers</code>表中每个顾客的订单总数。订单与相应的顾客ID存储在<code class="calibre11">Orders</code>表中。</p>
+
+<p class="calibre2">执行这个操作，要遵循下面的步骤：  </p>
+
+<ol class="calibre21">
+<li class="calibre9">从<code class="calibre11">Customers</code>表中检索顾客列表；</li>
+<li class="calibre9">对于检索出的每个顾客，统计其在<code class="calibre11">Orders</code>表中的订单数目。</li>
+</ol>
+
+<p class="calibre2">正如前两课所述，可以使用<code class="calibre11">SELECT COUNT(*)</code>对表中的行进行计数，并且通过提供一条<code class="calibre11">WHERE</code>子句来过滤某个特定的顾客ID，仅对该顾客的订单进行计数。例如，下面的代码对顾客<code class="calibre11">1000000001</code>的订单进行计数：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT COUNT(*) AS orders 
+FROM Orders 
+WHERE cust_id = '1000000001';
+</code></pre>
+
+<p class="calibre2">要对每个顾客执行<code class="calibre11">COUNT(*)</code>，应该将它作为一个子查询。请看下面的代码：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, 
+       cust_state,
+       (SELECT COUNT(*) 
+        FROM Orders 
+        WHERE Orders.cust_id = Customers.cust_id) AS orders
+FROM Customers 
+ORDER BY cust_name; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name                     cust_state     orders
+-------------------------     ----------     ------
+Fun4All                       IN             1
+Fun4All                       AZ             1
+Kids Place                    OH             0
+The Toy Store                 IL             1
+Village Toys                  MI             2
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条<code class="calibre11">SELECT</code>语句对<code class="calibre11">Customers</code>表中每个顾客返回三列：<code class="calibre11">cust_name</code>、<code class="calibre11">cust_state</code>和<code class="calibre11">orders</code>。<code class="calibre11">orders</code>是一个计算字段，它是由圆括号中的子查询建立的。该子查询对检索出的每个顾客执行一次。在此例中，该子查询执行了5次，因为检索出了5个顾客。</p>
+
+<p class="calibre2">子查询中的<code class="calibre11">WHERE</code>子句与前面使用的<code class="calibre11">WHERE</code>子句稍有不同，因为它使用了完全限定列名，而不只是列名（<code class="calibre11">cust_id</code>）。它指定表名和列名（<code class="calibre11">Orders.cust_id</code>和<code class="calibre11">Customers.cust_id</code>）。下面的<code class="calibre11">WHERE</code>子句告诉SQL，比较<code class="calibre11">Orders</code>表中的<code class="calibre11">cust_id</code>和当前正从<code class="calibre11">Customers</code>表中检索的<code class="calibre11">cust_id</code>：  </p>
+
+<pre class="calibre10"><code class="calibre11">WHERE Orders.cust_id = Customers.cust_id
+</code></pre>
+
+<p class="calibre2">用一个句点分隔表名和列名，这种语法必须在有可能混淆列名时使用。在这个例子中，有两个<code class="calibre11">cust_id</code>列：一个在<code class="calibre11">Customers</code>中，另一个在<code class="calibre11">Orders</code>中。如果不采用完全限定列名，DBMS会认为要对<code class="calibre11">Orders</code>表中的<code class="calibre11">cust_id</code>自身进行比较。因为</p>
+
+<pre class="calibre10"><code class="calibre11">SELECT COUNT(*) FROM Orders WHERE cust_id = cust_id
+</code></pre>
+
+<p class="calibre2">总是返回<code class="calibre11">Orders</code>表中订单的总数，而这个结果不是我们想要的：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, 
+       cust_state,
+       (SELECT COUNT(*) 
+        FROM Orders 
+        WHERE cust_id = cust_id) AS orders
+FROM Customers 
+ORDER BY cust_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name                     cust_state     orders
+-------------------------     ----------     ------
+Fun4All                       IN             5
+Fun4All                       AZ             5
+Kids Place                    OH             5
+The Toy Store                 IL             5
+Village Toys                  MI             5
+</code></pre>
+
+<p class="calibre2">虽然子查询在构造这种<code class="calibre11">SELECT</code>语句时极有用，但必须注意限制有歧义的列。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：完全限定列名</strong><br class="calibre14"/>
+  你已经看到了为什么要使用完全限定列名，没有具体指定就会返回错误结果，因为DBMS会误解你的意思。有时候，由于出现冲突列名而导致的歧义性，会引起DBMS抛出错误信息。例如，<code class="calibre11">WHERE</code>或<code class="calibre11">ORDER BY</code>子句指定的某个列名可能会出现在多个表中。好的做法是，如果在<code class="calibre11">SELECT</code>语句中操作多个表，就应使用完全限定列名来避免歧义。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：不止一种解决方案</strong><br class="calibre14"/>
+  正如这一课前面所述，虽然这里给出的样例代码运行良好，但它并不是解决这种数据检索的最有效方法。在后面两课学习JOIN时，我们还会遇到这个例子。</p>
+</blockquote>
+</body>
+</html>

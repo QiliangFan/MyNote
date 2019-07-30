@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_20">2.6 限制结果</h2><p class="calibre2"><code class="calibre11">SELECT</code>语句返回指定表中所有匹配的行，很可能是每一行。如果你只想返回第一行或者一定数量的行，该怎么办呢？这是可行的，然而遗憾的是，各种数据库中的这一SQL实现并不相同。</p>
+
+<p class="calibre2">在SQL Server和Access中使用<code class="calibre11">SELECT</code>时，可以使用<code class="calibre11">TOP</code>关键字来限制最多返回多少行，如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT TOP 5 prod_name
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name
+-----------------
+8 inch teddy bear
+12 inch teddy bear
+18 inch teddy bear
+Fish bean bag toy
+Bird bean bag toy
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2">上面代码使用<code class="calibre11">SELECT TOP 5</code>语句，只检索前5行数据。</p>
+
+<p class="calibre2">如果你使用的是DB2，很可能习惯使用下面这一DBMS特定的SQL语句，像这样：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+FETCH FIRST 5 ROWS ONLY;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2"><code class="calibre11">FETCH FIRST 5 ROWS ONLY</code>就会按字面的意思去做的。</p>
+
+<p class="calibre2">如果你使用Oracle，需要基于<code class="calibre11">ROWNUM</code>（行计数器）来计算行，像这样： </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+WHERE ROWNUM &lt;=5;
+</code></pre>
+
+<p class="calibre2">如果你使用MySQL、MariaDB、PostgreSQL或者SQLite，需要使用<code class="calibre11">LIMIT</code> 子句，像这样：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+LIMIT 5;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2">上述代码使用<code class="calibre11">SELECT</code>语句来检索单独的一列数据。<code class="calibre11">LIMIT 5</code>指示MySQL等DBMS返回不超过5行的数据。这个语句的输出参见下面的代码。</p>
+
+<p class="calibre2">为了得到后面的5行数据，需要指定从哪儿开始以及检索的行数，像这样：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+LIMIT 5 OFFSET 5;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong></p>
+
+<p class="calibre2"><code class="calibre11">LIMIT 5 OFFSET 5</code>指示MySQL等DBMS返回从第5行起的5行数据。第一个数字是指从哪儿开始，第二个数字是检索的行数。这个语句的输出是：</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name
+-------------------
+Rabbit bean bag toy
+Raggedy Ann
+King doll
+Queen doll
+</code></pre>
+
+<p class="calibre2">所以，<code class="calibre11">LIMIT</code>指定返回的行数。带<code class="calibre11">OFFSET</code>的<code class="calibre11">LIMIT</code>指定从哪儿开始。在我们的例子中，<code class="calibre11">Products</code>表中只有9种产品，所以<code class="calibre11">LIMIT 5 OFFSET 5</code>只返回了4行数据（因为没有第5行）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：第0行</strong><br class="calibre14"/>
+  第一个被检索的行是第0行，而不是第1行。因此，<code class="calibre11">LIMIT 1 OFFSET 1</code>会检索第2行，而不是第1行。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：MySQL和MariaDB快捷键</strong><br class="calibre14"/>
+  MySQL和MariaDB支持简化版的<code class="calibre11">LIMIT 4 OFFSET 3</code>语句，即<code class="calibre11">LIMIT 3,4</code>。使用这个语法，<code class="calibre11">,</code>之前的值对应<code class="calibre11">LIMIT</code>， <code class="calibre11">,</code>之后的值对应<code class="calibre11">OFFSET</code>。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：并非所有的SQL实现都一样</strong><br class="calibre14"/>
+  我加入这一节只有一个原因，就是要说明，SQL虽然通常都有相当一致的实现，但你不能想当然地认为它总是这样。非常基本的语句往往是容易移植的，但较复杂的语句就不同了。当你针对某个问题寻找SQL解决方案时，一定要记住这一点。</p>
+</blockquote>
+</body>
+</html>

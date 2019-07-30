@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_46">6.1  LIKE操作符</h2><p class="calibre2">前面介绍的所有操作符都是针对已知值进行过滤的。不管是匹配一个值还是多个值，检验大于还是小于已知值，或者检查某个范围的值，其共同点是过滤中使用的值都是已知的。</p>
+
+<p class="calibre2">但是，这种过滤方法并不是任何时候都好用。例如，怎样搜索产品名中包含文本bean bag的所有产品？用简单的比较操作符肯定不行，必须使用通配符。利用通配符，可以创建比较特定数据的搜索模式。在这个例子中，如果你想找出名称包含bean bag的所有产品，可以构造一个通配符搜索模式，找出在产品名的任何位置出现bean bag的产品。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">通配符（wildcard）</strong><br class="calibre14"/>
+  用来匹配值的一部分的特殊字符。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">搜索模式（search pattern）</strong><br class="calibre14"/>
+  由字面值、通配符或两者组合构成的搜索条件。</p>
+</blockquote>
+
+<p class="calibre2">通配符本身实际上是SQL的<code class="calibre11">WHERE</code>子句中有特殊含义的字符，SQL支持几种通配符。为在搜索子句中使用通配符，必须使用<code class="calibre11">LIKE</code>操作符。<code class="calibre11">LIKE</code>指示DBMS，后跟的搜索模式利用通配符匹配而不是简单的相等匹配进行比较。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">谓词（predicate）</strong><br class="calibre14"/>
+  操作符何时不是操作符？答案是，它作为谓词时。从技术上说，<code class="calibre11">LIKE</code>是谓词而不是操作符。虽然最终的结果是相同的，但应该对此术语有所了解，以免在SQL文献或手册中遇到此术语时不知所云。</p>
+</blockquote>
+
+<p class="calibre2">通配符搜索只能用于文本字段（串），非文本数据类型字段不能使用通配符搜索。</p>
+<h3 class="calibre7" id="nav_point_47">6.1.1  百分号（%）通配符</h3><p class="calibre2">最常使用的通配符是百分号（<code class="calibre11">%</code>）。在搜索串中，<code class="calibre11">%</code>表示任何字符出现任意次数。例如，为了找出所有以词<code class="calibre11">Fish</code>起头的产品，可发布以下<code class="calibre11">SELECT</code>语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_name 
+FROM Products 
+WHERE prod_name LIKE 'Fish%'; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id     prod_name 
+-------     ------------------   
+BNBG01      Fish bean bag toy
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此例子使用了搜索模式<code class="calibre11">'Fish%'</code>。在执行这条子句时，将检索任意以<code class="calibre11">Fish</code>起头的词。<code class="calibre11">%</code>告诉DBMS接受<code class="calibre11">Fish</code>之后的任意字符，不管它有多少字符。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：Access通配符</strong><br class="calibre14"/>
+  如果使用的是Microsoft Access，需要使用<code class="calibre11">*</code>而不是<code class="calibre11">%</code>。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：区分大小写</strong><br class="calibre14"/>
+  根据DBMS的不同及其配置，搜索可以是区分大小写的。如果区分大小写，则<code class="calibre11">'fish%'</code>与<code class="calibre11">Fish bean bag toy</code>就不匹配。</p>
+</blockquote>
+
+<p class="calibre2">通配符可在搜索模式中的任意位置使用，并且可以使用多个通配符。下面的例子使用两个通配符，它们位于模式的两端：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_name 
+FROM Products 
+WHERE prod_name LIKE '%bean bag%'; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id      prod_name
+--------     -------------------- 
+BNBG01       Fish bean bag toy 
+BNBG02       Bird bean bag toy 
+BNBG03       Rabbit bean bag toy
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+搜索模式<code class="calibre11">'%bean bag%'</code>表示匹配任何位置上包含文本<code class="calibre11">bean bag</code>的值，不论它之前或之后出现什么字符。</p>
+
+<p class="calibre2">通配符也可以出现在搜索模式的中间，虽然这样做不太有用。下面的例子找出以<code class="calibre11">F</code>起头、以<code class="calibre11">y</code>结尾的所有产品：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+WHERE prod_name LIKE 'F%y';
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：根据部分信息搜索电子邮件地址</strong><br class="calibre14"/>
+  有一种情况下把通配符放在搜索模式中间是很有用的，就是根据邮件地址的一部分来查找电子邮件，例如<code class="calibre11">WHERE email LIKE b%@forta.com</code>。</p>
+</blockquote>
+
+<p class="calibre2">需要特别注意，除了能匹配一个或多个字符外，<code class="calibre11">%</code>还能匹配0个字符。<code class="calibre11">%</code>代表搜索模式中给定位置的0个、1个或多个字符。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：请注意后面所跟的空格</strong><br class="calibre14"/>
+  包括Access在内的许多DBMS都用空格来填补字段的内容。例如，如果某列有50个字符，而存储的文本为<code class="calibre11">Fish bean bag toy</code>（17个字符），则为填满该列需要在文本后附加33个空格。这样做一般对数据及其使用没有影响，但是可能对上述SQL语句有负面影响。子句<code class="calibre11">WHERE prod_name LIKE 'F%y'</code>只匹配以<code class="calibre11">F</code>开头、以<code class="calibre11">y</code>结尾的<code class="calibre11">prod_name</code>。如果值后面跟空格，则不是以<code class="calibre11">y</code>结尾，所以<code class="calibre11">Fish bean bag toy</code>就不会检索出来。简单的解决办法是给搜索模式再增加一个<code class="calibre11">%</code>号：<code class="calibre11">'F%y%'</code>还匹配<code class="calibre11">y</code>之后的字符（或空格）。更好的解决办法是用函数去掉空格。请参阅第8课。</p>
+</blockquote>
+
+<p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：请注意<code class="calibre11">NULL</code></strong><br class="calibre14"/>
+  通配符<code class="calibre11">%</code>看起来像是可以匹配任何东西，但有个例外，这就是<code class="calibre11">NULL</code>。子句<code class="calibre11">WHERE prod_name LIKE '%'</code>不会匹配产品名称为<code class="calibre11">NULL</code>的行。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_48">6.1.2  下划线（_）通配符</h3><p class="calibre2">另一个有用的通配符是下划线（<code class="calibre11">_</code>）。下划线的用途与<code class="calibre11">%</code>一样，但它只匹配单个字符，而不是多个字符。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：DB2通配符</strong><br class="calibre14"/>
+  DB2不支持通配符<code class="calibre11">_</code>。</p>
+  
+  <p class="calibre2"><strong class="calibre3">说明：Access通配符</strong><br class="calibre14"/>
+  如果使用的是Microsoft Access，需要使用<code class="calibre11">?</code>而不是<code class="calibre11">_</code>。</p>
+</blockquote>
+
+<p class="calibre2">举一个例子： </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>   </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE '__ inch teddy bear';
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：请注意后面所跟的空格</strong><br class="calibre14"/>
+  与上例一样，可能需要给这个模式添加一个通配符。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id      prod_name
+--------     --------------------
+BR02         12 inch teddy bear
+BR03         18 inch teddy bear
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个<code class="calibre11">WHERE</code>子句中的搜索模式给出了后面跟有文本的两个通配符。结果只显示匹配搜索模式的行：第一行中下划线匹配<code class="calibre11">12</code>，第二行中匹配<code class="calibre11">18</code>。<code class="calibre11">8 inch teddy bear</code>产品没有匹配，因为搜索模式要求匹配两个通配符而不是一个。对照一下，下面的<code class="calibre11">SELECT</code>语句使用<code class="calibre11">%</code>通配符，返回三行产品：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_name
+FROM Products
+WHERE prod_name LIKE '% inch teddy bear';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id      prod_name
+--------     --------------------
+BR01         8 inch teddy bear
+BR02         12 inch teddy bear
+BNR3         18 inch teddy bear
+</code></pre>
+
+<p class="calibre2">与<code class="calibre11">%</code>能匹配0个字符不同，<code class="calibre11">_</code>总是刚好匹配一个字符，不能多也不能少。</p>
+<h3 class="calibre7" id="nav_point_49">6.1.3  方括号（[ ]）通配符</h3><p class="calibre2">方括号（<code class="calibre11">[]</code>）通配符用来指定一个字符集，它必须匹配指定位置（通配符的位置）的一个字符。  </p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：并不总是支持集合</strong><br class="calibre14"/>
+  与前面描述的通配符不一样，并不是所有DBMS都支持用来创建集合的<code class="calibre11">[]</code>。只有微软的Access和SQL Server支持集合。为确定你使用的DBMS是否支持集合，请参阅相应的文档。</p>
+</blockquote>
+
+<p class="calibre2">例如，找出所有名字以<code class="calibre11">J</code>或<code class="calibre11">M</code>起头的联系人，可进行如下查询：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_contact
+FROM Customers
+WHERE cust_contact LIKE '[JM]%'
+ORDER BY cust_contact;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_contact
+-----------------
+Jim Jones
+John Smith
+Michelle Green
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此语句的<code class="calibre11">WHERE</code>子句中的模式为<code class="calibre11">'[JM]%'</code>。这一搜索模式使用了两个不同的通配符。<code class="calibre11">[JM]</code>匹配任何以方括号中字母开头的联系人名，它也只能匹配单个字符。因此，任何多于一个字符的名字都不匹配。<code class="calibre11">[JM]</code>之后的<code class="calibre11">%</code>通配符匹配第一个字符之后的任意数目的字符，返回所需结果。</p>
+
+<p class="calibre2">此通配符可以用前缀字符<code class="calibre11">^</code>（脱字号）来否定。例如，下面的查询匹配不以<code class="calibre11">J</code>或<code class="calibre11">M</code>起头的任意联系人名（与前一个例子相反）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_contact
+FROM Customers
+WHERE cust_contact LIKE '[^JM]%'
+ORDER BY cust_contact;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：Access中的否定集合</strong><br class="calibre14"/>
+  如果使用的是Microsoft Access，需要用<code class="calibre11">!</code>而不是<code class="calibre11">^</code>来否定一个集合，因此，使用的是<code class="calibre11">[!JM]</code>而不是<code class="calibre11">[^JM]</code>。</p>
+</blockquote>
+
+<p class="calibre2">当然，也可以使用<code class="calibre11">NOT</code>操作符得出相同的结果。<code class="calibre11">^</code>的唯一优点是在使用多个<code class="calibre11">WHERE</code>子句时可以简化语法：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_contact
+FROM Customers
+WHERE NOT cust_contact LIKE '[JM]%'
+ORDER BY cust_contact;
+</code></pre>
+</body>
+</html>

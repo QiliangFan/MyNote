@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_77">10.1  数据分组</h2><p class="calibre2">从上一课得知，使用SQL聚集函数可以汇总数据。这样，我们就能够对行进行计数，计算和与平均数，不检索所有数据就获得最大值和最小值。</p>
+
+<p class="calibre2">目前为止的所有计算都是在表的所有数据或匹配特定的<code class="calibre11">WHERE</code>子句的数据上进行的。比如下面的例子返回供应商<code class="calibre11">DLL01</code>提供的产品数目：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT COUNT(*) AS num_prods
+FROM Products
+WHERE vend_id = 'DLL01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">num_prods
+-----------
+4
+</code></pre>
+
+<p class="calibre2">如果要返回每个供应商提供的产品数目，该怎么办？或者返回只提供一项产品的供应商的产品，或者返回提供10个以上产品的供应商的产品，怎么办？</p>
+
+<p class="calibre2">这就是分组大显身手的时候了。使用分组可以将数据分为多个逻辑组，对每个组进行聚集计算。</p>
+</body>
+</html>

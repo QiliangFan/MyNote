@@ -1,0 +1,19 @@
+﻿body{
+	font:12px Tahoma;	
+	}
+ul,ol,h1{list-style:none;margin:0px;padding:0px;}
+a {color:#333333;text-decoration: none;}    
+a:hover   {color:#ff7300;} 		
+a img{border:0px;}	
+    .cat{
+      width:204px;height:644px;
+      padding:40px 9px 0px 0px;
+      background:url(../images/bg.gif) no-repeat;}
+    .cat ul{padding:0px 0px 0px 15px;}
+	  .cat h1{
+	  	font:bold 14px 宋体;
+		  color:#ff7300;
+		  float:none;
+		  line-height:27px;
+	   	}	 
+	 .cat_li{font:12px/24px 宋体;color:#636362;width:60px;float:left;}   

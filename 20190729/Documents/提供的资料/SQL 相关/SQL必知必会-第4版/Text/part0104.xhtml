@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_153">20.2  控制事务处理</h2><p class="calibre2">我们已经知道了什么是事务处理，下面讨论管理事务中涉及的问题。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：事务处理实现的差异</strong><br class="calibre14"/>
+  不同DBMS用来实现事务处理的语法有所不同。在使用事务处理时请参阅相应的DBMS文档。</p>
+</blockquote>
+
+<p class="calibre2">管理事务的关键在于将SQL语句组分解为逻辑块，并明确规定数据何时应该回退，何时不应该回退。</p>
+
+<p class="calibre2">有的DBMS要求明确标识事务处理块的开始和结束。如在SQL Server中，标识如下：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">BEGIN TRANSACTION
+...
+COMMIT TRANSACTION
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个例子中，<code class="calibre11">BEGIN TRANSACTION</code>和<code class="calibre11">COMMIT TRANSACTION</code>语句之间的SQL必须完全执行或者完全不执行。</p>
+
+<p class="calibre2">MariaDB和MySQL中等同的代码为：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">START TRANSACTION
+...
+</code></pre>
+
+<p class="calibre2">Oracle使用的语法：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SET TRANSACTION
+...
+</code></pre>
+
+<p class="calibre2">PostgreSQL使用ANSI SQL语法：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">BEGIN
+...
+</code></pre>
+
+<p class="calibre2">其他DBMS采用上述语法的变体。你会发现，多数实现没有明确标识事务处理在何处结束。事务一直存在，直到被中断。通常，<code class="calibre11">COMMITT</code>用于保存更改，<code class="calibre11">ROLLBACK</code>用于撤销，详述如下。</p>
+<h3 class="calibre7" id="nav_point_154">20.2.1  使用ROLLBACK</h3><p class="calibre2">SQL的<code class="calibre11">ROLLBACK</code>命令用来回退（撤销）SQL语句，请看下面的语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DELETE FROM Orders;
+ROLLBACK;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在此例子中，执行<code class="calibre11">DELETE</code>操作，然后用<code class="calibre11">ROLLBACK</code>语句撤销。虽然这不是最有用的例子，但它的确能够说明，在事务处理块中，<code class="calibre11">DELETE</code>操作（与<code class="calibre11">INSERT</code>和<code class="calibre11">UPDATE</code>操作一样）并不是最终的结果。</p>
+<h3 class="calibre7" id="nav_point_155">20.2.2  使用COMMIT</h3><p class="calibre2">一般的SQL语句都是针对数据库表直接执行和编写的。这就是所谓的隐式提交（implicit commit），即提交（写或保存）操作是自动进行的。</p>
+
+<p class="calibre2">在事务处理块中，提交不会隐式进行。不过，不同DBMS的做法有所不同。有的DBMS按隐式提交处理事务端，有的则不这样。</p>
+
+<p class="calibre2">进行明确的提交，使用<code class="calibre11">COMMIT</code>语句。下面是一个SQL Server的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">BEGIN TRANSACTION
+DELETE OrderItems WHERE order_num = 12345
+DELETE Orders WHERE order_num = 12345
+COMMIT TRANSACTION
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个SQL Server例子中，从系统中完全删除订单<code class="calibre11">12345</code>。因为涉及更新两个数据库表<code class="calibre11">Orders</code>和<code class="calibre11">OrderItems</code>，所以使用事务处理块来保证订单不被部分删除。最后的<code class="calibre11">COMMIT</code>语句仅在不出错时写出更改。如果第一条<code class="calibre11">DELETE</code>起作用，但第二条失败，则<code class="calibre11">DELETE</code>不会提交。</p>
+
+<p class="calibre2">为在Oracle中完成相同的工作，可如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SET TRANSACTION
+DELETE OrderItems WHERE order_num = 12345;
+DELETE Orders WHERE order_num = 12345;
+COMMIT; 
+</code></pre>
+<h3 class="calibre7" id="nav_point_156">20.2.3  使用保留点</h3><p class="calibre2">使用简单的<code class="calibre11">ROLLBACK</code>和<code class="calibre11">COMMIT</code>语句，就可以写入或撤销整个事务。但是，只对简单的事务才能这样做，复杂的事务可能需要部分提交或回退。</p>
+
+<p class="calibre2">例如前面描述的添加订单的过程就是一个事务。如果发生错误，只需要返回到添加<code class="calibre11">Orders</code>行之前即可。不需要回退到<code class="calibre11">Customers</code>表（如果存在的话）。</p>
+
+<p class="calibre2">要支持回退部分事务，必须在事务处理块中的合适位置放置占位符。这样，如果需要回退，可以回退到某个占位符。</p>
+
+<p class="calibre2">在SQL中，这些占位符称为保留点。在MariaDB、MySQL和Oracle中创建占位符，可使用<code class="calibre11">SAVEPOINT</code>语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SAVEPOINT delete1;
+</code></pre>
+
+<p class="calibre2">在SQL Server中，如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SAVE TRANSACTION delete1;
+</code></pre>
+
+<p class="calibre2">每个保留点都要取能够标识它的唯一名字，以便在回退时，DBMS知道回退到何处。要回退到本例给出的保留点，在SQL Server中可如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">ROLLBACK TRANSACTION delete1;
+</code></pre>
+
+<p class="calibre2">在MariaDB、MySQL和Oracle中，如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">ROLLBACK TO delete1;
+</code></pre>
+
+<p class="calibre2">下面是一个完整的SQL Server例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">BEGIN TRANSACTION
+INSERT INTO Customers(cust_id, cust_name)
+VALUES('1000000010', 'Toys Emporium');
+SAVE TRANSACTION StartOrder;
+INSERT INTO Orders(order_num, order_date, cust_id)
+VALUES(20100,'2001/12/1','1000000010');
+IF @@ERROR &lt;&gt; 0 ROLLBACK TRANSACTION StartOrder;
+INSERT INTO OrderItems(order_num, order_item, prod_id, quantity, item_price)
+VALUES(20100, 1, 'BR01', 100, 5.49);
+IF @@ERROR &lt;&gt; 0 ROLLBACK TRANSACTION StartOrder;
+INSERT INTO OrderItems(order_num, order_item, prod_id, quantity, item_price)
+VALUES(20100, 2, 'BR03', 100, 10.99);
+IF @@ERROR &lt;&gt; 0 ROLLBACK TRANSACTION StartOrder;
+COMMIT TRANSACTION
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这里的事务处理块中包含了4条<code class="calibre11">INSERT</code>语句。在第一条<code class="calibre11">INSERT</code>语句之后定义了一个保留点，因此，如果后面的任何一个<code class="calibre11">INSERT</code>操作失败，事务处理最近回退到这里。在SQL Server中，可检查一个名为<code class="calibre11">@@ERROR</code>的变量，看操作是否成功。（其他DBMS使用不同的函数或变量返回此信息。）如果<code class="calibre11">@@ERROR</code>返回一个非<code class="calibre11">0</code>的值，表示有错误发生，事务处理回退到保留点。如果整个事务处理成功，发布<code class="calibre11">COMMIT</code>以保留数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：保留点越多越好</strong><br class="calibre14"/>
+  可以在SQL代码中设置任意多的保留点，越多越好。为什么呢？因为保留点越多，你就越能灵活地进行回退。</p>
+</blockquote>
+</body>
+</html>

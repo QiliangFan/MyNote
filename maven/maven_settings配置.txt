@@ -1,0 +1,5 @@
+<mirrors>
+设置为国内镜像(注意不要用比较新的版本,可能没有更新)
+</mirrors>
+
+<local-respotiry>

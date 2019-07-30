@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_160">21.2  使用游标</h2><p class="calibre2">使用游标涉及几个明确的步骤：</p>
+
+<ul class="calibre8">
+<li class="calibre9">在使用游标前，必须声明（定义）它。这个过程实际上没有检索数据，它只是定义要使用的<code class="calibre11">SELECT</code>语句和游标选项。</li>
+<li class="calibre9">一旦声明，就必须打开游标以供使用。这个过程用前面定义的<code class="calibre11">SELECT</code>语句把数据实际检索出来。</li>
+<li class="calibre9">对于填有数据的游标，根据需要取出（检索）各行。</li>
+<li class="calibre9">在结束游标使用时，必须关闭游标，可能的话，释放游标（有赖于具体的DBMS）。</li>
+</ul>
+
+<p class="calibre2">声明游标后，可根据需要频繁地打开和关闭游标。在游标打开时，可根据需要频繁地执行取操作。</p>
+<h3 class="calibre7" id="nav_point_161">21.2.1  创建游标</h3><p class="calibre2">使用<code class="calibre11">DECLARE</code>语句创建游标，这条语句在不同的DBMS中有所不同。<code class="calibre11">DECLARE</code>命名游标，并定义相应的<code class="calibre11">SELECT</code>语句，根据需要带<code class="calibre11">WHERE</code>和其他子句。为了说明，我们创建一个游标来检索没有电子邮件地址的所有顾客，作为应用程序的组成部分，帮助操作人员找出空缺的电子邮件地址。</p>
+
+<p class="calibre2">下面是创建此游标的DB2、MariaDB、MySQL和SQL Server版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DECLARE CustCursor CURSOR
+FOR
+SELECT * FROM Customers
+WHERE cust_email IS NULL
+</code></pre>
+
+<p class="calibre2">下面是Oracle和PostgreSQL版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DECLARE CURSOR CustCursor
+IS
+SELECT * FROM Customers
+WHERE cust_email IS NULL
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在上面两个版本中，<code class="calibre11">DECLARE</code>语句用来定义和命名游标，这里为<code class="calibre11">CustCursor</code>。<code class="calibre11">SELECT</code>语句定义一个包含没有电子邮件地址（<code class="calibre11">NULL</code>值）的所有顾客的游标。</p>
+
+<p class="calibre2">定义游标之后，就可以打开它了。</p>
+<h3 class="calibre7" id="nav_point_162">21.2.2  使用游标</h3><p class="calibre2">使用<code class="calibre11">OPEN CURSOR</code>语句打开游标，这条语句很简单，在大多数DBMS中的语法相同：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">OPEN CURSOR CustCursor
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在处理<code class="calibre11">OPEN CURSOR</code>语句时，执行查询，存储检索出的数据以供浏览和滚动。</p>
+
+<p class="calibre2">现在可以用<code class="calibre11">FETCH</code>语句访问游标数据了。<code class="calibre11">FETCH</code>指出要检索哪些行，从何处检索它们以及将它们放于何处（如变量名）。第一个例子使用Oracle语法从游标中检索一行（第一行）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DECLARE TYPE CustCursor IS REF CURSOR
+    RETURN Customers%ROWTYPE;
+DECLARE CustRecord Customers%ROWTYPE
+BEGIN
+    OPEN CustCursor;
+    FETCH CustCursor INTO CustRecord;
+    CLOSE CustCursor;
+END;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个例子中，<code class="calibre11">FETCH</code>用来检索当前行（自动从第一行开始），放到声明的变量<code class="calibre11">CustRecord</code>中。对于检索出来的数据不做任何处理。</p>
+
+<p class="calibre2">下一个例子（也使用Oracle语法）中，从第一行到最后一行，对检索出来的数据进行循环：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DECLARE TYPE CustCursor IS REF CURSOR
+    RETURN Customers%ROWTYPE;
+DECLARE CustRecord Customers%ROWTYPE
+BEGIN
+    OPEN CustCursor;
+    LOOP
+    FETCH CustCursor INTO CustRecord;
+    EXIT WHEN CustCursor%NOTFOUND;
+    ...
+    END LOOP;
+    CLOSE CustCursor;
+END;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+与前一个例子一样，这个例子使用<code class="calibre11">FETCH</code>检索当前行，放到一个名为<code class="calibre11">CustRecord</code>的变量中。但不一样的是，这里的<code class="calibre11">FETCH</code>位于<code class="calibre11">LOOP</code>内，因此它反复执行。代码<code class="calibre11">EXIT WHEN CustCursor%NOTFOUND</code>使在取不出更多的行时终止处理（退出循环）。这个例子也没有做实际的处理，实际例子中可用具体的处理代码替换占位符<code class="calibre11">…</code>。</p>
+
+<p class="calibre2">下面是另一个例子，这次使用Microsoft SQL Server语法：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DECLARE @cust_id CHAR(10),
+        @cust_name CHAR(50),
+        @cust_address CHAR(50),
+        @cust_city CHAR(50),
+        @cust_state CHAR(5),
+        @cust_zip CHAR(10),
+        @cust_country CHAR(50),
+        @cust_contact CHAR(50),
+        @cust_email CHAR(255)
+OPEN CustCursor
+FETCH NEXT FROM CustCursor
+INTO @cust_id, @cust_name, @cust_address,
+     @cust_city, @cust_state, @cust_zip,
+     @cust_country, @cust_contact, @cust_email
+WHILE @@FETCH_STATUS = 0
+BEGIN
+
+FETCH NEXT FROM CustCursor
+        INTO @cust_id, @cust_name, @cust_address,
+             @cust_city, @cust_state, @cust_zip,
+             @cust_country, @cust_contact, @cust_email
+END
+CLOSE CustCursor
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在此例中，为每个检索出的列声明一个变量，<code class="calibre11">FETCH</code>语句检索一行并保存值到这些变量中。使用<code class="calibre11">WHILE</code>循环处理每一行，条件<code class="calibre11">WHILE @@FETCH_STATUS = 0</code>在取不出更多的行时终止处理（退出循环）。这个例子也不进行具体的处理，实际代码中，应该用具体的处理代码替换其中的<code class="calibre11">…</code>占位符。</p>
+<h3 class="calibre7" id="nav_point_163">21.2.3  关闭游标</h3><p class="calibre2">如前面几个例子所述，游标在使用完毕时需要关闭。此外，SQL Server等DBMS要求明确释放游标所占用的资源。下面是DB2、Oracle和PostgreSQL的语法：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CLOSE CustCursor
+</code></pre>
+
+<p class="calibre2">下面是Microsoft SQL Server的版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CLOSE CustCursor
+DEALLOCATE CURSOR CustCursor
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+<code class="calibre11">CLOSE</code>语句用来关闭游标。一旦游标关闭，如果不再次打开，将不能使用。第二次使用它时不需要再声明，只需用<code class="calibre11">OPEN</code>打开它即可。</p>
+</body>
+</html>

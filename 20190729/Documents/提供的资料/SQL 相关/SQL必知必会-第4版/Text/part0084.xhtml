@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_124">16.3  更新和删除的指导原则</h2><p class="calibre2">前一节使用的<code class="calibre11">UPDATE</code>和<code class="calibre11">DELETE</code>语句都有<code class="calibre11">WHERE</code>子句，这样做的理由很充分。如果省略了<code class="calibre11">WHERE</code>子句，则<code class="calibre11">UPDATE</code>或<code class="calibre11">DELETE</code>将被应用到表中所有的行。换句话说，如果执行<code class="calibre11">UPDATE</code>而不带<code class="calibre11">WHERE</code>子句，则表中每一行都将用新值更新。类似地，如果执行<code class="calibre11">DELETE</code>语句而不带<code class="calibre11">WHERE</code>子句，表的所有数据都将被删除。</p>
+
+<p class="calibre2">下面是许多SQL程序员使用<code class="calibre11">UPDATE</code>或<code class="calibre11">DELETE</code>时所遵循的重要原则。</p>
+
+<ul class="calibre8">
+<li class="calibre9">除非确实打算更新和删除每一行，否则绝对不要使用不带<code class="calibre11">WHERE</code>子句的<code class="calibre11">UPDATE</code>或<code class="calibre11">DELETE</code>语句。</li>
+<li class="calibre9">保证每个表都有主键（如果忘记这个内容，请参阅第12课），尽可能像<code class="calibre11">WHERE</code>子句那样使用它（可以指定各主键、多个值或值的范围）。</li>
+<li class="calibre9">在<code class="calibre11">UPDATE</code>或<code class="calibre11">DELETE</code>语句使用<code class="calibre11">WHERE</code>子句前，应该先用<code class="calibre11">SELECT</code>进行测试，保证它过滤的是正确的记录，以防编写的<code class="calibre11">WHERE</code>子句不正确。</li>
+<li class="calibre9">使用强制实施引用完整性的数据库（关于这个内容，请参阅第12课），这样DBMS将不允许删除其数据与其他表相关联的行。</li>
+<li class="calibre9">有的DBMS允许数据库管理员施加约束，防止执行不带<code class="calibre11">WHERE</code>子句的<code class="calibre11">UPDATE</code>或<code class="calibre11">DELETE</code>语句。如果所采用的DBMS支持这个特性，应该使用它。</li>
+</ul>
+
+<p class="calibre2">若是SQL没有撤销（undo）按钮，应该非常小心地使用<code class="calibre11">UPDATE</code>和<code class="calibre11">DELETE</code>，否则你会发现自己更新或删除了错误的数据。</p>
+</body>
+</html>

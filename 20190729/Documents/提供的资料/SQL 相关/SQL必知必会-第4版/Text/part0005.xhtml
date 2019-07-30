@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_5">1.1  数据库基础</h2><p class="calibre2">你正在读这本SQL图书，这表明你需要以某种方式与数据库打交道。SQL正是用来实现这一任务的语言，因此在学习SQL之前，你应该对数据库及数据库技术的某些基本概念有所了解。</p>
+
+<p class="calibre2">你可能还没有意识到，其实自己一直在使用数据库。每当你从电子邮件地址簿里查找名字时，就是在使用数据库。你在网站上进行搜索，也是在使用数据库。你在工作中登录网络，也需要依靠数据库验证用户名和密码。即使是在自动取款机上使用ATM卡，也要利用数据库进行密码验证和查询余额。</p>
+
+<p class="calibre2">虽然我们一直都在使用数据库，但对究竟什么是数据库并不十分清楚。更何况人们可能会使用相同的数据库术语表示不同的事物，进一步加剧了这种混乱。因此，我们首先给出一些最重要的数据库术语，并加以说明。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：基本概念回顾</strong><br class="calibre14"/>
+  后面是一些基本数据库概念的简要介绍。如果你已经具有一定的数据库经验，可以借此复习巩固一下；如果你刚开始接触数据库，可以由此了解必需的基本知识。理解数据库概念是掌握SQL的重要前提，如果有必要，你或许还应该参阅其他一些有关数据库基础知识的书籍 。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_6">1.1.1 数据库</h3><p class="calibre2"><strong class="calibre3">数据库</strong>这个术语的用法很多，但就本书而言（从SQL的角度来看），数据库是一个以某种有组织的方式存储的数据集合。最简单的办法是将数据库想象为一个文件柜。这个文件柜是一个存放数据的物理位置，不管数据是什么，也不管数据是如何组织的。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">数据库（database）</strong><br class="calibre14"/>
+  保存有组织的数据的容器（通常是一个文件或一组文件）。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">注意：误用导致混淆</strong><br class="calibre14"/>
+  人们通常用数据库这个术语来代表他们使用的数据库软件，这是不正确的，也因此产生了许多混淆。确切地说，数据库软件应称为<strong class="calibre3">数据库管理系统</strong>（即DBMS）。数据库是通过DBMS创建和操纵的容器，而具体它究竟是什么，形式如何，各种数据库都不一样。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_7">1.1.2 表</h3><p class="calibre2">你往文件柜里放资料时，并不是随便将它们扔进某个抽屉就完事了，而是在文件柜中创建文件，然后将相关的资料放入特定的文件中。</p>
+
+<p class="calibre2">在数据库领域中，这种文件称为表。<strong class="calibre3">表</strong>是一种结构化的文件，可用来存储某种特定类型的数据。表可以保存顾客清单、产品目录，或者其他信息清单。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">表（table）</strong><br class="calibre14"/>
+  某种特定类型数据的结构化清单。</p>
+</blockquote>
+
+<p class="calibre2">这里的关键一点在于，存储在表中的数据是同一种类型的数据或清单。决不应该将顾客的清单与订单的清单存储在同一个数据库表中，否则以后的检索和访问会很困难。应该创建两个表，每个清单一个表。</p>
+
+<p class="calibre2">数据库中的每个表都有一个名字来标识自己。这个名字是唯一的，即数据库中没有其他表具有相同的名字。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：表名</strong><br class="calibre14"/>
+  使表名成为唯一的，实际上是数据库名和表名等的组合。有的数据库还使用数据库拥有者的名字作为唯一名的一部分。也就是说，虽然在相同数据库中不能两次使用相同的表名，但在不同的数据库中完全可以使用相同的表名。</p>
+</blockquote>
+
+<p class="calibre2">表具有一些特性，这些特性定义了数据在表中如何存储，包含存储什么样的数据，数据如何分解，各部分信息如何命名等信息。描述表的这组信息就是所谓的<strong class="calibre3">模式</strong>（schema），模式可以用来描述数据库中特定的表，也可以用来描述整个数据库（和其中表的关系）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">模式</strong><br class="calibre14"/>
+  关于数据库和表的布局及特性的信息。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_8">1.1.3 列和数据类型</h3><p class="calibre2">表由列组成。列存储表中某部分的信息。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">列（column）</strong><br class="calibre14"/>
+  表中的一个字段。所有表都是由一个或多个列组成的。</p>
+</blockquote>
+
+<p class="calibre2">理解列的最好办法是将数据库表想象为一个网格，就像个电子表格那样。网格中每一列存储着某种特定的信息。例如，在顾客表中，一列存储顾客编号，另一列存储顾客姓名，而地址、城市、州以及邮政编码全都存储在各自的列中。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：分解数据</strong><br class="calibre14"/>
+  正确地将数据分解为多个列极为重要。例如，城市、州、邮政编码应该总是彼此独立的列。通过分解这些数据，才有可能利用特定的列对数据进行分类和过滤（如找出特定州或特定城市的所有顾客）。如果城市和州组合在一个列中，则按州进行分类或过滤就会很困难。</p>
+  
+  <p class="calibre2">你可以根据自己的具体需求来决定把数据分解到何种程度。例如，一般可以把门牌号和街道名一起存储在地址里。这没有问题，除非你哪天想用街道名来排序，这时，最好将门牌号和街道名分开。</p>
+</blockquote>
+
+<p class="calibre2">数据库中每个列都有相应的数据类型。数据类型（datatype）定义了列可以存储哪些数据种类。例如，如果列中存储的是数字（或许是订单中的物品数），则相应的数据类型应该为数值类型。如果列中存储的是日期、文本、注释、金额等，则应该规定好恰当的数据类型。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">数据类型</strong><br class="calibre14"/>
+  所允许的数据的类型。每个表列都有相应的数据类型，它限制（或允许）该列中存储的数据。</p>
+</blockquote>
+
+<p class="calibre2">数据类型限定了可存储在列中的数据种类（例如，防止在数值字段中录入字符值）。数据类型还帮助正确地分类数据，并在优化磁盘使用方面起重要的作用。因此，在创建表时必须特别关注所用的数据类型。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">注意：数据类型兼容</strong><br class="calibre14"/>
+  数据类型及其名称是SQL不兼容的一个主要原因。虽然大多数基本数据类型得到了一致的支持，但许多高级的数据类型却没有。更糟的是，偶然会有相同的数据类型在不同的DBMS中具有不同的名称。对此用户毫无办法，重要的是在创建表结构时要记住这些差异。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_9">1.1.4 行</h3><p class="calibre2">表中的数据是按行存储的，所保存的每个记录存储在自己的行内。如果将表想象为网格，网格中垂直的列为表列，水平行为表行。</p>
+
+<p class="calibre2">例如，顾客表可以每行存储一个顾客。表中的行编号为记录的编号。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">行（row）</strong><br class="calibre14"/>
+  表中的一个记录。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：是记录还是行？</strong><br class="calibre14"/>
+  你可能听到用户在提到<strong class="calibre3">行</strong>时称其为数据库<strong class="calibre3">记录</strong>（record）。这两个术语多半是可以交替使用的，但从技术上说，行才是正确的术语。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_10">1.1.5 主键</h3><p class="calibre2">表中每一行都应该有一列（或几列）可以唯一标识自己。顾客表可以使用顾客编号，而订单表可以使用订单ID。雇员表可以使用雇员ID或雇员社会安全号。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">主键（primary key）</strong><br class="calibre14"/>
+  一列（或一组列），其值能够唯一标识表中每一行。</p>
+</blockquote>
+
+<p class="calibre2">唯一标识表中每行的这个列（或这几列）称为主键。主键用来表示一个特定的行。没有主键，更新或删除表中特定行就极为困难，因为你不能保证操作只涉及相关的行。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：应该总是定义主键</strong><br class="calibre14"/>
+  虽然并不总是需要主键，但多数数据库设计者都会保证他们创建的每个表具有一个主键，以便于以后的数据操作和管理。</p>
+</blockquote>
+
+<p class="calibre2">表中的任何列都可以作为主键，只要它满足以下条件：</p>
+
+<ul class="calibre8">
+<li class="calibre9">任意两行都不具有相同的主键值；</li>
+<li class="calibre9">每一行都必须具有一个主键值（主键列不允许<code class="calibre11">NULL</code>值）；</li>
+<li class="calibre9">主键列中的值不允许修改或更新；</li>
+<li class="calibre9">主键值不能重用（如果某行从表中删除，它的主键不能赋给以后的新行）。</li>
+</ul>
+
+<p class="calibre2">主键通常定义在表的一列上，但并不是必需这么做，也可以一起使用多个列作为主键。在使用多列作为主键时，上述条件必须应用到所有列，所有列值的组合必须是唯一的（但单个列的值可以不唯一）。</p>
+
+<p class="calibre2">还有一种非常重要的键，称为外键，我们将在第12课中介绍。 </p>
+</body>
+</html>

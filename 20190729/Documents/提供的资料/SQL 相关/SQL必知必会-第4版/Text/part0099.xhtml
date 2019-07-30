@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_148">19.3  执行存储过程</h2><p class="calibre2">存储过程的执行远比编写要频繁得多，因此我们先介绍存储过程的执行。执行存储过程的SQL语句很简单，即<code class="calibre11">EXECUTE</code>。<code class="calibre11">EXECUTE</code>接受存储过程名和需要传递给它的任何参数。请看下面的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">EXECUTE AddNewProduct( 'JTS01', 
+                       'Stuffed Eiffel Tower', 
+                       6.49,
+                       'Plush stuffed toy with the text La
+➥Tour Eiffel in red white and blue' );
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这里执行一个名为<code class="calibre11">AddNewProduct</code>的存储过程，将一个新产品添加到<code class="calibre11">Products</code>表中。<code class="calibre11">AddNewProduct</code>有四个参数，分别是：供应商ID（<code class="calibre11">Vendors</code>表的主键）、产品名、价格和描述。这4个参数匹配存储过程中4个预期变量（定义为存储过程自身的组成部分）。此存储过程将新行添加到<code class="calibre11">Products</code>表，并将传入的属性赋给相应的列。</p>
+
+<p class="calibre2">我们注意到，在<code class="calibre11">Products</code>表中还有另一个需要值的列<code class="calibre11">prod_id</code>列，它是这个表的主键。为什么这个值不作为属性传递给存储过程？要保证恰当地生成此ID，最好是使生成此ID的过程自动化（而不是依赖于最终用户的输入）。这也是这个例子使用存储过程的原因。以下是存储过程所完成的工作：</p>
+
+<ul class="calibre8">
+<li class="calibre9">验证传递的数据，保证所有4个参数都有值；</li>
+<li class="calibre9">生成用作主键的唯一ID；</li>
+<li class="calibre9">将新产品插入<code class="calibre11">Products</code>表，在合适的列中存储生成的主键和传递的数据。</li>
+</ul>
+
+<p class="calibre2">这就是存储过程执行的基本形式。对于具体的DBMS，可能包括以下的执行选择：</p>
+
+<ul class="calibre8">
+<li class="calibre9">参数可选，具有不提供参数时的默认值；</li>
+<li class="calibre9">不按次序给出参数，以“参数=值”的方式给出参数值。</li>
+<li class="calibre9">输出参数，允许存储过程在正执行的应用程序中更新所用的参数。</li>
+<li class="calibre9">用<code class="calibre11">SELECT</code>语句检索数据。</li>
+<li class="calibre9">返回代码，允许存储过程返回一个值到正在执行的应用程序。</li>
+</ul>
+</body>
+</html>

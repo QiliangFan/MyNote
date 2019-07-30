@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_194">B.14  使用PostgreSQL</h2><p class="calibre2">有两种方式使用PostgreSQL。DBMS带有一个名为<code class="calibre11">psql</code>的命令行实用程序，这是一个纯文本工具，通常与PostgreSQL一起安装，用来执行任意SQL语句。另外，有一个名为pgAdmin的交互工具，主要用于DBMS管理，可测试SQL语句。</p>
+
+<p class="calibre2">使用<code class="calibre11">psql</code>，进行如下操作。</p>
+
+<ol class="calibre21">
+<li class="calibre9">输入<code class="calibre11">psql</code>运行此实用程序。加载一个特定的数据库，请在命令行上指定它，格式为：<code class="calibre11">psql database</code>（PostgreSQL不支持<code class="calibre11">USE</code>命令）。</li>
+<li class="calibre9">在<code class="calibre11">=&gt;</code>提示下输入要执行的SQL语句，每条语句以分号（<code class="calibre11">;</code>）结束。结果将显示在屏幕上。</li>
+<li class="calibre9">输入<code class="calibre11">\?</code>，可列出可能用到的命令。</li>
+<li class="calibre9">输入<code class="calibre11">\h</code>，可得到SQL帮助；输入<code class="calibre11">\h statement</code>（如<code class="calibre11">\h SELECT</code>），可得到特定SQL语句的帮助。 </li>
+<li class="calibre9">输入<code class="calibre11">\q</code>退出<code class="calibre11">psql</code>实用程序。</li>
+</ol>
+
+<p class="calibre2">使用pgAdmin，进行如下操作。</p>
+
+<ol class="calibre21">
+<li class="calibre9">运行pgAdmin（它也可能称为pgAdmin III）。</li>
+<li class="calibre9">如果出现提示，提供登录信息。</li>
+<li class="calibre9">pgAdmin会在左侧列出数据库服务器。选择要使用的数据库，pgAdmin将连接它，并显示服务器信息。</li>
+<li class="calibre9">然后选择实际的数据库   （这样做，工具栏按钮即可使用了）。</li>
+<li class="calibre9">定位Execute Arbitrary SQL Queries按钮（是的，这确实是它的名字，它是那个包含单词SQL的放大镜图片）。</li>
+<li class="calibre9">将显示一个新的屏幕。确保要用的数据库列在了右上方的下拉选择框中。</li>
+<li class="calibre9">现在可以在屏幕上方的大文本框中输入SQL语句了。</li>
+<li class="calibre9">点击Execute Query按钮（有绿色向右箭头的那个），执行SQL语句。结果显示在下面。</li>
+</ol>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_16">2.2  检索单个列</h2><p class="calibre2">我们将从简单的SQL <code class="calibre11">SELECT</code>语句讲起，此语句如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong>  </p>
+
+<p class="calibre2">上述语句利用<code class="calibre11">SELECT</code>语句从<code class="calibre11">Products</code>表中检索一个名为<code class="calibre11">prod_name</code>的列。所需的列名写在<code class="calibre11">SELECT</code>关键字之后，<code class="calibre11">FROM</code>关键字指出从哪个表中检索数据。此语句的输出如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>    </p>
+
+<pre class="calibre10"><code class="calibre11">prod_name
+-------------------
+Fish bean bag toy
+Bird bean bag toy
+Rabbit bean bag toy
+8 inch teddy bear
+12 inch teddy bear
+18 inch teddy bear
+Raggedy Ann
+King doll
+Queen doll
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：未排序数据</strong><br class="calibre14"/>
+  如果你自己试验这个查询，可能会发现显示输出的数据顺序与这里的不同。出现这种情况很正常。如果没有明确排序查询结果（下一课介绍），则返回的数据没有特定的顺序。返回数据的顺序可能是数据被添加到表中的顺序，也可能不是。只要返回相同数目的行，就是正常的。</p>
+</blockquote>
+
+<p class="calibre2">如上的一条简单<code class="calibre11">SELECT</code>语句将返回表中的所有行。数据没有过滤（过滤将得出结果集的一个子集），也没有排序。以后几课将讨论这些内容。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：结束SQL语句</strong><br class="calibre14"/>
+  多条SQL语句必须以分号（<code class="calibre11">；</code>）分隔。多数DBMS不需要在单条SQL语句后加分号，但也有DBMS可能必须在单条SQL语句后加上分号。当然，如果愿意可以总是加上分号。事实上，即使不一定需要，加上分号也肯定没有坏处。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：SQL语句和大小写</strong><br class="calibre14"/>
+  请注意，SQL语句不区分大小写，因此<code class="calibre11">SELECT</code>与<code class="calibre11">select</code>是相同的。同样，写成<code class="calibre11">Select</code>也没有关系。许多SQL开发人员喜欢对SQL关键字使用大写，而对列名和表名使用小写，这样做使代码更易于阅读和调试。不过，一定要认识到虽然SQL是不区分大小写的，但是表名、列名和值可能有所不同（这有赖于具体的DBMS及其如何配置）。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：使用空格</strong><br class="calibre14"/>
+  在处理SQL语句时，其中所有空格都被忽略。SQL语句可以写成长长的一行，也可以分写在多行。下面这三种写法的作用是一样的。</p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name  
+FROM Products;
+
+SELECT prod_name FROM Products;
+
+SELECT 
+prod_name
+FROM 
+Products;
+</code></pre>
+  
+  <p class="calibre2">多数SQL开发人员认为，将SQL语句分成多行更容易阅读和调试。</p>
+</blockquote>
+</body>
+</html>

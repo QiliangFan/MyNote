@@ -466,3 +466,26 @@ Author.xml
 
 
 
+# 如果MyBatis的xml文件没有进入编译的class文件夹内:
+
+~~~xml
+<!--在pom.xml中配置build-->
+<resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+</resources>
+~~~
+

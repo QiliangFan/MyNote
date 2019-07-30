@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_103">13.3  使用带聚集函数的联结</h2><p class="calibre2">如第9课所述，聚集函数用来汇总数据。虽然至今为止我们举的聚集函数的例子都只是从一个表中汇总数据，但这些函数也可以与联结一起使用。</p>
+
+<p class="calibre2">我们来看个例子，要检索所有顾客及每个顾客所下的订单数，下面的代码使用<code class="calibre11">COUNT()</code>函数完成此工作：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT Customers.cust_id,
+       COUNT(Orders.order_num) AS num_ord
+FROM Customers INNER JOIN Orders
+ ON Customers.cust_id = Orders.cust_id
+GROUP BY Customers.cust_id;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id        um_ord
+----------     --------
+1000000001     2
+1000000003     1
+1000000004     1
+1000000005     1
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条<code class="calibre11">SELECT</code>语句使用<code class="calibre11">INNER JOIN</code>将<code class="calibre11">Customers</code>和<code class="calibre11">Orders</code>表互相关联。<code class="calibre11">GROUP BY</code>子句按顾客分组数据，因此，函数调用<code class="calibre11">COUNT(Orders.order_num)</code>对每个顾客的订单计数，将它作为<code class="calibre11">num_ord</code>返回。</p>
+
+<p class="calibre2">聚集函数也可以方便地与其他联结一起使用。请看下面的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT Customers.cust_id,
+       COUNT(Orders.order_num) AS num_ord
+FROM Customers LEFT OUTER JOIN Orders
+ ON Customers.cust_id = Orders.cust_id
+GROUP BY Customers.cust_id;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：Oracle中没有<code class="calibre11">AS</code></strong><br class="calibre14"/>
+  再次提醒Oracle用户，请记住删除<code class="calibre11">AS</code>。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id        num_ord
+----------     -------
+1000000001     2
+1000000002     0
+1000000003     1
+1000000004     1
+1000000005     1
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个例子使用左外部联结来包含所有顾客，甚至包含那些没有任何订单的顾客。结果中也包含了顾客<code class="calibre11">1000000002</code>，他有<code class="calibre11">0</code>个订单。</p>
+</body>
+</html>

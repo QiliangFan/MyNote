@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_30">4.1  使用WHERE子句</h2><p class="calibre2">数据库表一般包含大量的数据，很少需要检索表中的所有行。通常只会根据特定操作或报告的需要提取表数据的子集。只检索所需数据需要指定<strong class="calibre3">搜索条件</strong>（search criteria），搜索条件也称为<strong class="calibre3">过滤条件</strong>（filter condition）。</p>
+
+<p class="calibre2">在<code class="calibre11">SELECT</code>语句中，数据根据<code class="calibre11">WHERE</code>子句中指定的搜索条件进行过滤。<code class="calibre11">WHERE</code>子句在表名（<code class="calibre11">FROM</code>子句）之后给出，如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price = 3.49; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条语句从<code class="calibre11">products</code>表中检索两个列，但不返回所有行，只返回<code class="calibre11">prod_price</code>值为<code class="calibre11">3.49</code>的行，如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name               prod_price
+-------------------     ----------
+Fish bean bag toy       3.49
+Bird bean bag toy       3.49
+Rabbit bean bag toy     3.49
+</code></pre>
+
+<p class="calibre2">这个示例使用了简单的相等检验：检查这一列的值是否为指定值，据此过滤数据。不过，SQL不止能测试等于，还能做更多的事情。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：有多少个0？</strong><br class="calibre14"/>
+  你在练习这个示例时，会发现显示的结果可能是3.49、3.490、3.4900等。出现这样的情况，往往是因为DBMS指定了所使用的数据类型及其默认行为。所以，如果你的输出可能与书上的有点不同，不必焦虑，毕竟从数学角度讲，3.49和3.4900是一样的。</p>
+</blockquote>
+
+<p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：SQL过滤与应用过滤</strong><br class="calibre14"/>
+  数据也可以在应用层过滤。为此，SQL的<code class="calibre11">SELECT</code>语句为客户端应用检索出超过实际所需的数据，然后客户端代码对返回数据进行循环，提取出需要的行。</p>
+  
+  <p class="calibre2">通常，这种做法极其不妥。优化数据库后可以更快速有效地对数据进行过滤。而让客户端应用（或开发语言）处理数据库的工作将会极大地影响应用的性能，并且使所创建的应用完全不具备可伸缩性。此外，如果在客户端过滤数据，服务器不得不通过网络发送多余的数据，这将导致网络带宽的浪费。</p>
+</blockquote>
+
+<p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：<code class="calibre11">WHERE</code>子句的位置</strong><br class="calibre14"/>
+  在同时使用<code class="calibre11">ORDER BY</code>和<code class="calibre11">WHERE</code>子句时，应该让<code class="calibre11">ORDER BY</code>位于<code class="calibre11">WHERE</code>之后，否则将会产生错误（关于<code class="calibre11">ORDER BY</code>的使用，请参阅第3课）。</p>
+</blockquote>
+</body>
+</html>

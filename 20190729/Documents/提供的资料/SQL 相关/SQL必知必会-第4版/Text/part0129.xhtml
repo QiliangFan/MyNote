@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_190">B.10  使用MySQL</h2><p class="calibre2">有两种方式使用MySQL。DBMS带有一个名为<code class="calibre11">mysql</code>的命令行实用程序。这是一个纯文本工具，通常作为MySQL安装程序的一部分来安装，用来执行任何SQL语句。另外，MySQL的创建者发布了一个名为MySQL Workbench的交互工具，通常需要独立下载和安装，所以它不会出现在其他安装程序中。学习MySQL时，强烈推荐使用它。</p>
+
+<p class="calibre2">从命令行使用<code class="calibre11">mysql</code>，进行如下操作。</p>
+
+<ol class="calibre21">
+<li class="calibre9">输入<code class="calibre11">mysql</code>运行实用程序。根据如何定义安全性，可能需要使用<code class="calibre11">-u</code>和<code class="calibre11">-p</code>参数指定登录信息。</li>
+<li class="calibre9">在<code class="calibre11">mysql&gt;</code>提示下输入<code class="calibre11">USE database</code>打开数据库，例如<code class="calibre11">USE tysql</code>就是打开<code class="calibre11">tysql</code>数据库。</li>
+<li class="calibre9">在<code class="calibre11">mysql&gt;</code>提示下输入SQL语句，每条语句必须以分号（;）结束。结果将显示在屏幕上。</li>
+<li class="calibre9">为可能使用的命令列表输入<code class="calibre11">\h</code>，为状态信息输入<code class="calibre11">\s</code>（包括MySQL版本信息）。</li>
+<li class="calibre9">输入<code class="calibre11">\q</code>退出<code class="calibre11">mysql</code>实用程序。</li>
+</ol>
+
+<p class="calibre2">使用MySQL Workbench，进行如下操作。</p>
+
+<ol class="calibre21">
+<li class="calibre9">运行MySQL Workbench。</li>
+<li class="calibre9">MySQL Workbench的最左侧列出了可用的MySQL数据库连接，允许你访问它们。点击任何连接就可以打开这个数据库；如果数据库没有在此列出，请选择New Connection。</li>
+<li class="calibre9">一旦连接，就会显示多个窗口。左侧的Object Browser列出了可用的数据库，中间是用于输入SQL语句的大的文本编辑器，结果或信息显示在下方。</li>
+<li class="calibre9">点击＋SQL按钮，打开新的SQL窗口。</li>
+<li class="calibre9">输入SQL语句后，点击Execute（有闪电图片的那个）运行SQL。结果显示在下面。</li>
+</ol>
+</body>
+</html>

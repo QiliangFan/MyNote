@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_92">12.2  创建联结</h2><p class="calibre2">创建联结非常简单，指定要联结的所有表以及关联它们的方式即可。请看下面的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_name, prod_name, prod_price
+FROM Vendors, Products
+WHERE Vendors.vend_id = Products.vend_id;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_name                prod_name                prod_price
+--------------------     --------------------     ----------
+Doll House Inc.          Fish bean bag toy        3.4900
+Doll House Inc.          Bird bean bag toy        3.4900
+Doll House Inc.          Rabbit bean bag toy      3.4900
+Bears R Us               8 inch teddy bear        5.9900
+Bears R Us               12 inch teddy bear       8.9900
+Bears R Us               18 inch teddy bear       11.9900
+Doll House Inc.          Raggedy Ann              4.9900
+Fun and Games            King doll                9.4900
+Fun and Games            Queen doll               9.4900
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+我们来看这段代码。<code class="calibre11">SELECT</code>语句与前面所有语句一样指定要检索的列。这里最大的差别是所指定的两列（<code class="calibre11">prod_name</code>和<code class="calibre11">prod_price</code>）在一个表中，而第三列（<code class="calibre11">vend_name</code>）在另一个表中。</p>
+
+<p class="calibre2">现在来看<code class="calibre11">FROM</code>子句。与以前的<code class="calibre11">SELECT</code>语句不一样，这条语句的<code class="calibre11">FROM</code>子句列出了两个表：<code class="calibre11">Vendors</code>和<code class="calibre11">Products</code>。它们就是这条<code class="calibre11">SELECT</code>语句联结的两个表的名字。这两个表用<code class="calibre11">WHERE</code>子句正确地联结，<code class="calibre11">WHERE</code>子句指示DBMS将<code class="calibre11">Vendors</code>表中的<code class="calibre11">vend_id</code>与<code class="calibre11">Products</code>表中的<code class="calibre11">vend_id</code>匹配起来。</p>
+
+<p class="calibre2">可以看到，要匹配的两列指定为<code class="calibre11">Vendors.vend_id</code>和<code class="calibre11">Products.vend_id</code>。这里需要这种完全限定列名，如果只给出<code class="calibre11">vend_id</code>，DBMS就不知道指的是哪一个（每个表中有一个）。从前面的输出可以看到，一条<code class="calibre11">SELECT</code>语句返回了两个不同表中的数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：完全限定列名</strong><br class="calibre14"/>
+  就像前一课提到的，在引用的列可能出现歧义时，必须使用完全限定列名（用一个句点分隔表名和列名）。如果引用一个没有用表名限制的具有歧义的列名，大多数DBMS会返回错误。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_93">12.2.1  WHERE子句的重要性</h3><p class="calibre2">使用<code class="calibre11">WHERE</code>子句建立联结关系似乎有点奇怪，但实际上是有个很充分的理由的。要记住，在一条<code class="calibre11">SELECT</code>语句中联结几个表时，相应的关系是在运行中构造的。在数据库表的定义中没有指示DBMS如何对表进行联结的内容。你必须自己做这件事情。在联结两个表时，实际要做的是将第一个表中的每一行与第二个表中的每一行配对。<code class="calibre11">WHERE</code>子句作为过滤条件，只包含那些匹配给定条件（这里是联结条件）的行。没有<code class="calibre11">WHERE</code>子句，第一个表中的每一行将与第二个表中的每一行配对，而不管它们逻辑上是否能配在一起。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">笛卡儿积（cartesian product）</strong><br class="calibre14"/>
+  由没有联结条件的表关系返回的结果为笛卡儿积。检索出的行的数目将是第一个表中的行数乘以第二个表中的行数。</p>
+</blockquote>
+
+<p class="calibre2">理解这一点，请看下面的<code class="calibre11">SELECT</code>语句及其输出： </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_name, prod_name, prod_price
+FROM Vendors, Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_name            prod_name                         prod_price
+----------------     ----------------------------      ----------
+Bears R Us           8 inch teddy bear                 5.99
+Bears R Us           12 inch teddy bear                8.99
+Bears R Us           18 inch teddy bear                11.99
+Bears R Us           Fish bean bag toy                 3.49
+Bears R Us           Bird bean bag toy                 3.49
+Bears R Us           Rabbit bean bag toy               3.49
+Bears R Us           Raggedy Ann                       4.99
+Bears R Us           King doll                         9.49
+Bears R Us           Queen doll                        9.49
+Bear Emporium        8 inch teddy bear                 5.99
+Bear Emporium        12 inch teddy bear                8.99
+Bear Emporium        18 inch teddy bear                11.99
+Bear Emporium        Fish bean bag toy                 3.49
+Bear Emporium        Bird bean bag toy                 3.49
+Bear Emporium        Rabbit bean bag toy               3.49
+Bear Emporium        Raggedy Ann                       4.99
+Bear Emporium        King doll                         9.49
+Bear Emporium        Queen doll                        9.49
+Doll House Inc.      8 inch teddy bear                 5.99
+Doll House Inc.      12 inch teddy bear                8.99
+Doll House Inc.      18 inch teddy bear                11.99
+Doll House Inc.      Fish bean bag toy                 3.49
+Doll House Inc.      Bird bean bag toy                 3.49
+Doll House Inc.      Rabbit bean bag toy               3.49
+Doll House Inc.      Raggedy Ann                       4.99
+Doll House Inc.      King doll                         9.49
+Doll House Inc.      Queen doll                        9.49
+Furball Inc.         8 inch teddy bear                 5.99
+Furball Inc.         12 inch teddy bear                8.99
+Furball Inc.         18 inch teddy bear                11.99
+Furball Inc.         Fish bean bag toy                 3.49
+Furball Inc.         Bird bean bag toy                 3.49
+Furball Inc.         Rabbit bean bag toy               3.49
+Furball Inc.         Raggedy Ann                       4.99
+Furball Inc.         King doll                         9.49
+Furball Inc.         Queen doll                        9.49
+Fun and Games        8 inch teddy bear                 5.99
+Fun and Games        12 inch teddy bear                8.99
+Fun and Games        18 inch teddy bear                11.99
+Fun and Games        Fish bean bag toy                 3.49
+Fun and Games        Bird bean bag toy                 3.49
+Fun and Games        Rabbit bean bag toy               3.49
+Fun and Games        Raggedy Ann                       4.99
+Fun and Games        King doll                         9.49
+Fun and Games        Queen doll                        9.49
+Jouets et ours       8 inch teddy bear                 5.99
+Jouets et ours       12 inch teddy bear                8.99
+Jouets et ours       18 inch teddy bear                11.99
+Jouets et ours       Fish bean bag toy                 3.49
+Jouets et ours       Bird bean bag toy                 3.49
+Jouets et ours       Rabbit bean bag toy               3.49
+Jouets et ours       Raggedy Ann                       4.99
+Jouets et ours       King doll                         9.49
+Jouets et ours       Queen doll                        9.49
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+从上面的输出可以看到，相应的笛卡儿积不是我们想要的。这里返回的数据用每个供应商匹配了每个产品，包括了供应商不正确的产品（即使供应商根本就没有产品）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：不要忘了<code class="calibre11">WHERE</code>子句</strong><br class="calibre14"/>
+  要保证所有联结都有<code class="calibre11">WHERE</code>子句，否则DBMS将返回比想要的数据多得多的数据。同理，要保证<code class="calibre11">WHERE</code>子句的正确性。不正确的过滤条件会导致DBMS返回不正确的数据。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：叉联结</strong><br class="calibre14"/>
+  有时，返回笛卡儿积的联结，也称叉联结（cross join）。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_94">12.2.2  内联结</h3><p class="calibre2">目前为止使用的联结称为等值联结（equijoin），它基于两个表之间的相等测试。这种联结也称为内联结（inner join）。其实，可以对这种联结使用稍微不同的语法，明确指定联结的类型。下面的<code class="calibre11">SELECT</code>语句返回与前面例子完全相同的数据：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_name, prod_name, prod_price
+FROM Vendors INNER JOIN Products
+ ON Vendors.vend_id = Products.vend_id;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此语句中的<code class="calibre11">SELECT</code>与前面的<code class="calibre11">SELECT</code>语句相同，但<code class="calibre11">FROM</code>子句不同。这里，两个表之间的关系是以<code class="calibre11">INNER JOIN</code>指定的部分<code class="calibre11">FROM</code>子句。在使用这种语法时，联结条件用特定的<code class="calibre11">ON</code>子句而不是<code class="calibre11">WHERE</code>子句给出。传递给<code class="calibre11">ON</code>的实际条件与传递给<code class="calibre11">WHERE</code>的相同。</p>
+
+<p class="calibre2">至于选用哪种语法，请参阅具体的DBMS文档。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：“正确的”语法</strong><br class="calibre14"/>
+  ANSI SQL规范首选<code class="calibre11">INNER JOIN</code>语法，之前使用的是简单的等值语法。其实，SQL语言纯正论者是用鄙视的眼光看待简单语法的。这就是说，DBMS的确支持简单格式和标准格式，我建议你要理解这两种格式，具体使用就看你用哪个更顺手了。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_95">12.2.3  联结多个表</h3><p class="calibre2">SQL不限制一条<code class="calibre11">SELECT</code>语句中可以联结的表的数目。创建联结的基本规则也相同。首先列出所有表，然后定义表之间的关系。例如：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, vend_name, prod_price, quantity
+FROM OrderItems, Products, Vendors
+WHERE Products.vend_id = Vendors.vend_id
+ AND OrderItems.prod_id = Products.prod_id
+ AND order_num = 20007;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name           vend_name         prod_price     quantity
+---------------     -------------     ----------     --------
+18 inch teddy bear  Bears R Us        11.9900        50
+Fish bean bag toy   Doll House Inc.   3.4900         100
+Bird bean bag toy   Doll House Inc.   3.4900         100
+Rabbit bean bag toy Doll House Inc.   3.4900         100
+Raggedy Ann         Doll House Inc.   4.9900         50
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个例子显示订单<code class="calibre11">20007</code>中的物品。订单物品存储在<code class="calibre11">OrderItems</code>表中。每个产品按其产品ID存储，它引用<code class="calibre11">Products</code>表中的产品。这些产品通过供应商ID联结到<code class="calibre11">Vendors</code>表中相应的供应商，供应商ID存储在每个产品的记录中。这里的<code class="calibre11">FROM</code>子句列出三个表，<code class="calibre11">WHERE</code>子句定义这两个联结条件，而第三个联结条件用来过滤出订单<code class="calibre11">20007</code>中的物品。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：性能考虑</strong><br class="calibre14"/>
+  DBMS在运行时关联指定的每个表，以处理联结。这种处理可能非常耗费资源，因此应该注意，不要联结不必要的表。联结的表越多，性能下降越厉害。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：联结中表的最大数目</strong><br class="calibre14"/>
+  虽然SQL本身不限制每个联结约束中表的数目，但实际上许多DBMS都有限制。请参阅具体的DBMS文档以了解其限制。</p>
+</blockquote>
+
+<p class="calibre2">现在回顾一下第11课中的例子，如下的<code class="calibre11">SELECT</code>语句返回订购产品<code class="calibre11">RGAN01</code>的顾客列表：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers
+WHERE cust_id IN (SELECT cust_id
+                  FROM Orders
+                  WHERE order_num IN (SELECT order_num
+                                      FROM OrderItems
+                                      WHERE prod_id = 'RGAN01'));
+</code></pre>
+
+<p class="calibre2">如第11课所述，子查询并不总是执行复杂<code class="calibre11">SELECT</code>操作的最有效方法，下面是使用联结的相同查询：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+ AND OrderItems.order_num = Orders.order_num
+ AND prod_id = 'RGAN01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name                         cust_contact
+-----------------------------     --------------------
+Fun4All                           Denise L. Stephens
+The Toy Store                     Kim Howard
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+如第11课所述，这个查询中的返回数据需要使用3个表。但在这里，我们没有在嵌套子查询中使用它们，而是使用了两个联结来连接表。这里有三个<code class="calibre11">WHERE</code>子句条件。前两个关联联结中的表，后一个过滤产品<code class="calibre11">RGAN01</code>的数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：多做实验</strong><br class="calibre14"/>
+  可以看到，执行任一给定的SQL操作一般不止一种方法。很少有绝对正确或绝对错误的方法。性能可能会受操作类型、所使用的DBMS、表中数据量、是否存在索引或键等条件的影响。因此，有必要试验不同的选择机制，找出最适合具体情况的方法。</p>
+</blockquote>
+</body>
+</html>

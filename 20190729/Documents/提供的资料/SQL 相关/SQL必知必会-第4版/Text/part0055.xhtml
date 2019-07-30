@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_80">10.4  分组和排序</h2><p class="calibre2"><code class="calibre11">GROUP BY</code>和<code class="calibre11">ORDER BY</code>经常完成相同的工作，但它们非常不同，理解这一点很重要。表10-1汇总了它们之间的差别。</p>
+
+<p class="calibre2"><strong class="calibre3">表10-1  ORDER BY与GROUP BY</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">ORDER BY</th>
+      <th class="calibre17">GROUP BY</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">对产生的输出排序</td>
+      <td class="calibre19">对行分组，但输出可能不是分组的顺序</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">任意列都可以使用（甚至非选择的列也可以使用）</td>
+      <td class="calibre19">只可能使用选择列或表达式列，而且必须使用每个选择列表达式</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">不一定需要</td>
+      <td class="calibre19">如果与聚集函数一起使用列（或表达式），则必须使用</td>
+   </tr>
+</table>
+
+<p class="calibre2">表10-1中列出的第一项差别极为重要。我们经常发现，用<code class="calibre11">GROUP BY</code>分组的数据确实是以分组顺序输出的。但并不总是这样，这不是SQL规范所要求的。此外，即使特定的DBMS总是按给出的<code class="calibre11">GROUP BY</code>子句排序数据，用户也可能会要求以不同的顺序排序。就因为你以某种方式分组数据（获得特定的分组聚集值），并不表示你需要以相同的方式排序输出。应该提供明确的<code class="calibre11">ORDER BY</code>子句，即使其效果等同于<code class="calibre11">GROUP BY</code>子句。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：不要忘记<code class="calibre11">ORDER BY</code></strong><br class="calibre14"/>
+  一般在使用<code class="calibre11">GROUP BY</code>子句时，应该也给出<code class="calibre11">ORDER BY</code>子句。这是保证数据正确排序的唯一方法。千万不要仅依赖<code class="calibre11">GROUP BY</code>排序数据。</p>
+</blockquote>
+
+<p class="calibre2">为说明<code class="calibre11">GROUP BY</code>和<code class="calibre11">ORDER BY</code>的使用方法，来看一个例子。下面的<code class="calibre11">SELECT</code>语句类似于前面那些例子。它检索包含三个或更多物品的订单号和订购物品的数目：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num, COUNT(*) AS items
+FROM OrderItems
+GROUP BY order_num
+HAVING COUNT(*) &gt;= 3;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">order_num     items
+---------     -----
+20006         3
+20007         5
+20008         5
+20009         3
+</code></pre>
+
+<p class="calibre2">要按订购物品的数目排序输出，需要添加<code class="calibre11">ORDER BY</code>子句，如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num, COUNT(*) AS items
+FROM OrderItems
+GROUP BY order_num
+HAVING COUNT(*) &gt;= 3
+ORDER BY items, order_num;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：Access的不兼容性</strong><br class="calibre14"/>
+  Microsoft Access不允许按别名排序，因此这个例子在Access中将失败。解决方法是用实际的计算或字段位置替换<code class="calibre11">items</code>（在<code class="calibre11">ORDER BY</code>子句中），即<code class="calibre11">ORDER BY COUNT(*), order_num</code>或<code class="calibre11">ORDER BY 2, order_num</code>。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">order_num     items
+---------     -----
+20006         3
+20009         3
+20007         5
+20008         5
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个例子中，使用<code class="calibre11">GROUP BY</code>子句按订单号（<code class="calibre11">order_num</code>列）分组数据，以便<code class="calibre11">COUNT(*)</code>函数能够返回每个订单中的物品数目。<code class="calibre11">HAVING</code>子句过滤数据，使得只返回包含三个或更多物品的订单。最后，用<code class="calibre11">ORDER  BY</code>子句排序输出。</p>
+</body>
+</html>

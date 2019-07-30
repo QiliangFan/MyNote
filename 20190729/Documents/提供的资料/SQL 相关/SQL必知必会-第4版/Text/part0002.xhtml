@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h1 class="calibre1" id="nav_point_2">引言</h1><p class="calibre2">SQL是使用最为广泛的数据库语言。不管你是应用开发者、数据库管理员、Web应用设计师、移动应用开发人员，还是只使用Microsoft Office，掌握良好的SQL知识对用好数据库都是很重要的。</p>
+
+<p class="calibre2">本书可以说是应需而生。我讲授了多年的Web应用开发，学生们经常要求我推荐一些SQL图书。SQL方面的书很多，有的其实很不错，但它们都有一个共同的特点，就是讲授的内容太多了，多数人其实不需要了解那么多。很多图书讲的不是SQL本身，而是从数据库设计、规范化到关系数据库理论以及管理问题等，事无巨细都讲一通。当然，这些内容也很重要，但大多数读者仅想学习SQL，他们未必感兴趣。</p>
+
+<p class="calibre2">因此，我找不到合适书籍推荐给学生，只好把在课堂上给学生讲授的SQL知识汇编成了本书。本书将讲授读者需要了解的SQL知识，从简单的数据检索入手，逐步过渡到一些较为复杂的内容，如联结、子查询、存储过程、游标、触发器以及表约束等。读者将从本书中循序渐进、系统而直接地学到SQL的知识和技巧。</p>
+
+<p class="calibre2">本书写到了第4版，它已经教会了英语国家近30万的读者使用SQL，并且还翻译出版了十多种其他语言的版本。现在轮到你了，让我们翻到第1课，开始学习吧。你将很快编写出世界级的SQL。</p>
+
+<h3 class="calibre7">读者对象</h3>
+
+<p class="calibre2">本书适合以下读者：</p>
+
+<ul class="calibre8">
+<li class="calibre9">SQL新手；</li>
+<li class="calibre9">希望快速学会并熟练使用SQL；</li>
+<li class="calibre9">希望知道如何使用SQL开发应用程序；</li>
+<li class="calibre9">希望在无人帮助的情况下有效而快速地使用SQL。</li>
+</ul>
+
+<h3 class="calibre7">本书涵盖的DBMS</h3>
+
+<p class="calibre2">一般来说，本书中所讲授的SQL可以应用到任何数据库管理系统（DBMS）。但是，各种SQL实现不尽相同，本书介绍的SQL主要适用于以下系统（需要时会给出特殊说明和注释）：</p>
+
+<ul class="calibre8">
+<li class="calibre9">Apache Open Office Base；</li>
+<li class="calibre9">IBM DB2；</li>
+<li class="calibre9">Microsoft Access；</li>
+<li class="calibre9">Microsoft SQL Server（包括Microsoft SQL Server Express）；</li>
+<li class="calibre9">MariaDB；</li>
+<li class="calibre9">MySQL；</li>
+<li class="calibre9">Oracle（包括Oracle Express）；</li>
+<li class="calibre9">PostgreSQL；</li>
+<li class="calibre9">SQLite。</li>
+</ul>
+
+<p class="calibre2">本书中的所有数据库示例（或者创建数据库示例的SQL脚本例子）对于这些DBMS都是适用的，它们可以在本书的网页<a class="calibre6" href="http://forta.com/books/0672336073/">http://forta.com/books/0672336073/</a>上获得。</p>
+
+<h3 class="calibre7">本书约定</h3>
+
+<p class="calibre2">本书采用等宽字体表示代码，读者输入的文本与应该出现在屏幕上的文本也都以等宽字体给出。如：</p>
+
+<pre class="calibre10"><code class="calibre11">It will look like this to mimic the way text looks on your screen.
+</code></pre>
+
+<p class="calibre2">变量和表达式的占位符用斜体表示，你可以用具体的值代替它。</p>
+
+<p class="calibre2">代码行前的箭头（<img alt="enter image description here" class="calibre12" src="../Images/image00176.gif"/>）表示代码太长，上一行容纳不下。在<img alt="enter image description here" class="calibre12" src="../Images/image00172.gif"/>符号后输入的所有字符都应该是前一行的内容。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明</strong><br class="calibre14"/>
+  给出上下文讨论中比较重要的信息。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示</strong><br class="calibre14"/>
+  就某任务给出建议或更简单的方法。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">注意</strong><br class="calibre14"/>
+  提醒可能出现的问题，避免出现事故。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">新术语</strong><br class="calibre14"/>
+  清晰定义重要的新词汇。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong><br class="calibre14"/>
+读者可以自己输入的代码，通常紧挨着代码出现。</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong><br class="calibre14"/>
+强调某个程序执行时的输出，通常出现在代码后。</p>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+对程序代码进行逐行分析。</p>
+<p class="calibre5" id="calibre_pb_7"> </p>
+</body>
+</html>

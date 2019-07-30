@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_173">22.4  数据库安全</h2><p class="calibre2">对于组织来说，没有什么比它的数据更重要了，因此应该保护这些数据，使其不被偷盗或任意浏览。当然，数据也必须允许需要访问它的用户访问，因此大多数DBMS都给管理员提供了管理机制，利用管理机制授予或限制对数据的访问。</p>
+
+<p class="calibre2">任何安全系统的基础都是用户授权和身份确认。这是一种处理，通过这种处理对用户进行确认，保证他是有权用户，允许执行他要执行的操作。有的DBMS为此结合使用了操作系统的安全措施，而有的维护自己的用户及密码列表，还有一些结合使用外部目录服务服务器。</p>
+
+<p class="calibre2">一般说来，需要保护的操作有：</p>
+
+<ul class="calibre8">
+<li class="calibre9">对数据库管理功能（创建表、更改或删除已存在的表等）的访问；</li>
+<li class="calibre9">对特定数据库或表的访问；</li>
+<li class="calibre9">访问的类型（只读、对特定列的访问等）；</li>
+<li class="calibre9">仅通过视图或存储过程对表进行访问；</li>
+<li class="calibre9">创建多层次的安全措施，从而允许多种基于登录的访问和控制；</li>
+<li class="calibre9">限制管理用户账号的能力。</li>
+</ul>
+
+<p class="calibre2">安全性使用SQL的<code class="calibre11">GRANT</code>和<code class="calibre11">REVOKE</code>语句来管理，不过，大多数DBMS提供了交互式的管理实用程序，这些实用程序在内部使用<code class="calibre11">GRANT</code>和<code class="calibre11">REVOKE</code>语句。</p>
+</body>
+</html>

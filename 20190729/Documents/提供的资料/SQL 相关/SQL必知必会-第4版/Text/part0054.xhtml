@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_79">10.3  过滤分组</h2><p class="calibre2">除了能用<code class="calibre11">GROUP BY</code>分组数据外，SQL还允许过滤分组，规定包括哪些分组，排除哪些分组。例如，你可能想要列出至少有两个订单的所有顾客。为此，必须基于完整的分组而不是个别的行进行过滤。</p>
+
+<p class="calibre2">我们已经看到了<code class="calibre11">WHERE</code>子句的作用（第4课提及）。但是，在这个例子中<code class="calibre11">WHERE</code>不能完成任务，因为<code class="calibre11">WHERE</code>过滤指定的是行而不是分组。事实上，<code class="calibre11">WHERE</code>没有分组的概念。</p>
+
+<p class="calibre2">那么，不使用<code class="calibre11">WHERE</code>使用什么呢？SQL为此提供了另一个子句，就是<code class="calibre11">HAVING</code>子句。<code class="calibre11">HAVING</code>非常类似于<code class="calibre11">WHERE</code>。事实上，目前为止所学过的所有类型的<code class="calibre11">WHERE</code>子句都可以用<code class="calibre11">HAVING</code>来替代。唯一的差别是，<code class="calibre11">WHERE</code>过滤行，而<code class="calibre11">HAVING</code>过滤分组。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">HAVING</code>支持所有<code class="calibre11">WHERE</code>操作符</strong><br class="calibre14"/>
+  在第4课和第5课中，我们学习了<code class="calibre11">WHERE</code>子句的条件（包括通配符条件和带多个操作符的子句）。学过的这些有关<code class="calibre11">WHERE</code>的所有技术和选项都适用于<code class="calibre11">HAVING</code>。它们的句法是相同的，只是关键字有差别。</p>
+</blockquote>
+
+<p class="calibre2">那么，怎么过滤分组呢？请看以下的例子：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_id, COUNT(*) AS orders
+FROM Orders
+GROUP BY cust_id
+HAVING COUNT(*) &gt;= 2;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id        orders
+----------     -----------
+1000000001     2
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条<code class="calibre11">SELECT</code>语句的前三行类似于上面的语句。最后一行增加了<code class="calibre11">HAVING</code>子句，它过滤<code class="calibre11">COUNT(*)  &gt;= 2</code>（两个以上订单）的那些分组。</p>
+
+<p class="calibre2">可以看到，<code class="calibre11">WHERE</code>子句在这里不起作用，因为过滤是基于分组聚集值，而不是特定行的值。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：<code class="calibre11">HAVING</code>和<code class="calibre11">WHERE</code>的差别</strong><br class="calibre14"/>
+  这里有另一种理解方法，<code class="calibre11">WHERE</code>在数据分组前进行过滤，<code class="calibre11">HAVING</code>在数据分组后进行过滤。这是一个重要的区别，<code class="calibre11">WHERE</code>排除的行不包括在分组中。这可能会改变计算值，从而影响<code class="calibre11">HAVING</code>子句中基于这些值过滤掉的分组。</p>
+</blockquote>
+
+<p class="calibre2">那么，有没有在一条语句中同时使用<code class="calibre11">WHERE</code>和<code class="calibre11">HAVING</code>子句的需要呢？事实上，确实有。假如想进一步过滤上面的语句，使它返回过去12个月内具有两个以上订单的顾客。为此，可增加一条<code class="calibre11">WHERE</code>子句，过滤出过去12个月内下过的订单，然后再增加<code class="calibre11">HAVING</code>子句过滤出具有两个以上订单的分组。</p>
+
+<p class="calibre2">为了更好地理解，来看下面的例子，它列出具有两个以上产品且其价格大于等于<code class="calibre11">4</code>的供应商：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+WHERE prod_price &gt;= 4
+GROUP BY vend_id
+HAVING COUNT(*) &gt;= 2;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_id     num_prods
+-------     -----------
+BRS01       3
+FNG01       2
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条语句中，第一行是使用了聚集函数的基本<code class="calibre11">SELECT</code>语句，很像前面的例子。<code class="calibre11">WHERE</code>子句过滤所有<code class="calibre11">prod_price</code>至少为<code class="calibre11">4</code>的行，然后按<code class="calibre11">vend_id</code>分组数据，<code class="calibre11">HAVING</code>子句过滤计数为2或2以上的分组。如果没有<code class="calibre11">WHERE</code>子句，就会多检索出一行（供应商<code class="calibre11">DLL01</code>，销售<code class="calibre11">4</code>个产品，价格都在<code class="calibre11">4</code>以下）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+GROUP BY vend_id
+HAVING COUNT(*) &gt;= 2;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_id     num_prods
+-------     -----------
+BRS01       3
+DLL01       4
+FNG01       2
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：使用<code class="calibre11">HAVING</code>和<code class="calibre11">WHERE</code></strong><br class="calibre14"/>
+  <code class="calibre11">HAVING</code>与<code class="calibre11">WHERE</code>非常类似，如果不指定<code class="calibre11">GROUP BY</code>，则大多数DBMS会同等对待它们。不过，你自己要能区分这一点。使用<code class="calibre11">HAVING</code>时应该结合<code class="calibre11">GROUP BY</code>子句，而<code class="calibre11">WHERE</code>子句用于标准的行级过滤。 </p>
+</blockquote>
+</body>
+</html>

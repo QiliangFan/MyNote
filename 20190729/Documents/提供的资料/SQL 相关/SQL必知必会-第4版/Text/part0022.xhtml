@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_27">3.4  指定排序方向</h2><p class="calibre2">数据排序不限于升序排序（从A到Z），这只是默认的排序顺序。还可以使用<code class="calibre11">ORDER BY</code>子句进行降序（从Z到A）排序。为了进行降序排序，必须指定<code class="calibre11">DESC</code>关键字。</p>
+
+<p class="calibre2">下面的例子以价格降序来排序产品（最贵的排在最前面）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>    </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_price, prod_name
+FROM Products
+ORDER BY prod_price DESC; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id     prod_price     prod_name
+-------     ----------     --------------------
+BR03        11.9900        18 inch teddy bear
+RYL01       9.4900         King doll
+RYL02       9.4900         Queen doll
+BR02        8.9900         12 inch teddy bear
+BR01        5.9900         8 inch teddy bear
+RGAN01      4.9900         Raggedy Ann
+BNBG01      3.4900         Fish bean bag toy
+BNBG02      3.4900         Bird bean bag toy
+BNBG03      3.4900         Rabbit bean bag toy
+</code></pre>
+
+<p class="calibre2">如果打算用多个列排序，该怎么办？下面的例子以降序排序产品（最贵的在最前面），再加上产品名：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_price, prod_name
+FROM Products
+ORDER BY prod_price DESC, prod_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id     prod_price     prod_name
+-------     ----------     --------------------
+BR03        11.9900        18 inch teddy bear
+RYL01       9.4900         King doll
+RYL02       9.4900         Queen doll
+BR02        8.9900         12 inch teddy bear
+BR01        5.9900         8 inch teddy bear
+RGAN01      4.9900         Raggedy Ann
+BNBG02      3.4900         Bird bean bag toy
+BNBG01      3.4900         Fish bean bag toy
+BNBG03      3.4900         Rabbit bean bag toy
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+<code class="calibre11">DESC</code>关键字只应用到直接位于其前面的列名。在上例中，只对<code class="calibre11">prod_price</code>列指定<code class="calibre11">DESC</code>，对<code class="calibre11">prod_name</code>列不指定。因此，<code class="calibre11">prod_price</code>列以降序排序，而<code class="calibre11">prod_name</code>列（在每个价格内）仍然按标准的升序排序。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：在多个列上降序排序</strong><br class="calibre14"/>
+   如果想在多个列上进行降序排序，必须对每一列指定<code class="calibre11">DESC</code>关键字。</p>
+</blockquote>
+
+<p class="calibre2">请注意，<code class="calibre11">DESC</code>是<code class="calibre11">DESCENDING</code>的缩写，这两个关键字都可以使用。与<code class="calibre11">DESC</code>相对的是<code class="calibre11">ASC</code>（或<code class="calibre11">ASCENDING</code>），在升序排序时可以指定它。但实际上，<code class="calibre11">ASC</code>没有多大用处，因为升序是默认的（如果既不指定<code class="calibre11">ASC</code>也不指定<code class="calibre11">DESC</code>，则假定为<code class="calibre11">ASC</code>）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：区分大小写和排序顺序</strong><br class="calibre14"/>
+   在对文本性数据进行排序时，<code class="calibre11">A</code>与<code class="calibre11">a</code>相同吗？<code class="calibre11">a</code>位于<code class="calibre11">B</code>之前，还是<code class="calibre11">Z</code>之后？这些问题不是理论问题，其答案取决于数据库的设置方式。</p>
+  
+  <p class="calibre2">在字典（dictionary）排序顺序中，<code class="calibre11">A</code>被视为与<code class="calibre11">a</code>相同，这是大多数数据库管理系统的默认行为。但是，许多DBMS允许数据库管理员在需要时改变这种行为（如果你的数据库包含大量外语字符，可能必须这样做）。</p>
+  
+  <p class="calibre2">这里的关键问题是，如果确实需要改变这种排序顺序，用简单的<code class="calibre11">ORDER BY</code>子句可能做不到。你必须请求数据库管理员的帮助。</p>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_182">B.2  使用Adobe ColdFusion</h2><p class="calibre2">Adobe ColdFusion是一个Web应用开发平台。ColdFusion使用一个基于标签的语言来创建脚本。为测试SQL，需要创建一个可从Web浏览器调用执行的简单页面。执行以下步骤。</p>
+
+<ol class="calibre21">
+<li class="calibre9">在从ColdFusion代码内使用任意数据库之前，必须定义一个数据源。ColdFusion
+Administrator程序提供了一个定义数据源的基于Web的界面（如果需要帮助，请参阅ColdFusion文档）。</li>
+<li class="calibre9">创建新的ColdFusion页（用CFM扩展）。</li>
+<li class="calibre9">使用CFML <code class="calibre11">&lt;CFQUERY&gt;</code>和<code class="calibre11">&lt;/CFQUERY&gt;</code>标签创建一个查询块。用<code class="calibre11">NAME</code>属性命名它并在<code class="calibre11">DATASOURCE</code>属性中定义Data Source。</li>
+<li class="calibre9">在<code class="calibre11">&lt;CFQUERY&gt;</code>和<code class="calibre11">&lt;/CFQUERY&gt;</code>标签之间输入SQL语句。</li>
+<li class="calibre9">使用<code class="calibre11">&lt;CFDUMP&gt;</code>或<code class="calibre11">&lt;CFOUTPUT&gt;</code>循环显示查询结果。</li>
+<li class="calibre9">在Web服务器根目录下的任意可执行目录中保存此页面。</li>
+<li class="calibre9">通过从Web浏览器中调用此页面执行它。</li>
+</ol>
+</body>
+</html>

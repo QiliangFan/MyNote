@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_212">D.1  字符串数据类型</h2><p class="calibre2">最常用的数据类型是字符串数据类型。它们存储字符串，如名字、地址、电话号码、邮政编码等。有两种基本的字符串类型，分别为定长字符串和变长字符串（参见表D-1）。</p>
+
+<p class="calibre2">定长字符串接受长度固定的字符串，其长度是在创建表时指定的。例如，名字列可允许30个字符，而社会安全号列允许11个字符（允许的字符数目中包括两个破折号）。定长列不允许多于指定的字符数目。它们分配的存储空间与指定的一样多。因此，如果字符串<code class="calibre11">Ben</code>存储到30个字符的名字字段，则存储的是30个字符，缺少的字符用空格填充，或根据需要补为NULL。</p>
+
+<p class="calibre2">变长字符串存储任意长度的文本（其最大长度随不同的数据类型和DBMS而变化）。有些变长数据类型具有最小的定长，而有些则是完全变长的。不管是哪种，只有指定的数据得以保存（额外的数据不保存）。</p>
+
+<p class="calibre2">既然变长数据类型这样灵活，为什么还要使用定长数据类型？答案是性能。DBMS处理定长列远比处理变长列快得多。此外，许多DBMS不允许对变长列（或一个列的可变部分）进行索引，这也会极大地影响性能（详细请参阅第22课）。</p>
+
+<p class="calibre2"><strong class="calibre3">表D-1  串数据类型</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">数据类型</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">CHAR</td>
+      <td class="calibre19">1～255个字符的定长字符串。它的长度必须在创建时规定</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">NCHAR</td>
+      <td class="calibre19">CHAR的特殊形式，用来支持多字节或Unicode字符（此类型的不同实现变化很大）</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">NVARCHAR</td>
+      <td class="calibre19">TEXT的特殊形式，用来支持多字节或Unicode字符（此类型的不同实现变化很大）</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">TEXT（也称为LONG、MEMO或VARCHAR）</td>
+      <td class="calibre19">变长文本</td>
+   </tr>
+   <tr class="calibre18">
+   </tr>
+</table>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：使用引号</strong><br class="calibre14"/>
+  不管使用何种形式的字符串数据类型，字符串值都必须括在单引号内。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：当数值不是数值时</strong><br class="calibre14"/>
+  你可能会认为电话号码和邮政编码应该存储在数值字段中（数值字段只存储数值数据），但是这样做并不可取。如果在数值字段中存储邮政编码01234，则保存的将是数值1234，实际上丢失了一位数字。</p>
+  
+  <p class="calibre2">需要遵守的基本规则是：如果数值是计算（求和、平均等）中使用的数值，则应该存储在数值数据类型列中；如果作为字符串（可能只包含数字）使用，则应该保存在字符串数据类型列中。</p>
+</blockquote>
+</body>
+</html>

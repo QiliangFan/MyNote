@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_136">18.1  视图</h2><p class="calibre2">视图是虚拟的表。与包含数据的表不一样，视图只包含使用时动态检索数据的查询。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：DBMS支持</strong><br class="calibre14"/>
+  Microsoft Access不支持视图，没有与SQL视图一致的工作方式。因此，这一课的内容不适用Microsoft Access。</p>
+  
+  <p class="calibre2">MySQL从版本5起开始支持视图，因此，这一课的内容不适用较早版本的MySQL。</p>
+  
+  <p class="calibre2">SQLite仅支持只读视图，所以视图可以创建，可以读，但其内容不能更改。</p>
+</blockquote>
+
+<p class="calibre2">理解视图的最好方法是看例子。第12课用下面的<code class="calibre11">SELECT</code>语句从三个表中检索数据：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+ AND OrderItems.order_num = Orders.order_num
+ AND prod_id = 'RGAN01';  
+</code></pre>
+
+<p class="calibre2">此查询用来检索订购了某种产品的顾客。任何需要这个数据的人都必须理解相关表的结构，知道如何创建查询和对表进行联结。检索其他产品（或多个产品）的相同数据，必须修改最后的<code class="calibre11">WHERE</code>子句。</p>
+
+<p class="calibre2">现在，假如可以把整个查询包装成一个名为<code class="calibre11">ProductCustomers</code>的虚拟表，则可以如下轻松地检索出相同的数据：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong> </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM ProductCustomers
+WHERE prod_id = 'RGAN01';
+</code></pre>
+
+<p class="calibre2">这就是视图的作用。<code class="calibre11">ProductCustomers</code>是一个视图，作为视图，它不包含任何列或数据，包含的是一个查询（与上面用以正确联结表的相同查询）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：DBMS的一致支持</strong><br class="calibre14"/>
+  我们欣慰地了解到，所有DBMS非常一致地支持视图创建语法。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_137">18.1.1  为什么使用视图</h3><p class="calibre2">我们已经看到了视图应用的一个例子。下面是视图的一些常见应用。</p>
+
+<ul class="calibre8">
+<li class="calibre9">重用SQL语句。</li>
+<li class="calibre9">简化复杂的SQL操作。在编写查询后，可以方便地重用它而不必知道其基本查询细节。</li>
+<li class="calibre9">使用表的一部分而不是整个表。</li>
+<li class="calibre9">保护数据。可以授予用户访问表的特定部分的权限，而不是整个表的访问权限。</li>
+<li class="calibre9">更改数据格式和表示。视图可返回与底层表的表示和格式不同的数据。</li>
+</ul>
+
+<p class="calibre2">创建视图之后，可以用与表基本相同的方式使用它们。可以对视图执行<code class="calibre11">SELECT</code>操作，过滤和排序数据，将视图联结到其他视图或表，甚至添加和更新数据（添加和更新数据存在某些限制，关于这个内容稍后做介绍）。</p>
+
+<p class="calibre2">重要的是，要知道视图仅仅是用来查看存储在别处数据的一种设施。视图本身不包含数据，因此返回的数据是从其他表中检索出来的。在添加或更改这些表中的数据时，视图将返回改变过的数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：性能问题</strong><br class="calibre14"/>
+  因为视图不包含数据，所以每次使用视图时，都必须处理查询执行时需要的所有检索。如果你用多个联结和过滤创建了复杂的视图或者嵌套了视图，性能可能会下降得很厉害。因此，在部署使用了大量视图的应用前，应该进行测试。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_138">18.1.2  视图的规则和限制</h3><p class="calibre2">创建视图前，应该知道它的一些限制。不过，这些限制随不同的DBMS而不同，因此在创建视图时应该查看具体的DBMS文档。</p>
+
+<p class="calibre2">下面是关于视图创建和使用的一些最常见的规则和限制。</p>
+
+<ul class="calibre8">
+<li class="calibre9">与表一样，视图必须唯一命名（不能给视图取与别的视图或表相同的名字）。</li>
+<li class="calibre9">对于可以创建的视图数目没有限制。</li>
+<li class="calibre9">创建视图，必须具有足够的访问权限。这些权限通常由数据库管理人员授予。</li>
+<li class="calibre9">视图可以嵌套，即可以利用从其他视图中检索数据的查询来构造视图。所允许的嵌套层数在不同的DBMS中有所不同（嵌套视图可能会严重降低查询的性能，因此在产品环境中使用之前，应该对其进行全面测试）。</li>
+<li class="calibre9">许多DBMS禁止在视图查询中使用<code class="calibre11">ORDER BY</code>子句。</li>
+<li class="calibre9">有些DBMS要求对返回的所有列进行命名，如果列是计算字段，则需要使用别名（关于列别名的更多信息，请参阅第7课）。</li>
+<li class="calibre9">视图不能索引，也不能有关联的触发器或默认值。</li>
+<li class="calibre9">有些DBMS把视图作为只读的查询，这表示可以从视图检索数据，但不能将数据写回底层表。详情请参阅具体的DBMS文档。</li>
+<li class="calibre9">有些DBMS允许创建这样的视图，它不能进行导致行不再属于视图的插入或更新。例如有一个视图，只检索带有电子邮件地址的顾客。如果更新某个顾客，删除他的电子邮件地址，将使该顾客不再属于视图。这是默认行为，而且是允许的，但有的DBMS可能会防止这种情况发生。</li>
+</ul>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：参阅具体的DBMS文档</strong><br class="calibre14"/>
+  上面的规则不少，而具体的DBMS文档很可能还包含别的规则。因此，在创建视图前，有必要花点时间了解必须遵守的规定。</p>
+</blockquote>
+</body>
+</html>

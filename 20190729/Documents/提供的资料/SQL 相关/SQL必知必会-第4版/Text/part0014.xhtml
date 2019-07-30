@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_19">2.5 检索不同的值</h2><p class="calibre2">如前所述，<code class="calibre11">SELECT</code>语句返回所有匹配的行。但是，如果你不希望每个值每次都出现，该怎么办呢？例如，你想检索<code class="calibre11">products</code>表中所有产品供应商的ID：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_id
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_id
+----------
+BRS01
+BRS01
+BRS01
+DLL01
+DLL01
+DLL01
+DLL01
+FNG01
+FNG01
+</code></pre>
+
+<p class="calibre2"><code class="calibre11">SELECT</code>语句返回9行（即使表中只有3个产品供应商），因为<code class="calibre11">products</code>表中有9种产品。那么如何检索出不同的值？</p>
+
+<p class="calibre2">办法就是使用<code class="calibre11">DISTINCT</code>关键字，顾名思义，它指示数据库只返回不同的值。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT DISTINCT vend_id
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong>
+<code class="calibre11">SELECT DISTINCT vend_id</code>告诉DBMS只返回不同（具有唯一性）的<code class="calibre11">vend_id</code>行，所以正如下面的输出，只有3行。如果使用<code class="calibre11">DISTINCT</code>关键字，它必须直接放在列名的前面。</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_id
+----------
+BRS01
+DLL01
+FNG01
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：不能部分使用<code class="calibre11">DISTINCT</code></strong><br class="calibre14"/>
+  <code class="calibre11">DISTINCT</code>关键字作用于所有的列，不仅仅是跟在其后的那一列。例如，你指定<code class="calibre11">SELECT DISTINCT vend_id, prod_price</code>，除非指定的两列完全相同，否则所有的行都会被检索出来。</p>
+</blockquote>
+</body>
+</html>

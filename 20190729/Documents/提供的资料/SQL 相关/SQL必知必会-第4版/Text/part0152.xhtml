@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_213">D.2  数值数据类型</h2><p class="calibre2">数值数据类型存储数值。多数DBMS支持多种数值数据类型，每种存储的数值具有不同的取值范围。显然，支持的取值范围越大，所需存储空间越多。此外，有的数值数据类型支持使用十进制小数点（和小数），而有的则只支持整数。表D-2列出了常用的数值数据类型。并非所有DBMS都支持所列出的名称约定和描述。</p>
+
+<p class="calibre2"><strong class="calibre3">表D-2  数值数据类型</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">数据类型</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">BIT</td>
+      <td class="calibre19">单个二进制位值，或者为0或者为1，主要用于开/关标志</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">DECIMAL（或NUMERIC）</td>
+      <td class="calibre19">定点或精度可变的浮点值</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">FLOAT（或NUMBER）</td>
+      <td class="calibre19">浮点值</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">INT（或INTEGER）</td>
+      <td class="calibre19">4字节整数值，支持-2147483648～2147483647的数</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">REAL</td>
+      <td class="calibre19">4字节浮点值</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">SMALLINT</td>
+      <td class="calibre19">2字节整数值，支持-32768～32767的数</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">TINYINT</td>
+      <td class="calibre19">1字节整数值，支持0～255的数</td>
+   </tr>
+   <tr class="calibre16">
+   </tr>
+</table>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：不使用引号</strong><br class="calibre14"/>
+  与字符串不一样，数值不应该括在引号内。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：货币数据类型</strong><br class="calibre14"/>
+  多数DBMS支持一种用来存储货币值的特殊数值数据类型。一般记为<code class="calibre11">MONEY</code>或<code class="calibre11">CURRENCY</code>，这些数据类型基本上是有特定取值范围的<code class="calibre11">DECIMAL</code>数据类型，更适合存储货币值。</p>
+</blockquote>
+</body>
+</html>

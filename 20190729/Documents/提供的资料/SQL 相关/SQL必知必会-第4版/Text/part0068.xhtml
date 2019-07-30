@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_98">13.1  使用表别名</h2><p class="calibre2">第7课介绍了如何使用别名引用被检索的表列。给列起别名的语法如下：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT RTRIM(vend_name) + ' (' + RTRIM(vend_country) + ')'
+       AS vend_title
+FROM Vendors
+ORDER BY vend_name;
+</code></pre>
+
+<p class="calibre2">SQL除了可以对列名和计算字段使用别名，还允许给表名起别名。这样做有两个主要理由：  </p>
+
+<ul class="calibre8">
+<li class="calibre9">缩短SQL语句；</li>
+<li class="calibre9">允许在一条<code class="calibre11">SELECT</code>语句中多次使用相同的表。</li>
+</ul>
+
+<p class="calibre2">请看下面的<code class="calibre11">SELECT</code>语句。它与前一课例子中所用的语句基本相同，但改成了使用别名：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers AS C, Orders AS O, OrderItems AS OI
+WHERE C.cust_id = O.cust_id
+ AND OI.order_num = O.order_num
+ AND prod_id = 'RGAN01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+可以看到，<code class="calibre11">FROM</code>子句中的三个表全都有别名。<code class="calibre11">Customers AS C</code>使用<code class="calibre11">C</code>作为<code class="calibre11">Customers</code>的别名，如此等等。这样，就可以使用省略的<code class="calibre11">C</code>而不用全名<code class="calibre11">Customers</code>。在这个例子中，表别名只用于<code class="calibre11">WHERE</code>子句。其实它不仅能用于<code class="calibre11">WHERE</code>子句，还可以用于<code class="calibre11">SELECT</code>的列表、<code class="calibre11">ORDER BY</code>子句以及其他语句部分。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：Oracle中没有<code class="calibre11">AS</code></strong><br class="calibre14"/>
+  Oracle不支持<code class="calibre11">AS</code>关键字。要在Oracle中使用别名，可以不用<code class="calibre11">AS</code>，简单地指定列名即可（因此，应该是<code class="calibre11">Customers C</code>，而不是<code class="calibre11">Customers AS C</code>）。</p>
+</blockquote>
+
+<p class="calibre2">需要注意，表别名只在查询执行中使用。与列别名不一样，表别名不返回到客户端。 </p>
+</body>
+</html>

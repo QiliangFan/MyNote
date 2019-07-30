@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_61">8.2  使用函数</h2><p class="calibre2">大多数SQL实现支持以下类型的函数。</p>
+
+<ul class="calibre8">
+<li class="calibre9">用于处理文本字符串（如删除或填充值，转换值为大写或小写）的文本函数。</li>
+<li class="calibre9">用于在数值数据上进行算术操作（如返回绝对值，进行代数运算）的数值函数。</li>
+<li class="calibre9">用于处理日期和时间值并从这些值中提取特定成分（如返回两个日期之差，检查日期有效性）的日期和时间函数。</li>
+<li class="calibre9">返回DBMS正使用的特殊信息（如返回用户登录信息）的系统函数。</li>
+</ul>
+
+<p class="calibre2">我们在上一课看到函数用作<code class="calibre11">SELECT</code>语句的列表成分，但函数的作用不仅于此。它还可以作为<code class="calibre11">SELECT</code>语句的其他成分，如在<code class="calibre11">WHERE</code>子句中使用，在其他SQL语句中使用等，后面会做更多的介绍。 </p>
+<h3 class="calibre7" id="nav_point_62">8.2.1 文本处理函数</h3><p class="calibre2">在上一课，我们已经看过一个文本处理函数的例子，其中使用<code class="calibre11">RTRIM()</code>函数来去除列值右边的空格。下面是另一个例子，这次使用的是<code class="calibre11">UPPER()</code>函数：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_name, UPPER(vend_name) AS vend_name_upcase
+FROM Vendors
+ORDER BY vend_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_name                       vend_name_upcase
+---------------------------     ----------------------------
+Bear Emporium                   BEAR EMPORIUM
+Bears R Us                      BEARS R US
+Doll House Inc.                 DOLL HOUSE INC.
+Fun and Games                   FUN AND GAMES
+Furball Inc.                    FURBALL INC.
+Jouets et ours                  JOUETS ET OURS 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+可以看到，<code class="calibre11">UPPER()</code>将文本转换为大写，因此本例子中每个供应商都列出两次，第一次为<code class="calibre11">Vendors</code>表中存储的值，第二次作为列<code class="calibre11">vend_name_upcase</code>转换为大写。</p>
+
+<p class="calibre2">表8-2列出了一些常用的文本处理函数。 </p>
+
+<p class="calibre2"><strong class="calibre3">表8-2  常用的文本处理函数</strong></p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">函　　数</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">LEFT()（或使用子字符串函数）</td>
+      <td class="calibre19">返回字符串左边的字符</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">LENGTH()（也使用DATALENGTH()或LEN()）</td>
+      <td class="calibre19">返回字符串的长度</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">LOWER()（Access使用LCASE()）</td>
+      <td class="calibre19">将字符串转换为小写</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">LTRIM()</td>
+      <td class="calibre19">去掉字符串左边的空格</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">RIGHT()（或使用子字符串函数）</td>
+      <td class="calibre19">返回字符串右边的字符</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">RTRIM()</td>
+      <td class="calibre19">去掉字符串右边的空格</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">SOUNDEX()</td>
+      <td class="calibre19">返回字符串的SOUNDEX值</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">UPPER()（Access使用UCASE()）</td>
+      <td class="calibre19">将字符串转换为大写</td>
+   </tr>
+</table>
+
+<p class="calibre2">表8-2中的<code class="calibre11">SOUNDEX</code>需要做进一步的解释。<code class="calibre11">SOUNDEX</code>是一个将任何文本串转换为描述其语音表示的字母数字模式的算法。<code class="calibre11">SOUNDEX</code>考虑了类似的发音字符和音节，使得能对字符串进行发音比较而不是字母比较。虽然<code class="calibre11">SOUNDEX</code>不是SQL概念，但多数DBMS都提供对<code class="calibre11">SOUNDEX</code>的支持。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：<code class="calibre11">SOUNDEX</code>支持</strong><br class="calibre14"/>
+  Microsoft Access和PostgreSQL不支持<code class="calibre11">SOUNDEX()</code>，因此以下的例子不适用于这些DBMS。</p>
+  
+  <p class="calibre2">另外，如果在创建SQLite时使用了<code class="calibre11">SQLITE_SOUNDEX</code>编译时选项，那么<code class="calibre11">SOUNDEX()</code>在SQLite中就可用。因为<code class="calibre11">SQLITE_SOUNDEX</code>不是默认的编译时选项，所以多数SQLite实现不支持<code class="calibre11">SOUNDEX()</code>。</p>
+</blockquote>
+
+<p class="calibre2">下面给出一个使用<code class="calibre11">SOUNDEX()</code>函数的例子。<code class="calibre11">Customers</code>表中有一个顾客<code class="calibre11">Kids Place</code>，其联系名为<code class="calibre11">Michelle Green</code>。但如果这是错误的输入，此联系名实际上应该是<code class="calibre11">Michael Green</code>，该怎么办呢？显然，按正确的联系名搜索不会返回数据，如下所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers
+WHERE cust_contact = 'Michael Green';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name                      cust_contact
+--------------------------     ----------------------------
+</code></pre>
+
+<p class="calibre2">现在试一下使用<code class="calibre11">SOUNDEX()</code>函数进行搜索，它匹配所有发音类似于<code class="calibre11">Michael Green</code>的联系名：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers
+WHERE SOUNDEX(cust_contact) = SOUNDEX('Michael Green'); 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name                      cust_contact
+--------------------------     ----------------------------
+Kids Place                     Michelle Green
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个例子中，<code class="calibre11">WHERE</code>子句使用<code class="calibre11">SOUNDEX()</code>函数把<code class="calibre11">cust_contact</code>列值和搜索字符串转换为它们的<code class="calibre11">SOUNDEX</code>值。因为<code class="calibre11">Michael  Green</code>和<code class="calibre11">Michelle Green</code>发音相似，所以它们的<code class="calibre11">SOUNDEX</code>值匹配，因此<code class="calibre11">WHERE</code>子句正确地过滤出了所需的数据。</p>
+<h3 class="calibre7" id="nav_point_63">8.2.2 日期和时间处理函数</h3><p class="calibre2">日期和时间采用相应的数据类型存储在表中，每种DBMS都有自己的特殊形式。日期和时间值以特殊的格式存储，以便能快速和有效地排序或过滤，并且节省物理存储空间。</p>
+
+<p class="calibre2">应用程序一般不使用日期和时间的存储格式，因此日期和时间函数总是用来读取、统计和处理这些值。由于这个原因，日期和时间函数在SQL中具有重要的作用。遗憾的是，它们很不一致，可移植性最差。</p>
+
+<p class="calibre2">我们举个简单的例子，来说明日期处理函数的用法。<code class="calibre11">Orders</code>表中包含的订单都带有订单日期。为在SQL Server中检索2012年的所有订单，可如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE DATEPART(yy, order_date) = 2012;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">order_num
+-----------
+20005
+20006
+20007
+20008
+20009
+</code></pre>
+
+<p class="calibre2">在Access中使用如下版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE DATEPART('yyyy', order_date) = 2012;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个例子（SQL Server和Sybase版本以及Access版本）使用了<code class="calibre11">DATEPART()</code>函数，顾名思义，此函数返回日期的某一部分。<code class="calibre11">DATEPART()</code>函数有两个参数，它们分别是返回的成分和从中返回成分的日期。在此例子中，<code class="calibre11">DATEPART()</code>只从<code class="calibre11">order_date</code>列中返回年份。通过与<code class="calibre11">2012</code>比较，<code class="calibre11">WHERE</code>子句只过滤出此年份的订单。</p>
+
+<p class="calibre2">下面是使用名为<code class="calibre11">DATE_PART()</code>的类似函数的PostgreSQL版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE DATE_PART('year', order_date) = 2012;
+</code></pre>
+
+<p class="calibre2">Oracle没有<code class="calibre11">DATEPART()</code>函数，不过有几个可用来完成相同检索的日期处理函数。例如：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE to_number(to_char(order_date, 'YYYY')) = 2012; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个例子中，<code class="calibre11">to_char()</code>函数用来提取日期的成分，<code class="calibre11">to_number()</code>用来将提取出的成分转换为数值，以便能与<code class="calibre11">2012</code>进行比较。</p>
+
+<p class="calibre2">完成相同工作的另一方法是使用<code class="calibre11">BETWEEN</code>操作符：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE order_date BETWEEN to_date('01-01-2012')
+AND to_date('12-31-2012');
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在此例子中，Oracle的<code class="calibre11">to_date()</code>函数用来将两个字符串转换为日期。一个包含2012年1月1日，另一个包含2012年12月31日。<code class="calibre11">BETWEEN</code>操作符用来找出两个日期之间的所有订单。值得注意的是，相同的代码在SQL Server中不起作用，因为它不支持<code class="calibre11">to_date()</code>函数。但是，如果用<code class="calibre11">DATEPART()</code>替换<code class="calibre11">to_date()</code>，当然可以使用这种类型的语句。</p>
+
+<p class="calibre2">MySQL和MariaDB具有各种日期处理函数，但没有<code class="calibre11">DATEPART()</code>。MySQL和MariaDB用户可使用名为<code class="calibre11">YEAR()</code>的函数从日期中提取年份：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE YEAR(order_date) = 2012;
+</code></pre>
+
+<p class="calibre2">在SQLite中有个小技巧：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM Orders
+WHERE strftime('%Y', order_date) = 2012;
+</code></pre>
+
+<p class="calibre2">这里给出的例子提取和使用日期的成分（年）。按月份过滤，可以进行相同的处理，指定<code class="calibre11">AND</code>操作符以及年和月份的比较。</p>
+
+<p class="calibre2">DBMS提供的功能远不止简单的日期成分提取。大多数DBMS具有比较日期、执行基于日期的运算、选择日期格式等的函数。但是，可以看到，不同DBMS的日期-时间处理函数可能不同。关于具体DBMS支持的日期-时间处理函数，请参阅相应的文档。</p>
+<h3 class="calibre7" id="nav_point_64">8.2.3 数值处理函数</h3><p class="calibre2">数值处理函数仅处理数值数据。这些函数一般主要用于代数、三角或几何运算，因此不像字符串或日期-时间处理函数使用那么频繁。</p>
+
+<p class="calibre2">具有讽刺意味的是，在主要DBMS的函数中，数值函数是最一致、最统一的函数。表8-3列出一些常用的数值处理函数。</p>
+
+<p class="calibre2"><strong class="calibre3">表8-3  常用数值处理函数</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">函　　数</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">ABS()</td>
+      <td class="calibre19">返回一个数的绝对值</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">COS()</td>
+      <td class="calibre19">返回一个角度的余弦</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">EXP()</td>
+    <td class="calibre19">返回一个数的指数值</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">PI()</td>
+      <td class="calibre19">返回圆周率</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">SIN()</td>
+      <td class="calibre19">返回一个角度的正弦</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">SQRT()</td>
+      <td class="calibre19">返回一个数的平方根</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">TAN()</td>
+      <td class="calibre19">返回一个角度的正切</td>
+   </tr>
+   <tr class="calibre16">
+   </tr>
+</table>
+
+<p class="calibre2">关于具体DBMS所支持的算术处理函数，请参阅相应的文档。</p>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_119">15.2  从一个表复制到另一个表</h2><p class="calibre2">有一种数据插入不使用<code class="calibre11">INSERT</code>语句。要将一个表的内容复制到一个全新的表（运行中创建的表），可以使用<code class="calibre11">SELECT INTO</code>语句。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：DB2不支持</strong><br class="calibre14"/>
+  DB2不支持这里描述的<code class="calibre11">SELECT INTO</code>。</p>
+</blockquote>
+
+<p class="calibre2">与<code class="calibre11">INSERT SELECT</code>将数据添加到一个已经存在的表不同，<code class="calibre11">SELECT INTO</code>将数据复制到一个新表（有的DBMS可以覆盖已经存在的表，这依赖于所使用的具体DBMS）。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：<code class="calibre11">INSERT SELECT</code>与<code class="calibre11">SELECT INTO</code></strong><br class="calibre14"/>
+  它们之间的一个重要差别是前者导出数据，而后者导入数据。</p>
+</blockquote>
+
+<p class="calibre2">下面的例子说明如何使用<code class="calibre11">SELECT INTO</code>：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT *
+INTO CustCopy
+FROM Customers;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条<code class="calibre11">SELECT</code>语句创建一个名为<code class="calibre11">CustCopy</code>的新表，并把<code class="calibre11">Customers</code>表的整个内容复制到新表中。因为这里使用的是<code class="calibre11">SELECT *</code>，所以将在<code class="calibre11">CustCopy</code>表中创建（并填充）与<code class="calibre11">Customers</code>表的每一列相同的列。要想只复制部分的列，可以明确给出列名，而不是使用<code class="calibre11">*</code>通配符。</p>
+
+<p class="calibre2">MariaDB、MySQL、Oracle、PostgreSQL和SQLite使用的语法稍有不同：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE TABLE CustCopy AS
+SELECT * FROM Customers;
+</code></pre>
+
+<p class="calibre2">在使用<code class="calibre11">SELECT INTO</code>时，需要知道一些事情：</p>
+
+<ul class="calibre8">
+<li class="calibre9">任何<code class="calibre11">SELECT</code>选项和子句都可以使用，包括<code class="calibre11">WHERE</code>和<code class="calibre11">GROUP BY</code>；</li>
+<li class="calibre9">可利用联结从多个表插入数据；</li>
+<li class="calibre9">不管从多少个表中检索数据，数据都只能插入到一个表中。 </li>
+</ul>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：进行表的复制</strong><br class="calibre14"/>
+  <code class="calibre11">SELECT INTO</code>是试验新SQL语句前进行表复制的很好工具。先进行复制，可在复制的数据上测试SQL代码，而不会影响实际的数据。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：更多例子</strong><br class="calibre14"/>
+  如果想看<code class="calibre11">INSERT</code>用法的更多例子，请参阅附录A中给出的样例表填充脚本。</p>
+</blockquote>
+</body>
+</html>

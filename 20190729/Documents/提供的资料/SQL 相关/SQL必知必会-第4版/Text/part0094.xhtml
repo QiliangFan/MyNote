@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_139">18.2  创建视图</h2><p class="calibre2">理解了什么是视图以及管理它们的规则和约束后，我们来创建视图。</p>
+
+<p class="calibre2">视图用<code class="calibre11">CREATE VIEW</code>语句来创建。与<code class="calibre11">CREATE TABLE</code>一样，<code class="calibre11">CREATE VIEW</code>只能用于创建不存在的视图。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：视图重命名</strong><br class="calibre14"/>
+  删除视图，可以使用<code class="calibre11">DROP</code>语句，其语法为<code class="calibre11">DROP VIEW viewname;</code>。</p>
+  
+  <p class="calibre2">覆盖（或更新）视图，必须先删除它，然后再重新创建。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_140">18.2.1  利用视图简化复杂的联结</h3><p class="calibre2">一个最常见的视图应用是隐藏复杂的SQL，这通常涉及联结。请看下面的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE VIEW ProductCustomers AS
+SELECT cust_name, cust_contact, prod_id
+FROM Customers, Orders, OrderItems
+WHERE Customers.cust_id = Orders.cust_id
+ AND OrderItems.order_num = Orders.order_num;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条语句创建一个名为<code class="calibre11">ProductCustomers</code>的视图，它联结三个表，返回已订购了任意产品的所有顾客的列表。如果执行<code class="calibre11">SELECT * FROM ProductCustomers</code>，将列出订购了任意产品的顾客。</p>
+
+<p class="calibre2">检索订购了产品<code class="calibre11">RGAN01</code>的顾客，可如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM ProductCustomers
+WHERE prod_id = 'RGAN01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name               cust_contact
+-------------------     ------------------
+Fun4All                 Denise L. Stephens
+The Toy Store           Kim Howard
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条语句通过<code class="calibre11">WHERE</code>子句从视图中检索特定数据。当DBMS处理此查询时，它将指定的<code class="calibre11">WHERE</code>子句添加到视图查询中已有的<code class="calibre11">WHERE</code>子句中，以便正确过滤数据。</p>
+
+<p class="calibre2">可以看出，视图极大地简化了复杂SQL语句的使用。利用视图，可一次性编写基础的SQL，然后根据需要多次使用。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：创建可重用的视图</strong><br class="calibre14"/>
+  创建不绑定特定数据的视图是一种好办法。例如，上面创建的视图返回订购所有产品而不仅仅是<code class="calibre11">RGAN01</code>的顾客（这个视图先创建）。扩展视图的范围不仅使得它能被重用，而且可能更有用。这样做不需要创建和维护多个类似视图。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_141">18.2.2  用视图重新格式化检索出的数据</h3><p class="calibre2">如前所述，视图的另一常见用途是重新格式化检索出的数据。下面的<code class="calibre11">SELECT</code>语句（来自第7课）在单个组合计算列中返回供应商名和位置：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT RTRIM(vend_name) + ' (' + RTRIM(vend_country) + ')'
+       AS vend_title
+FROM Vendors
+ORDER BY vend_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_title
+-----------------------------------------------------------
+Bear Emporium (USA)
+Bears R Us (USA)
+Doll House Inc. (USA)
+Fun and Games (England)
+Furball Inc. (USA)
+Jouets et ours (France)
+</code></pre>
+
+<p class="calibre2">下面是相同的语句，但使用了<code class="calibre11">||</code>语法（如第7课所述）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT RTRIM(vend_name) || ' (' || RTRIM(vend_country) || ')'
+       AS vend_title
+FROM Vendors
+ORDER BY vend_name;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_title
+-----------------------------------------------------------
+Bear Emporium (USA)
+Bears R Us (USA)
+Doll House Inc. (USA)
+Fun and Games (England)
+Furball Inc. (USA)
+Jouets et ours (France)
+</code></pre>
+
+<p class="calibre2">现在，假设经常需要这个格式的结果。我们不必在每次需要时执行这种拼接，而是创建一个视图，使用它即可。把此语句转换为视图，可按如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">CREATE VIEW VendorLocations AS
+SELECT RTRIM(vend_name) + ' (' + RTRIM(vend_country) + ')'
+       AS vend_title
+FROM Vendors;
+</code></pre>
+
+<p class="calibre2">下面是使用<code class="calibre11">||</code>语法的相同语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE VIEW VendorLocations AS
+SELECT RTRIM(vend_name) || ' (' || RTRIM(vend_country) || ')'
+AS vend_title
+FROM Vendors;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条语句使用与以前<code class="calibre11">SELECT</code>语句相同的查询创建视图。要检索数据，创建所有的邮件标签，可如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT *
+FROM VendorLocations;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_title
+-----------------------------------------------------------
+Bear Emporium (USA)
+Bears R Us (USA)
+Doll House Inc. (USA)
+Fun and Games (England)
+Furball Inc. (USA)
+Jouets et ours (France)
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：<code class="calibre11">SELECT</code>约束全部适用</strong><br class="calibre14"/>
+  在这一课的前面提到，各种DBMS中用来创建视图的语法相当一致。那么，为什么会有多种创建视图的语句版本呢？因为视图只包含一个<code class="calibre11">SELECT</code>语句，而这个语句的语法必须遵循具体DBMS的所有规则和约束，所以会有多个创建视图的语句版本。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_142">18.2.3  用视图过滤不想要的数据</h3><p class="calibre2">视图对于应用普通的<code class="calibre11">WHERE</code>子句也很有用。例如，可以定义<code class="calibre11">CustomerEMailList</code>视图，过滤没有电子邮件地址的顾客。为此，可使用下面的语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE VIEW CustomerEMailList AS
+SELECT cust_id, cust_name, cust_email
+FROM Customers
+WHERE cust_email IS NOT NULL;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+显然，在将电子邮件发送到邮件列表时，需要排除没有电子邮件地址的用户。这里的<code class="calibre11">WHERE</code>子句过滤了<code class="calibre11">cust_email</code>列中具有<code class="calibre11">NULL</code>值的那些行，使它们不被检索出来。</p>
+
+<p class="calibre2">现在，可以像使用其他表一样使用视图<code class="calibre11">CustomerEMailList</code>。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT *
+FROM CustomerEMailList;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id        cust_name        cust_email
+----------     ------------     ---------------------
+1000000001     Village Toys     sales@villagetoys.com
+1000000003     Fun4All          jjones@fun4all.com
+1000000004     Fun4All          dstephens@fun4all.com
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：<code class="calibre11">WHERE</code>子句与<code class="calibre11">WHERE</code>子句</strong><br class="calibre14"/>
+  从视图检索数据时如果使用了一条<code class="calibre11">WHERE</code>子句，则两组子句（一组在视图中，另一组是传递给视图的）将自动组合。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_143">18.2.4  使用视图与计算字段</h3><p class="calibre2">在简化计算字段的使用上，视图也特别有用。下面是第7课中介绍的一条<code class="calibre11">SELECT</code>语句，它检索某个订单中的物品，计算每种物品的总价格：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id,
+       quantity,
+       item_price,
+       quantity*item_price AS expanded_price
+FROM OrderItems
+WHERE order_num = 20008;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_id      quantity      item_price      expanded_price
+--------     ---------     -----------     --------------
+RGAN01       5             4.9900          24.9500
+BR03         5             11.9900         59.9500
+BNBG01       10            3.4900          34.9000
+BNBG02       10            3.4900          34.9000
+BNBG03       10            3.4900          34.9000
+</code></pre>
+
+<p class="calibre2">要将其转换为一个视图，如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE VIEW OrderItemsExpanded AS
+SELECT order_num,
+       prod_id,
+       quantity,
+       item_price,
+       quantity*item_price AS expanded_price
+FROM OrderItems;
+</code></pre>
+
+<p class="calibre2">检索订单<code class="calibre11">20008</code>的详细内容（上面的输出），如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT *
+FROM OrderItemsExpanded
+WHERE order_num = 20008;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">order_num     prod_id     quantity      item_price     expanded_price
+---------     -------     ---------     ----------     --------------
+20008         RGAN01      5             4.99           24.95
+20008         BR03        5             11.99          59.95
+20008         BNBG01      10            3.49           34.90
+20008         BNBG02      10            3.49           34.90
+20008         BNBG03      10            3.49           34.90
+</code></pre>
+
+<p class="calibre2">可以看到，视图非常容易创建，而且很好使用。正确使用，视图可极大地简化复杂数据的处理。 </p>
+</body>
+</html>

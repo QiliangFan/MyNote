@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_115">15.1  数据插入</h2><p class="calibre2">毫无疑问，<code class="calibre11">SELECT</code>是最常用的SQL语句了，这就是前14课都在讲它的原因。但是，还有其他3个常用的SQL语句需要学习。第一个就是<code class="calibre11">INSERT</code>（下一课介绍另外两个）。</p>
+
+<p class="calibre2">顾名思义，<code class="calibre11">INSERT</code>用来将行插入（或添加）到数据库表。插入有几种方式：</p>
+
+<ul class="calibre8">
+<li class="calibre9">插入完整的行；</li>
+<li class="calibre9">插入行的一部分；</li>
+<li class="calibre9">插入某些查询的结果。</li>
+</ul>
+
+<p class="calibre2">下面逐一介绍这些内容。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：插入及系统安全</strong><br class="calibre14"/>
+  使用<code class="calibre11">INSERT</code>语句可能需要客户端/服务器DBMS中的特定安全权限。在你试图使用<code class="calibre11">INSERT</code>前，应该保证自己有足够的安全权限。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_116">15.1.1  插入完整的行</h3><p class="calibre2">把数据插入表中的最简单方法是使用基本的<code class="calibre11">INSERT</code>语法，它要求指定表名和插入到新行中的值。下面举一个例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">INSERT INTO Customers
+VALUES('1000000006',
+       'Toy Land',
+       '123 Any Street',
+       'New York',
+       'NY',
+       '11111',
+       'USA',
+       NULL,
+       NULL); 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong> 
+这个例子将一个新顾客插入到<code class="calibre11">Customers</code>表中。存储到表中每一列的数据在<code class="calibre11">VALUES</code>子句中给出，必须给每一列提供一个值。如果某列没有值，如上面的<code class="calibre11">cust_contact</code>和<code class="calibre11">cust_email</code>列，则应该使用<code class="calibre11">NULL</code>值（假定表允许对该列指定空值）。各列必须以它们在表定义中出现的次序填充。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">INTO</code>关键字</strong><br class="calibre14"/>
+  在某些SQL实现中，跟在<code class="calibre11">INSERT</code>之后的<code class="calibre11">INTO</code>关键字是可选的。但是，即使不一定需要，最好还是提供这个关键字，这样做将保证SQL代码在DBMS之间可移植。</p>
+</blockquote>
+
+<p class="calibre2">虽然这种语法很简单，但并不安全，应该尽量避免使用。上面的SQL语句高度依赖于表中列的定义次序，还依赖于其容易获得的次序信息。即使可以得到这种次序信息，也不能保证各列在下一次表结构变动后保持完全相同的次序。因此，编写依赖于特定列次序的SQL语句是很不安全的，这样做迟早会出问题。</p>
+
+<p class="calibre2">编写<code class="calibre11">INSERT</code>语句的更安全（不过更烦琐）的方法如下：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">INSERT INTO Customers(cust_id,
+                      cust_name,
+                      cust_address,
+                      cust_city,
+                      cust_state,
+                      cust_zip,
+                      cust_country,
+                      cust_contact,
+                      cust_email)
+VALUES('1000000006',
+       'Toy Land',
+       '123 Any Street',
+       'New York',
+       'NY',
+       '11111',
+       'USA',
+       NULL,
+       NULL);
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个例子与前一个<code class="calibre11">INSERT</code>语句的工作完全相同，但在表名后的括号里明确给出了列名。在插入行时，DBMS将用<code class="calibre11">VALUES</code>列表中的相应值填入列表中的对应项。<code class="calibre11">VALUES</code>中的第一个值对应于第一个指定列名，第二个值对应于第二个列名，如此等等。</p>
+
+<p class="calibre2">因为提供了列名，<code class="calibre11">VALUES</code>必须以其指定的次序匹配指定的列名，不一定按各列出现在表中的实际次序。其优点是，即使表的结构改变，这条<code class="calibre11">INSERT</code>语句仍然能正确工作。</p>
+
+<p class="calibre2">下面的<code class="calibre11">INSERT</code>语句填充所有列（与前面的一样），但以一种不同的次序填充。因为给出了列名，所以插入结果仍然正确：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">INSERT INTO Customers(cust_id,
+                      cust_contact,
+                      cust_email,
+                      cust_name,
+                      cust_address,
+                      cust_city,
+                      cust_state,
+                      cust_zip)
+VALUES('1000000006',
+       NULL,
+       NULL,
+       'Toy Land',
+       '123 Any Street',
+       'New York',
+       'NY',
+       '11111');
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：总是使用列的列表</strong><br class="calibre14"/>
+  不要使用没有明确给出列的<code class="calibre11">INSERT</code>语句。给出列能使SQL代码继续发挥作用，即使表结构发生了变化。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：小心使用<code class="calibre11">VALUES</code></strong><br class="calibre14"/>
+  不管使用哪种<code class="calibre11">INSERT</code>语法，<code class="calibre11">VALUES</code>的数目都必须正确。如果不提供列名，则必须给每个表列提供一个值；如果提供列名，则必须给列出的每个列一个值。否则，就会产生一条错误消息，相应的行不能成功插入。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_117">15.1.2  插入部分行</h3><p class="calibre2">正如所述，使用<code class="calibre11">INSERT</code>的推荐方法是明确给出表的列名。使用这种语法，还可以省略列，这表示可以只给某些列提供值，给其他列不提供值。</p>
+
+<p class="calibre2">请看下面的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">INSERT INTO Customers(cust_id,
+                      cust_name,
+                      cust_address,
+                      cust_city,
+                      cust_state,
+                      cust_zip,
+                      cust_country)
+VALUES('1000000006',
+       'Toy Land',
+       '123 Any Street',
+       'New York',
+       'NY',
+       '11111',
+       'USA');
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在本课前面的例子中，没有给<code class="calibre11">cust_contact</code>和<code class="calibre11">cust_email</code>这两列提供值。这表示没必要在<code class="calibre11">INSERT</code>语句中包含它们。因此，这里的<code class="calibre11">INSERT</code>语句省略了这两列及其对应的值。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：省略列</strong><br class="calibre14"/>
+  如果表的定义允许，则可以在<code class="calibre11">INSERT</code>操作中省略某些列。省略的列必须满足以下某个条件。</p>
+  
+  <ul class="calibre8">
+  <li class="calibre9">该列定义为允许<code class="calibre11">NULL</code>值（无值或空值）。</li>
+  <li class="calibre9">在表定义中给出默认值。这表示如果不给出值，将使用默认值。</li>
+  </ul>
+  
+  <p class="calibre2">如果对表中不允许<code class="calibre11">NULL</code>值且没有默认值的列不给出值，DBMS将产生错误消息，并且相应的行插入不成功。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：省略所需的值</strong><br class="calibre14"/>
+  如果表中不允许有<code class="calibre11">NULL</code>值或者默认值，这时却省略了表中的值，DBMS就会产生错误消息，相应的行不能成功插入。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_118">15.1.3  插入检索出的数据</h3><p class="calibre2"><code class="calibre11">INSERT</code>一般用来给表插入具有指定列值的行。<code class="calibre11">INSERT</code>还存在另一种形式，可以利用它将<code class="calibre11">SELECT</code>语句的结果插入表中，这就是所谓的<code class="calibre11">INSERT SELECT</code>。顾名思义，它是由一条<code class="calibre11">INSERT</code>语句和一条<code class="calibre11">SELECT</code>语句组成的。</p>
+
+<p class="calibre2">假如想把另一表中的顾客列合并到<code class="calibre11">Customers</code>表中。不需要每次读取一行再将它用<code class="calibre11">INSERT</code>插入，可以如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">INSERT INTO Customers(cust_id,
+                      cust_contact,
+                      cust_email,
+                      cust_name,
+                      cust_address,
+                      cust_city,
+                      cust_state,
+                      cust_zip,
+                      cust_country)
+SELECT cust_id,
+       cust_contact,
+       cust_email,
+       cust_name,
+       cust_address,
+       cust_city,
+       cust_state,
+       cust_zip,
+       cust_country
+FROM CustNew;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：新例子的说明</strong><br class="calibre14"/>
+  这个例子从一个名为<code class="calibre11">CustNew</code>的表中读出数据并插入到<code class="calibre11">Customers</code>表。为了试验这个例子，应该首先创建和填充<code class="calibre11">CustNew</code>表。<code class="calibre11">CustNew</code>表的结构与附录A中描述的<code class="calibre11">Customers</code>表相同。在填充<code class="calibre11">CustNew</code>时，不应该使用已经在<code class="calibre11">Customers</code>中用过的<code class="calibre11">cust_id</code>值（如果主键值重复，后续的<code class="calibre11">INSERT</code>操作将会失败）。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个例子使用<code class="calibre11">INSERT SELECT</code>从<code class="calibre11">CustNew</code>中将所有数据导入<code class="calibre11">Customers</code>。<code class="calibre11">SELECT</code>语句从<code class="calibre11">CustNew</code>检索出要插入的值，而不是列出它们。<code class="calibre11">SELECT</code>中列出的每一列对应于<code class="calibre11">Customers</code>表名后所跟的每一列。这条语句将插入多少行呢？这依赖于<code class="calibre11">CustNew</code>表有多少行。如果这个表为空，则没有行被插入（也不产生错误，因为操作仍然是合法的）。如果这个表确实有数据，则所有数据将被插入到<code class="calibre11">Customers</code>。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">INSERT SELECT</code>中的列名</strong><br class="calibre14"/>
+  为简单起见，这个例子在<code class="calibre11">INSERT</code>和<code class="calibre11">SELECT</code>语句中使用了相同的列名。但是，不一定要求列名匹配。事实上，DBMS一点儿也不关心<code class="calibre11">SELECT</code>返回的列名。它使用的是列的位置，因此<code class="calibre11">SELECT</code>中的第一列（不管其列名）将用来填充表列中指定的第一列，第二列将用来填充表列中指定的第二列，如此等等。</p>
+</blockquote>
+
+<p class="calibre2"><code class="calibre11">INSERT SELECT</code>中<code class="calibre11">SELECT</code>语句可以包含<code class="calibre11">WHERE</code>子句，以过滤插入的数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：插入多行</strong><br class="calibre14"/>
+  <code class="calibre11">INSERT</code>通常只插入一行。要插入多行，必须执行多个<code class="calibre11">INSERT</code>语句。<code class="calibre11">INSERT SELECT</code>是个例外，它可以用一条<code class="calibre11">INSERT</code>插入多行，不管<code class="calibre11">SELECT</code>语句返回多少行，都将被<code class="calibre11">INSERT</code>插入。</p>
+</blockquote>
+</body>
+</html>

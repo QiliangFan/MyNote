@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_73">9.2  聚集不同值</h2><p class="calibre2">以上5个聚集函数都可以如下使用：</p>
+
+<ul class="calibre8">
+<li class="calibre9">对所有行执行计算，指定<code class="calibre11">ALL</code>参数或不指定参数（因为<code class="calibre11">ALL</code>是默认行为）。</li>
+<li class="calibre9">只包含不同的值，指定<code class="calibre11">DISTINCT</code>参数。</li>
+</ul>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">ALL</code>为默认</strong><br class="calibre14"/>
+  <code class="calibre11">ALL</code>参数不需要指定，因为它是默认行为。如果不指定<code class="calibre11">DISTINCT</code>，则假定为<code class="calibre11">ALL</code>。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：不要在Access中使用</strong><br class="calibre14"/>
+  Microsoft Access在聚集函数中不支持<code class="calibre11">DISTINCT</code>，因此下面的例子不适合于Access。要在Access得到类似的结果，需要使用子查询把<code class="calibre11">DISTINCT</code>数据返回到外部<code class="calibre11">SELECT COUNT(*)</code>语句。</p>
+</blockquote>
+
+<p class="calibre2">下面的例子使用<code class="calibre11">AVG()</code>函数返回特定供应商提供的产品的平均价格。它与上面的<code class="calibre11">SELECT</code>语句相同，但使用了<code class="calibre11">DISTINCT</code>参数，因此平均值只考虑各个不同的价格：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT AVG(DISTINCT prod_price) AS avg_price
+FROM Products
+WHERE vend_id = 'DLL01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">avg_price
+-----------
+4.2400
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+可以看到，在使用了<code class="calibre11">DISTINCT</code>后，此例子中的<code class="calibre11">avg_price</code>比较高，因为有多个物品具有相同的较低价格。排除它们提升了平均价格。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：<code class="calibre11">DISTINCT</code>不能用于<code class="calibre11">COUNT(*)</code></strong><br class="calibre14"/>
+  如果指定列名，则<code class="calibre11">DISTINCT</code>只能用于<code class="calibre11">COUNT()</code>。<code class="calibre11">DISTINCT</code>不能用于<code class="calibre11">COUNT(*)</code>。类似地，<code class="calibre11">DISTINCT</code>必须使用列名，不能用于计算或表达式。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：将<code class="calibre11">DISTINCT</code>用于<code class="calibre11">MIN()</code>和<code class="calibre11">MAX()</code></strong><br class="calibre14"/>
+  虽然<code class="calibre11">DISTINCT</code>从技术上可用于<code class="calibre11">MIN()</code>和<code class="calibre11">MAX()</code>，但这样做实际上没有价值。一个列中的最小值和最大值不管是否只考虑不同值，结果都是相同的。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：其他聚集参数</strong><br class="calibre14"/>
+  除了这里介绍的<code class="calibre11">DISTINCT</code>和<code class="calibre11">ALL</code>参数，有的DBMS还支持其他参数，如支持对查询结果的子集进行计算的<code class="calibre11">TOP</code>和<code class="calibre11">TOP PERCENT</code>。为了解具体的DBMS支持哪些参数，请参阅相应的文档。</p>
+</blockquote>
+</body>
+</html>

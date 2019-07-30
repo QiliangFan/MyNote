@@ -1,0 +1,1323 @@
+<?xml version='1.0' encoding='utf-8'?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="zh">
+<head>
+<meta content="1727625465" name="dtb:uid"/>
+<meta content="3" name="dtb:depth"/>
+<meta content="mobiunpack.py" name="dtb:generator"/>
+<meta content="0" name="dtb:totalPageCount"/>
+<meta content="0" name="dtb:maxPageNumber"/>
+</head>
+<docTitle>
+<text>SQL必知必会（第4版）</text>
+</docTitle>
+<navMap>
+    <navPoint id="np_1" playOrder="1">
+    <navLabel>
+    <text>版权信息</text>
+    </navLabel>
+    <content src="Text/part0000.xhtml#nav_point_1"/>
+    </navPoint>
+    <navPoint id="np_2" playOrder="2">
+    <navLabel>
+    <text>目录</text>
+    </navLabel>
+    <content src="Text/part0001.xhtml#nav_point_218"/>
+    </navPoint>
+    <navPoint id="np_3" playOrder="3">
+    <navLabel>
+    <text>引言</text>
+    </navLabel>
+    <content src="Text/part0002.xhtml#nav_point_2"/>
+    </navPoint>
+    <navPoint id="np_4" playOrder="4">
+    <navLabel>
+    <text>致谢</text>
+    </navLabel>
+    <content src="Text/part0003.xhtml#nav_point_3"/>
+    </navPoint>
+    <navPoint id="np_5" playOrder="5">
+    <navLabel>
+    <text>第1课 了解SQL</text>
+    </navLabel>
+    <content src="Text/part0004.xhtml#nav_point_4"/>
+      <navPoint id="np_6" playOrder="6">
+      <navLabel>
+      <text>1.1 数据库基础</text>
+      </navLabel>
+      <content src="Text/part0005.xhtml#nav_point_5"/>
+        <navPoint id="np_7" playOrder="7">
+        <navLabel>
+        <text>1.1.1 数据库</text>
+        </navLabel>
+        <content src="Text/part0005.xhtml#nav_point_6"/>
+        </navPoint>
+        <navPoint id="np_8" playOrder="8">
+        <navLabel>
+        <text>1.1.2 表</text>
+        </navLabel>
+        <content src="Text/part0005.xhtml#nav_point_7"/>
+        </navPoint>
+        <navPoint id="np_9" playOrder="9">
+        <navLabel>
+        <text>1.1.3 列和数据类型</text>
+        </navLabel>
+        <content src="Text/part0005.xhtml#nav_point_8"/>
+        </navPoint>
+        <navPoint id="np_10" playOrder="10">
+        <navLabel>
+        <text>1.1.4 行</text>
+        </navLabel>
+        <content src="Text/part0005.xhtml#nav_point_9"/>
+        </navPoint>
+        <navPoint id="np_11" playOrder="11">
+        <navLabel>
+        <text>1.1.5 主键</text>
+        </navLabel>
+        <content src="Text/part0005.xhtml#nav_point_10"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_12" playOrder="12">
+      <navLabel>
+      <text>1.2 什么是SQL</text>
+      </navLabel>
+      <content src="Text/part0006.xhtml#nav_point_11"/>
+      </navPoint>
+      <navPoint id="np_13" playOrder="13">
+      <navLabel>
+      <text>1.3 动手实践</text>
+      </navLabel>
+      <content src="Text/part0007.xhtml#nav_point_12"/>
+      </navPoint>
+      <navPoint id="np_14" playOrder="14">
+      <navLabel>
+      <text>1.4 小结</text>
+      </navLabel>
+      <content src="Text/part0008.xhtml#nav_point_13"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_15" playOrder="15">
+    <navLabel>
+    <text>第2课 检索数据</text>
+    </navLabel>
+    <content src="Text/part0009.xhtml#nav_point_14"/>
+      <navPoint id="np_16" playOrder="16">
+      <navLabel>
+      <text>2.1 SELECT语句</text>
+      </navLabel>
+      <content src="Text/part0010.xhtml#nav_point_15"/>
+      </navPoint>
+      <navPoint id="np_17" playOrder="17">
+      <navLabel>
+      <text>2.2 检索单个列</text>
+      </navLabel>
+      <content src="Text/part0011.xhtml#nav_point_16"/>
+      </navPoint>
+      <navPoint id="np_18" playOrder="18">
+      <navLabel>
+      <text>2.3 检索多个列</text>
+      </navLabel>
+      <content src="Text/part0012.xhtml#nav_point_17"/>
+      </navPoint>
+      <navPoint id="np_19" playOrder="19">
+      <navLabel>
+      <text>2.4 检索所有列</text>
+      </navLabel>
+      <content src="Text/part0013.xhtml#nav_point_18"/>
+      </navPoint>
+      <navPoint id="np_20" playOrder="20">
+      <navLabel>
+      <text>2.5 检索不同的值</text>
+      </navLabel>
+      <content src="Text/part0014.xhtml#nav_point_19"/>
+      </navPoint>
+      <navPoint id="np_21" playOrder="21">
+      <navLabel>
+      <text>2.6 限制结果</text>
+      </navLabel>
+      <content src="Text/part0015.xhtml#nav_point_20"/>
+      </navPoint>
+      <navPoint id="np_22" playOrder="22">
+      <navLabel>
+      <text>2.7 使用注释</text>
+      </navLabel>
+      <content src="Text/part0016.xhtml#nav_point_21"/>
+      </navPoint>
+      <navPoint id="np_23" playOrder="23">
+      <navLabel>
+      <text>2.8 小结</text>
+      </navLabel>
+      <content src="Text/part0017.xhtml#nav_point_22"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_24" playOrder="24">
+    <navLabel>
+    <text>第3课 排序检索数据</text>
+    </navLabel>
+    <content src="Text/part0018.xhtml#nav_point_23"/>
+      <navPoint id="np_25" playOrder="25">
+      <navLabel>
+      <text>3.1 排序数据</text>
+      </navLabel>
+      <content src="Text/part0019.xhtml#nav_point_24"/>
+      </navPoint>
+      <navPoint id="np_26" playOrder="26">
+      <navLabel>
+      <text>3.2 按多个列排序</text>
+      </navLabel>
+      <content src="Text/part0020.xhtml#nav_point_25"/>
+      </navPoint>
+      <navPoint id="np_27" playOrder="27">
+      <navLabel>
+      <text>3.3 按列位置排序</text>
+      </navLabel>
+      <content src="Text/part0021.xhtml#nav_point_26"/>
+      </navPoint>
+      <navPoint id="np_28" playOrder="28">
+      <navLabel>
+      <text>3.4 指定排序方向</text>
+      </navLabel>
+      <content src="Text/part0022.xhtml#nav_point_27"/>
+      </navPoint>
+      <navPoint id="np_29" playOrder="29">
+      <navLabel>
+      <text>3.5 小结</text>
+      </navLabel>
+      <content src="Text/part0023.xhtml#nav_point_28"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_30" playOrder="30">
+    <navLabel>
+    <text>第4课 过滤数据</text>
+    </navLabel>
+    <content src="Text/part0024.xhtml#nav_point_29"/>
+      <navPoint id="np_31" playOrder="31">
+      <navLabel>
+      <text>4.1 使用WHERE子句</text>
+      </navLabel>
+      <content src="Text/part0025.xhtml#nav_point_30"/>
+      </navPoint>
+      <navPoint id="np_32" playOrder="32">
+      <navLabel>
+      <text>4.2 WHERE子句操作符</text>
+      </navLabel>
+      <content src="Text/part0026.xhtml#nav_point_31"/>
+        <navPoint id="np_33" playOrder="33">
+        <navLabel>
+        <text>4.2.1 检查单个值</text>
+        </navLabel>
+        <content src="Text/part0026.xhtml#nav_point_32"/>
+        </navPoint>
+        <navPoint id="np_34" playOrder="34">
+        <navLabel>
+        <text>4.2.2 不匹配检查</text>
+        </navLabel>
+        <content src="Text/part0026.xhtml#nav_point_33"/>
+        </navPoint>
+        <navPoint id="np_35" playOrder="35">
+        <navLabel>
+        <text>4.2.3 范围值检查</text>
+        </navLabel>
+        <content src="Text/part0026.xhtml#nav_point_34"/>
+        </navPoint>
+        <navPoint id="np_36" playOrder="36">
+        <navLabel>
+        <text>4.2.4 空值检查</text>
+        </navLabel>
+        <content src="Text/part0026.xhtml#nav_point_35"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_37" playOrder="37">
+      <navLabel>
+      <text>4.3 小结</text>
+      </navLabel>
+      <content src="Text/part0027.xhtml#nav_point_36"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_38" playOrder="38">
+    <navLabel>
+    <text>第5课 高级数据过滤</text>
+    </navLabel>
+    <content src="Text/part0028.xhtml#nav_point_37"/>
+      <navPoint id="np_39" playOrder="39">
+      <navLabel>
+      <text>5.1 组合WHERE子句</text>
+      </navLabel>
+      <content src="Text/part0029.xhtml#nav_point_38"/>
+        <navPoint id="np_40" playOrder="40">
+        <navLabel>
+        <text>5.1.1 AND操作符</text>
+        </navLabel>
+        <content src="Text/part0029.xhtml#nav_point_39"/>
+        </navPoint>
+        <navPoint id="np_41" playOrder="41">
+        <navLabel>
+        <text>5.1.2 OR操作符</text>
+        </navLabel>
+        <content src="Text/part0029.xhtml#nav_point_40"/>
+        </navPoint>
+        <navPoint id="np_42" playOrder="42">
+        <navLabel>
+        <text>5.1.3 求值顺序</text>
+        </navLabel>
+        <content src="Text/part0029.xhtml#nav_point_41"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_43" playOrder="43">
+      <navLabel>
+      <text>5.2 IN操作符</text>
+      </navLabel>
+      <content src="Text/part0030.xhtml#nav_point_42"/>
+      </navPoint>
+      <navPoint id="np_44" playOrder="44">
+      <navLabel>
+      <text>5.3 NOT操作符</text>
+      </navLabel>
+      <content src="Text/part0031.xhtml#nav_point_43"/>
+      </navPoint>
+      <navPoint id="np_45" playOrder="45">
+      <navLabel>
+      <text>5.4 小结</text>
+      </navLabel>
+      <content src="Text/part0032.xhtml#nav_point_44"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_46" playOrder="46">
+    <navLabel>
+    <text>第6课 用通配符进行过滤</text>
+    </navLabel>
+    <content src="Text/part0033.xhtml#nav_point_45"/>
+      <navPoint id="np_47" playOrder="47">
+      <navLabel>
+      <text>6.1 LIKE操作符</text>
+      </navLabel>
+      <content src="Text/part0034.xhtml#nav_point_46"/>
+        <navPoint id="np_48" playOrder="48">
+        <navLabel>
+        <text>6.1.1 百分号（%）通配符</text>
+        </navLabel>
+        <content src="Text/part0034.xhtml#nav_point_47"/>
+        </navPoint>
+        <navPoint id="np_49" playOrder="49">
+        <navLabel>
+        <text>6.1.2 下划线（_）通配符</text>
+        </navLabel>
+        <content src="Text/part0034.xhtml#nav_point_48"/>
+        </navPoint>
+        <navPoint id="np_50" playOrder="50">
+        <navLabel>
+        <text>6.1.3 方括号（[ ]）通配符</text>
+        </navLabel>
+        <content src="Text/part0034.xhtml#nav_point_49"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_51" playOrder="51">
+      <navLabel>
+      <text>6.2 使用通配符的技巧</text>
+      </navLabel>
+      <content src="Text/part0035.xhtml#nav_point_50"/>
+      </navPoint>
+      <navPoint id="np_52" playOrder="52">
+      <navLabel>
+      <text>6.3 小结</text>
+      </navLabel>
+      <content src="Text/part0036.xhtml#nav_point_51"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_53" playOrder="53">
+    <navLabel>
+    <text>第7课 创建计算字段</text>
+    </navLabel>
+    <content src="Text/part0037.xhtml#nav_point_52"/>
+      <navPoint id="np_54" playOrder="54">
+      <navLabel>
+      <text>7.1 计算字段</text>
+      </navLabel>
+      <content src="Text/part0038.xhtml#nav_point_53"/>
+      </navPoint>
+      <navPoint id="np_55" playOrder="55">
+      <navLabel>
+      <text>7.2 拼接字段</text>
+      </navLabel>
+      <content src="Text/part0039.xhtml#nav_point_54"/>
+        <navPoint id="np_56" playOrder="56">
+        <navLabel>
+        <text>使用别名</text>
+        </navLabel>
+        <content src="Text/part0039.xhtml#nav_point_55"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_57" playOrder="57">
+      <navLabel>
+      <text>7.3 执行算术计算</text>
+      </navLabel>
+      <content src="Text/part0040.xhtml#nav_point_56"/>
+      </navPoint>
+      <navPoint id="np_58" playOrder="58">
+      <navLabel>
+      <text>7.4 小结</text>
+      </navLabel>
+      <content src="Text/part0041.xhtml#nav_point_57"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_59" playOrder="59">
+    <navLabel>
+    <text>第8课 使用数据处理函数</text>
+    </navLabel>
+    <content src="Text/part0042.xhtml#nav_point_58"/>
+      <navPoint id="np_60" playOrder="60">
+      <navLabel>
+      <text>8.1 函数</text>
+      </navLabel>
+      <content src="Text/part0043.xhtml#nav_point_59"/>
+        <navPoint id="np_61" playOrder="61">
+        <navLabel>
+        <text>函数带来的问题</text>
+        </navLabel>
+        <content src="Text/part0043.xhtml#nav_point_60"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_62" playOrder="62">
+      <navLabel>
+      <text>8.2 使用函数</text>
+      </navLabel>
+      <content src="Text/part0044.xhtml#nav_point_61"/>
+        <navPoint id="np_63" playOrder="63">
+        <navLabel>
+        <text>8.2.1 文本处理函数</text>
+        </navLabel>
+        <content src="Text/part0044.xhtml#nav_point_62"/>
+        </navPoint>
+        <navPoint id="np_64" playOrder="64">
+        <navLabel>
+        <text>8.2.2 日期和时间处理函数</text>
+        </navLabel>
+        <content src="Text/part0044.xhtml#nav_point_63"/>
+        </navPoint>
+        <navPoint id="np_65" playOrder="65">
+        <navLabel>
+        <text>8.2.3 数值处理函数</text>
+        </navLabel>
+        <content src="Text/part0044.xhtml#nav_point_64"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_66" playOrder="66">
+      <navLabel>
+      <text>8.3 小结</text>
+      </navLabel>
+      <content src="Text/part0045.xhtml#nav_point_65"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_67" playOrder="67">
+    <navLabel>
+    <text>第9课 汇总数据</text>
+    </navLabel>
+    <content src="Text/part0046.xhtml#nav_point_66"/>
+      <navPoint id="np_68" playOrder="68">
+      <navLabel>
+      <text>9.1 聚集函数</text>
+      </navLabel>
+      <content src="Text/part0047.xhtml#nav_point_67"/>
+        <navPoint id="np_69" playOrder="69">
+        <navLabel>
+        <text>9.1.1 AVG()函数</text>
+        </navLabel>
+        <content src="Text/part0047.xhtml#nav_point_68"/>
+        </navPoint>
+        <navPoint id="np_70" playOrder="70">
+        <navLabel>
+        <text>9.1.2 COUNT()函数</text>
+        </navLabel>
+        <content src="Text/part0047.xhtml#nav_point_69"/>
+        </navPoint>
+        <navPoint id="np_71" playOrder="71">
+        <navLabel>
+        <text>9.1.3 MAX()函数</text>
+        </navLabel>
+        <content src="Text/part0047.xhtml#nav_point_70"/>
+        </navPoint>
+        <navPoint id="np_72" playOrder="72">
+        <navLabel>
+        <text>9.1.4 MIN()函数</text>
+        </navLabel>
+        <content src="Text/part0047.xhtml#nav_point_71"/>
+        </navPoint>
+        <navPoint id="np_73" playOrder="73">
+        <navLabel>
+        <text>9.1.5 SUM()函数</text>
+        </navLabel>
+        <content src="Text/part0047.xhtml#nav_point_72"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_74" playOrder="74">
+      <navLabel>
+      <text>9.2 聚集不同值</text>
+      </navLabel>
+      <content src="Text/part0048.xhtml#nav_point_73"/>
+      </navPoint>
+      <navPoint id="np_75" playOrder="75">
+      <navLabel>
+      <text>9.3 组合聚集函数</text>
+      </navLabel>
+      <content src="Text/part0049.xhtml#nav_point_74"/>
+      </navPoint>
+      <navPoint id="np_76" playOrder="76">
+      <navLabel>
+      <text>9.4 小结</text>
+      </navLabel>
+      <content src="Text/part0050.xhtml#nav_point_75"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_77" playOrder="77">
+    <navLabel>
+    <text>第10课 分组数据</text>
+    </navLabel>
+    <content src="Text/part0051.xhtml#nav_point_76"/>
+      <navPoint id="np_78" playOrder="78">
+      <navLabel>
+      <text>10.1 数据分组</text>
+      </navLabel>
+      <content src="Text/part0052.xhtml#nav_point_77"/>
+      </navPoint>
+      <navPoint id="np_79" playOrder="79">
+      <navLabel>
+      <text>10.2 创建分组</text>
+      </navLabel>
+      <content src="Text/part0053.xhtml#nav_point_78"/>
+      </navPoint>
+      <navPoint id="np_80" playOrder="80">
+      <navLabel>
+      <text>10.3 过滤分组</text>
+      </navLabel>
+      <content src="Text/part0054.xhtml#nav_point_79"/>
+      </navPoint>
+      <navPoint id="np_81" playOrder="81">
+      <navLabel>
+      <text>10.4 分组和排序</text>
+      </navLabel>
+      <content src="Text/part0055.xhtml#nav_point_80"/>
+      </navPoint>
+      <navPoint id="np_82" playOrder="82">
+      <navLabel>
+      <text>10.5 SELECT子句顺序</text>
+      </navLabel>
+      <content src="Text/part0056.xhtml#nav_point_81"/>
+      </navPoint>
+      <navPoint id="np_83" playOrder="83">
+      <navLabel>
+      <text>10.6 小结</text>
+      </navLabel>
+      <content src="Text/part0057.xhtml#nav_point_82"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_84" playOrder="84">
+    <navLabel>
+    <text>第11课 使用子查询</text>
+    </navLabel>
+    <content src="Text/part0058.xhtml#nav_point_83"/>
+      <navPoint id="np_85" playOrder="85">
+      <navLabel>
+      <text>11.1 子查询</text>
+      </navLabel>
+      <content src="Text/part0059.xhtml#nav_point_84"/>
+      </navPoint>
+      <navPoint id="np_86" playOrder="86">
+      <navLabel>
+      <text>11.2 利用子查询进行过滤</text>
+      </navLabel>
+      <content src="Text/part0060.xhtml#nav_point_85"/>
+      </navPoint>
+      <navPoint id="np_87" playOrder="87">
+      <navLabel>
+      <text>11.3 作为计算字段使用子查询</text>
+      </navLabel>
+      <content src="Text/part0061.xhtml#nav_point_86"/>
+      </navPoint>
+      <navPoint id="np_88" playOrder="88">
+      <navLabel>
+      <text>11.4 小结</text>
+      </navLabel>
+      <content src="Text/part0062.xhtml#nav_point_87"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_89" playOrder="89">
+    <navLabel>
+    <text>第12课 联结表</text>
+    </navLabel>
+    <content src="Text/part0063.xhtml#nav_point_88"/>
+      <navPoint id="np_90" playOrder="90">
+      <navLabel>
+      <text>12.1 联结</text>
+      </navLabel>
+      <content src="Text/part0064.xhtml#nav_point_89"/>
+        <navPoint id="np_91" playOrder="91">
+        <navLabel>
+        <text>12.1.1 关系表</text>
+        </navLabel>
+        <content src="Text/part0064.xhtml#nav_point_90"/>
+        </navPoint>
+        <navPoint id="np_92" playOrder="92">
+        <navLabel>
+        <text>12.1.2 为什么使用联结</text>
+        </navLabel>
+        <content src="Text/part0064.xhtml#nav_point_91"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_93" playOrder="93">
+      <navLabel>
+      <text>12.2 创建联结</text>
+      </navLabel>
+      <content src="Text/part0065.xhtml#nav_point_92"/>
+        <navPoint id="np_94" playOrder="94">
+        <navLabel>
+        <text>12.2.1 WHERE子句的重要性</text>
+        </navLabel>
+        <content src="Text/part0065.xhtml#nav_point_93"/>
+        </navPoint>
+        <navPoint id="np_95" playOrder="95">
+        <navLabel>
+        <text>12.2.2 内联结</text>
+        </navLabel>
+        <content src="Text/part0065.xhtml#nav_point_94"/>
+        </navPoint>
+        <navPoint id="np_96" playOrder="96">
+        <navLabel>
+        <text>12.2.3 联结多个表</text>
+        </navLabel>
+        <content src="Text/part0065.xhtml#nav_point_95"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_97" playOrder="97">
+      <navLabel>
+      <text>12.3 小结</text>
+      </navLabel>
+      <content src="Text/part0066.xhtml#nav_point_96"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_98" playOrder="98">
+    <navLabel>
+    <text>第13课 创建高级联结</text>
+    </navLabel>
+    <content src="Text/part0067.xhtml#nav_point_97"/>
+      <navPoint id="np_99" playOrder="99">
+      <navLabel>
+      <text>13.1 使用表别名</text>
+      </navLabel>
+      <content src="Text/part0068.xhtml#nav_point_98"/>
+      </navPoint>
+      <navPoint id="np_100" playOrder="100">
+      <navLabel>
+      <text>13.2 使用不同类型的联结</text>
+      </navLabel>
+      <content src="Text/part0069.xhtml#nav_point_99"/>
+        <navPoint id="np_101" playOrder="101">
+        <navLabel>
+        <text>13.2.1 自联结</text>
+        </navLabel>
+        <content src="Text/part0069.xhtml#nav_point_100"/>
+        </navPoint>
+        <navPoint id="np_102" playOrder="102">
+        <navLabel>
+        <text>13.2.2 自然联结</text>
+        </navLabel>
+        <content src="Text/part0069.xhtml#nav_point_101"/>
+        </navPoint>
+        <navPoint id="np_103" playOrder="103">
+        <navLabel>
+        <text>13.2.3 外联结</text>
+        </navLabel>
+        <content src="Text/part0069.xhtml#nav_point_102"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_104" playOrder="104">
+      <navLabel>
+      <text>13.3 使用带聚集函数的联结</text>
+      </navLabel>
+      <content src="Text/part0070.xhtml#nav_point_103"/>
+      </navPoint>
+      <navPoint id="np_105" playOrder="105">
+      <navLabel>
+      <text>13.4 使用联结和联结条件</text>
+      </navLabel>
+      <content src="Text/part0071.xhtml#nav_point_104"/>
+      </navPoint>
+      <navPoint id="np_106" playOrder="106">
+      <navLabel>
+      <text>13.5 小结</text>
+      </navLabel>
+      <content src="Text/part0072.xhtml#nav_point_105"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_107" playOrder="107">
+    <navLabel>
+    <text>第14课 组合查询</text>
+    </navLabel>
+    <content src="Text/part0073.xhtml#nav_point_106"/>
+      <navPoint id="np_108" playOrder="108">
+      <navLabel>
+      <text>14.1 组合查询</text>
+      </navLabel>
+      <content src="Text/part0074.xhtml#nav_point_107"/>
+      </navPoint>
+      <navPoint id="np_109" playOrder="109">
+      <navLabel>
+      <text>14.2 创建组合查询</text>
+      </navLabel>
+      <content src="Text/part0075.xhtml#nav_point_108"/>
+        <navPoint id="np_110" playOrder="110">
+        <navLabel>
+        <text>14.2.1 使用UNION</text>
+        </navLabel>
+        <content src="Text/part0075.xhtml#nav_point_109"/>
+        </navPoint>
+        <navPoint id="np_111" playOrder="111">
+        <navLabel>
+        <text>14.2.2 UNION规则</text>
+        </navLabel>
+        <content src="Text/part0075.xhtml#nav_point_110"/>
+        </navPoint>
+        <navPoint id="np_112" playOrder="112">
+        <navLabel>
+        <text>14.2.3 包含或取消重复的行</text>
+        </navLabel>
+        <content src="Text/part0075.xhtml#nav_point_111"/>
+        </navPoint>
+        <navPoint id="np_113" playOrder="113">
+        <navLabel>
+        <text>14.2.4 对组合查询结果排序</text>
+        </navLabel>
+        <content src="Text/part0075.xhtml#nav_point_112"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_114" playOrder="114">
+      <navLabel>
+      <text>14.3 小结</text>
+      </navLabel>
+      <content src="Text/part0076.xhtml#nav_point_113"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_115" playOrder="115">
+    <navLabel>
+    <text>第15课 插入数据</text>
+    </navLabel>
+    <content src="Text/part0077.xhtml#nav_point_114"/>
+      <navPoint id="np_116" playOrder="116">
+      <navLabel>
+      <text>15.1 数据插入</text>
+      </navLabel>
+      <content src="Text/part0078.xhtml#nav_point_115"/>
+        <navPoint id="np_117" playOrder="117">
+        <navLabel>
+        <text>15.1.1 插入完整的行</text>
+        </navLabel>
+        <content src="Text/part0078.xhtml#nav_point_116"/>
+        </navPoint>
+        <navPoint id="np_118" playOrder="118">
+        <navLabel>
+        <text>15.1.2 插入部分行</text>
+        </navLabel>
+        <content src="Text/part0078.xhtml#nav_point_117"/>
+        </navPoint>
+        <navPoint id="np_119" playOrder="119">
+        <navLabel>
+        <text>15.1.3 插入检索出的数据</text>
+        </navLabel>
+        <content src="Text/part0078.xhtml#nav_point_118"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_120" playOrder="120">
+      <navLabel>
+      <text>15.2 从一个表复制到另一个表</text>
+      </navLabel>
+      <content src="Text/part0079.xhtml#nav_point_119"/>
+      </navPoint>
+      <navPoint id="np_121" playOrder="121">
+      <navLabel>
+      <text>15.3 小结</text>
+      </navLabel>
+      <content src="Text/part0080.xhtml#nav_point_120"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_122" playOrder="122">
+    <navLabel>
+    <text>第16课 更新和删除数据</text>
+    </navLabel>
+    <content src="Text/part0081.xhtml#nav_point_121"/>
+      <navPoint id="np_123" playOrder="123">
+      <navLabel>
+      <text>16.1 更新数据</text>
+      </navLabel>
+      <content src="Text/part0082.xhtml#nav_point_122"/>
+      </navPoint>
+      <navPoint id="np_124" playOrder="124">
+      <navLabel>
+      <text>16.2 删除数据</text>
+      </navLabel>
+      <content src="Text/part0083.xhtml#nav_point_123"/>
+      </navPoint>
+      <navPoint id="np_125" playOrder="125">
+      <navLabel>
+      <text>16.3 更新和删除的指导原则</text>
+      </navLabel>
+      <content src="Text/part0084.xhtml#nav_point_124"/>
+      </navPoint>
+      <navPoint id="np_126" playOrder="126">
+      <navLabel>
+      <text>16.4 小结</text>
+      </navLabel>
+      <content src="Text/part0085.xhtml#nav_point_125"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_127" playOrder="127">
+    <navLabel>
+    <text>第17课 创建和操纵表</text>
+    </navLabel>
+    <content src="Text/part0086.xhtml#nav_point_126"/>
+      <navPoint id="np_128" playOrder="128">
+      <navLabel>
+      <text>17.1 创建表</text>
+      </navLabel>
+      <content src="Text/part0087.xhtml#nav_point_127"/>
+        <navPoint id="np_129" playOrder="129">
+        <navLabel>
+        <text>17.1.1 表创建基础</text>
+        </navLabel>
+        <content src="Text/part0087.xhtml#nav_point_128"/>
+        </navPoint>
+        <navPoint id="np_130" playOrder="130">
+        <navLabel>
+        <text>17.1.2 使用NULL值</text>
+        </navLabel>
+        <content src="Text/part0087.xhtml#nav_point_129"/>
+        </navPoint>
+        <navPoint id="np_131" playOrder="131">
+        <navLabel>
+        <text>17.1.3 指定默认值</text>
+        </navLabel>
+        <content src="Text/part0087.xhtml#nav_point_130"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_132" playOrder="132">
+      <navLabel>
+      <text>17.2 更新表</text>
+      </navLabel>
+      <content src="Text/part0088.xhtml#nav_point_131"/>
+      </navPoint>
+      <navPoint id="np_133" playOrder="133">
+      <navLabel>
+      <text>17.3 删除表</text>
+      </navLabel>
+      <content src="Text/part0089.xhtml#nav_point_132"/>
+      </navPoint>
+      <navPoint id="np_134" playOrder="134">
+      <navLabel>
+      <text>17.4 重命名表</text>
+      </navLabel>
+      <content src="Text/part0090.xhtml#nav_point_133"/>
+      </navPoint>
+      <navPoint id="np_135" playOrder="135">
+      <navLabel>
+      <text>17.5 小结</text>
+      </navLabel>
+      <content src="Text/part0091.xhtml#nav_point_134"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_136" playOrder="136">
+    <navLabel>
+    <text>第18课 使用视图</text>
+    </navLabel>
+    <content src="Text/part0092.xhtml#nav_point_135"/>
+      <navPoint id="np_137" playOrder="137">
+      <navLabel>
+      <text>18.1 视图</text>
+      </navLabel>
+      <content src="Text/part0093.xhtml#nav_point_136"/>
+        <navPoint id="np_138" playOrder="138">
+        <navLabel>
+        <text>18.1.1 为什么使用视图</text>
+        </navLabel>
+        <content src="Text/part0093.xhtml#nav_point_137"/>
+        </navPoint>
+        <navPoint id="np_139" playOrder="139">
+        <navLabel>
+        <text>18.1.2 视图的规则和限制</text>
+        </navLabel>
+        <content src="Text/part0093.xhtml#nav_point_138"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_140" playOrder="140">
+      <navLabel>
+      <text>18.2 创建视图</text>
+      </navLabel>
+      <content src="Text/part0094.xhtml#nav_point_139"/>
+        <navPoint id="np_141" playOrder="141">
+        <navLabel>
+        <text>18.2.1 利用视图简化复杂的联结</text>
+        </navLabel>
+        <content src="Text/part0094.xhtml#nav_point_140"/>
+        </navPoint>
+        <navPoint id="np_142" playOrder="142">
+        <navLabel>
+        <text>18.2.2 用视图重新格式化检索出的数据</text>
+        </navLabel>
+        <content src="Text/part0094.xhtml#nav_point_141"/>
+        </navPoint>
+        <navPoint id="np_143" playOrder="143">
+        <navLabel>
+        <text>18.2.3 用视图过滤不想要的数据</text>
+        </navLabel>
+        <content src="Text/part0094.xhtml#nav_point_142"/>
+        </navPoint>
+        <navPoint id="np_144" playOrder="144">
+        <navLabel>
+        <text>18.2.4 使用视图与计算字段</text>
+        </navLabel>
+        <content src="Text/part0094.xhtml#nav_point_143"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_145" playOrder="145">
+      <navLabel>
+      <text>18.3 小结</text>
+      </navLabel>
+      <content src="Text/part0095.xhtml#nav_point_144"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_146" playOrder="146">
+    <navLabel>
+    <text>第19课 使用存储过程</text>
+    </navLabel>
+    <content src="Text/part0096.xhtml#nav_point_145"/>
+      <navPoint id="np_147" playOrder="147">
+      <navLabel>
+      <text>19.1 存储过程</text>
+      </navLabel>
+      <content src="Text/part0097.xhtml#nav_point_146"/>
+      </navPoint>
+      <navPoint id="np_148" playOrder="148">
+      <navLabel>
+      <text>19.2 为什么要使用存储过程</text>
+      </navLabel>
+      <content src="Text/part0098.xhtml#nav_point_147"/>
+      </navPoint>
+      <navPoint id="np_149" playOrder="149">
+      <navLabel>
+      <text>19.3 执行存储过程</text>
+      </navLabel>
+      <content src="Text/part0099.xhtml#nav_point_148"/>
+      </navPoint>
+      <navPoint id="np_150" playOrder="150">
+      <navLabel>
+      <text>19.4 创建存储过程</text>
+      </navLabel>
+      <content src="Text/part0100.xhtml#nav_point_149"/>
+      </navPoint>
+      <navPoint id="np_151" playOrder="151">
+      <navLabel>
+      <text>19.5 小结</text>
+      </navLabel>
+      <content src="Text/part0101.xhtml#nav_point_150"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_152" playOrder="152">
+    <navLabel>
+    <text>第20课 管理事务处理</text>
+    </navLabel>
+    <content src="Text/part0102.xhtml#nav_point_151"/>
+      <navPoint id="np_153" playOrder="153">
+      <navLabel>
+      <text>20.1 事务处理</text>
+      </navLabel>
+      <content src="Text/part0103.xhtml#nav_point_152"/>
+      </navPoint>
+      <navPoint id="np_154" playOrder="154">
+      <navLabel>
+      <text>20.2 控制事务处理</text>
+      </navLabel>
+      <content src="Text/part0104.xhtml#nav_point_153"/>
+        <navPoint id="np_155" playOrder="155">
+        <navLabel>
+        <text>20.2.1 使用ROLLBACK</text>
+        </navLabel>
+        <content src="Text/part0104.xhtml#nav_point_154"/>
+        </navPoint>
+        <navPoint id="np_156" playOrder="156">
+        <navLabel>
+        <text>20.2.2 使用COMMIT</text>
+        </navLabel>
+        <content src="Text/part0104.xhtml#nav_point_155"/>
+        </navPoint>
+        <navPoint id="np_157" playOrder="157">
+        <navLabel>
+        <text>20.2.3 使用保留点</text>
+        </navLabel>
+        <content src="Text/part0104.xhtml#nav_point_156"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_158" playOrder="158">
+      <navLabel>
+      <text>20.3 小结</text>
+      </navLabel>
+      <content src="Text/part0105.xhtml#nav_point_157"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_159" playOrder="159">
+    <navLabel>
+    <text>第21课 使用游标</text>
+    </navLabel>
+    <content src="Text/part0106.xhtml#nav_point_158"/>
+      <navPoint id="np_160" playOrder="160">
+      <navLabel>
+      <text>21.1 游标</text>
+      </navLabel>
+      <content src="Text/part0107.xhtml#nav_point_159"/>
+      </navPoint>
+      <navPoint id="np_161" playOrder="161">
+      <navLabel>
+      <text>21.2 使用游标</text>
+      </navLabel>
+      <content src="Text/part0108.xhtml#nav_point_160"/>
+        <navPoint id="np_162" playOrder="162">
+        <navLabel>
+        <text>21.2.1 创建游标</text>
+        </navLabel>
+        <content src="Text/part0108.xhtml#nav_point_161"/>
+        </navPoint>
+        <navPoint id="np_163" playOrder="163">
+        <navLabel>
+        <text>21.2.2 使用游标</text>
+        </navLabel>
+        <content src="Text/part0108.xhtml#nav_point_162"/>
+        </navPoint>
+        <navPoint id="np_164" playOrder="164">
+        <navLabel>
+        <text>21.2.3 关闭游标</text>
+        </navLabel>
+        <content src="Text/part0108.xhtml#nav_point_163"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_165" playOrder="165">
+      <navLabel>
+      <text>21.3 小结</text>
+      </navLabel>
+      <content src="Text/part0109.xhtml#nav_point_164"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_166" playOrder="166">
+    <navLabel>
+    <text>第22课 高级SQL特性</text>
+    </navLabel>
+    <content src="Text/part0110.xhtml#nav_point_165"/>
+      <navPoint id="np_167" playOrder="167">
+      <navLabel>
+      <text>22.1 约束</text>
+      </navLabel>
+      <content src="Text/part0111.xhtml#nav_point_166"/>
+        <navPoint id="np_168" playOrder="168">
+        <navLabel>
+        <text>22.1.1 主键</text>
+        </navLabel>
+        <content src="Text/part0111.xhtml#nav_point_167"/>
+        </navPoint>
+        <navPoint id="np_169" playOrder="169">
+        <navLabel>
+        <text>22.1.2 外键</text>
+        </navLabel>
+        <content src="Text/part0111.xhtml#nav_point_168"/>
+        </navPoint>
+        <navPoint id="np_170" playOrder="170">
+        <navLabel>
+        <text>22.1.3 唯一约束</text>
+        </navLabel>
+        <content src="Text/part0111.xhtml#nav_point_169"/>
+        </navPoint>
+        <navPoint id="np_171" playOrder="171">
+        <navLabel>
+        <text>22.1.4 检查约束</text>
+        </navLabel>
+        <content src="Text/part0111.xhtml#nav_point_170"/>
+        </navPoint>
+      </navPoint>
+      <navPoint id="np_172" playOrder="172">
+      <navLabel>
+      <text>22.2 索引</text>
+      </navLabel>
+      <content src="Text/part0112.xhtml#nav_point_171"/>
+      </navPoint>
+      <navPoint id="np_173" playOrder="173">
+      <navLabel>
+      <text>22.3 触发器</text>
+      </navLabel>
+      <content src="Text/part0113.xhtml#nav_point_172"/>
+      </navPoint>
+      <navPoint id="np_174" playOrder="174">
+      <navLabel>
+      <text>22.4 数据库安全</text>
+      </navLabel>
+      <content src="Text/part0114.xhtml#nav_point_173"/>
+      </navPoint>
+      <navPoint id="np_175" playOrder="175">
+      <navLabel>
+      <text>22.5 小结</text>
+      </navLabel>
+      <content src="Text/part0115.xhtml#nav_point_174"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_176" playOrder="176">
+    <navLabel>
+    <text>附录A 样例表脚本</text>
+    </navLabel>
+    <content src="Text/part0116.xhtml#nav_point_175"/>
+      <navPoint id="np_177" playOrder="177">
+      <navLabel>
+      <text>A.1 样例表</text>
+      </navLabel>
+      <content src="Text/part0117.xhtml#nav_point_176"/>
+      </navPoint>
+      <navPoint id="np_178" playOrder="178">
+      <navLabel>
+      <text>A.2 获得样例表</text>
+      </navLabel>
+      <content src="Text/part0118.xhtml#nav_point_177"/>
+        <navPoint id="np_179" playOrder="179">
+        <navLabel>
+        <text>A.2.1 下载可供使用的数据文件</text>
+        </navLabel>
+        <content src="Text/part0118.xhtml#nav_point_178"/>
+        </navPoint>
+        <navPoint id="np_180" playOrder="180">
+        <navLabel>
+        <text>A.2.2 下载DBMS SQL脚本</text>
+        </navLabel>
+        <content src="Text/part0118.xhtml#nav_point_179"/>
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_181" playOrder="181">
+    <navLabel>
+    <text>附录B 流行的应用程序</text>
+    </navLabel>
+    <content src="Text/part0119.xhtml#nav_point_180"/>
+      <navPoint id="np_182" playOrder="182">
+      <navLabel>
+      <text>B.1 使用Apache Open Office Base</text>
+      </navLabel>
+      <content src="Text/part0120.xhtml#nav_point_181"/>
+      </navPoint>
+      <navPoint id="np_183" playOrder="183">
+      <navLabel>
+      <text>B.2 使用Adobe ColdFusion</text>
+      </navLabel>
+      <content src="Text/part0121.xhtml#nav_point_182"/>
+      </navPoint>
+      <navPoint id="np_184" playOrder="184">
+      <navLabel>
+      <text>B.3 使用IBM DB2</text>
+      </navLabel>
+      <content src="Text/part0122.xhtml#nav_point_183"/>
+      </navPoint>
+      <navPoint id="np_185" playOrder="185">
+      <navLabel>
+      <text>B.4 使用MariaDB</text>
+      </navLabel>
+      <content src="Text/part0123.xhtml#nav_point_184"/>
+      </navPoint>
+      <navPoint id="np_186" playOrder="186">
+      <navLabel>
+      <text>B.5 使用Microsoft Access</text>
+      </navLabel>
+      <content src="Text/part0124.xhtml#nav_point_185"/>
+      </navPoint>
+      <navPoint id="np_187" playOrder="187">
+      <navLabel>
+      <text>B.6 使用Microsoft ASP</text>
+      </navLabel>
+      <content src="Text/part0125.xhtml#nav_point_186"/>
+      </navPoint>
+      <navPoint id="np_188" playOrder="188">
+      <navLabel>
+      <text>B.7 使用Microsoft ASP.NET</text>
+      </navLabel>
+      <content src="Text/part0126.xhtml#nav_point_187"/>
+      </navPoint>
+      <navPoint id="np_189" playOrder="189">
+      <navLabel>
+      <text>B.8 使用Microsoft Query</text>
+      </navLabel>
+      <content src="Text/part0127.xhtml#nav_point_188"/>
+      </navPoint>
+      <navPoint id="np_190" playOrder="190">
+      <navLabel>
+      <text>B.9 使用Microsoft SQL Server（包括Microsoft SQL Server Express）</text>
+      </navLabel>
+      <content src="Text/part0128.xhtml#nav_point_189"/>
+      </navPoint>
+      <navPoint id="np_191" playOrder="191">
+      <navLabel>
+      <text>B.10 使用MySQL</text>
+      </navLabel>
+      <content src="Text/part0129.xhtml#nav_point_190"/>
+      </navPoint>
+      <navPoint id="np_192" playOrder="192">
+      <navLabel>
+      <text>B.11 使用Oracle</text>
+      </navLabel>
+      <content src="Text/part0130.xhtml#nav_point_191"/>
+      </navPoint>
+      <navPoint id="np_193" playOrder="193">
+      <navLabel>
+      <text>B.12 使用Oracle Express</text>
+      </navLabel>
+      <content src="Text/part0131.xhtml#nav_point_192"/>
+      </navPoint>
+      <navPoint id="np_194" playOrder="194">
+      <navLabel>
+      <text>B.13 使用PHP</text>
+      </navLabel>
+      <content src="Text/part0132.xhtml#nav_point_193"/>
+      </navPoint>
+      <navPoint id="np_195" playOrder="195">
+      <navLabel>
+      <text>B.14 使用PostgreSQL</text>
+      </navLabel>
+      <content src="Text/part0133.xhtml#nav_point_194"/>
+      </navPoint>
+      <navPoint id="np_196" playOrder="196">
+      <navLabel>
+      <text>B.15 使用SQLite</text>
+      </navLabel>
+      <content src="Text/part0134.xhtml#nav_point_195"/>
+      </navPoint>
+      <navPoint id="np_197" playOrder="197">
+      <navLabel>
+      <text>B.16 配置ODBC数据源</text>
+      </navLabel>
+      <content src="Text/part0135.xhtml#nav_point_196"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_198" playOrder="198">
+    <navLabel>
+    <text>附录C SQL语句的语法</text>
+    </navLabel>
+    <content src="Text/part0136.xhtml#nav_point_197"/>
+      <navPoint id="np_199" playOrder="199">
+      <navLabel>
+      <text>C.1 ALTER TABLE</text>
+      </navLabel>
+      <content src="Text/part0137.xhtml#nav_point_198"/>
+      </navPoint>
+      <navPoint id="np_200" playOrder="200">
+      <navLabel>
+      <text>C.2 COMMIT</text>
+      </navLabel>
+      <content src="Text/part0138.xhtml#nav_point_199"/>
+      </navPoint>
+      <navPoint id="np_201" playOrder="201">
+      <navLabel>
+      <text>C.3 CREATE INDEX</text>
+      </navLabel>
+      <content src="Text/part0139.xhtml#nav_point_200"/>
+      </navPoint>
+      <navPoint id="np_202" playOrder="202">
+      <navLabel>
+      <text>C.4 CREATE PROCEDURE</text>
+      </navLabel>
+      <content src="Text/part0140.xhtml#nav_point_201"/>
+      </navPoint>
+      <navPoint id="np_203" playOrder="203">
+      <navLabel>
+      <text>C.5 CREATE TABLE</text>
+      </navLabel>
+      <content src="Text/part0141.xhtml#nav_point_202"/>
+      </navPoint>
+      <navPoint id="np_204" playOrder="204">
+      <navLabel>
+      <text>C.6 CREATE VIEW</text>
+      </navLabel>
+      <content src="Text/part0142.xhtml#nav_point_203"/>
+      </navPoint>
+      <navPoint id="np_205" playOrder="205">
+      <navLabel>
+      <text>C.7 DELETE</text>
+      </navLabel>
+      <content src="Text/part0143.xhtml#nav_point_204"/>
+      </navPoint>
+      <navPoint id="np_206" playOrder="206">
+      <navLabel>
+      <text>C.8 DROP</text>
+      </navLabel>
+      <content src="Text/part0144.xhtml#nav_point_205"/>
+      </navPoint>
+      <navPoint id="np_207" playOrder="207">
+      <navLabel>
+      <text>C.9 INSERT</text>
+      </navLabel>
+      <content src="Text/part0145.xhtml#nav_point_206"/>
+      </navPoint>
+      <navPoint id="np_208" playOrder="208">
+      <navLabel>
+      <text>C.10 INSERT SELECT</text>
+      </navLabel>
+      <content src="Text/part0146.xhtml#nav_point_207"/>
+      </navPoint>
+      <navPoint id="np_209" playOrder="209">
+      <navLabel>
+      <text>C.11 ROLLBACK</text>
+      </navLabel>
+      <content src="Text/part0147.xhtml#nav_point_208"/>
+      </navPoint>
+      <navPoint id="np_210" playOrder="210">
+      <navLabel>
+      <text>C.12 SELECT</text>
+      </navLabel>
+      <content src="Text/part0148.xhtml#nav_point_209"/>
+      </navPoint>
+      <navPoint id="np_211" playOrder="211">
+      <navLabel>
+      <text>C.13 UPDATE</text>
+      </navLabel>
+      <content src="Text/part0149.xhtml#nav_point_210"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_212" playOrder="212">
+    <navLabel>
+    <text>附录D SQL数据类型</text>
+    </navLabel>
+    <content src="Text/part0150.xhtml#nav_point_211"/>
+      <navPoint id="np_213" playOrder="213">
+      <navLabel>
+      <text>D.1 字符串数据类型</text>
+      </navLabel>
+      <content src="Text/part0151.xhtml#nav_point_212"/>
+      </navPoint>
+      <navPoint id="np_214" playOrder="214">
+      <navLabel>
+      <text>D.2 数值数据类型</text>
+      </navLabel>
+      <content src="Text/part0152.xhtml#nav_point_213"/>
+      </navPoint>
+      <navPoint id="np_215" playOrder="215">
+      <navLabel>
+      <text>D.3 日期和时间数据类型</text>
+      </navLabel>
+      <content src="Text/part0153.xhtml#nav_point_214"/>
+      </navPoint>
+      <navPoint id="np_216" playOrder="216">
+      <navLabel>
+      <text>D.4 二进制数据类型</text>
+      </navLabel>
+      <content src="Text/part0154.xhtml#nav_point_215"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="np_217" playOrder="217">
+    <navLabel>
+    <text>附录E SQL保留字</text>
+    </navLabel>
+    <content src="Text/part0155.xhtml#nav_point_216"/>
+    </navPoint>
+    <navPoint id="np_218" playOrder="218">
+    <navLabel>
+    <text>常用SQL语句速查</text>
+    </navLabel>
+    <content src="Text/part0156.xhtml#nav_point_217"/>
+    </navPoint>
+  </navMap>
+</ncx>

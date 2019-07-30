@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_177">A.2  获得样例表</h2><p class="calibre2">学习各个例子，需要一组填充了数据的表。所需要获得和运行的东西都可以在本书网页<a class="calibre6" href="http://www.forta.com/books/%200672336073/">http://www.forta.com/books/ 0672336073/</a>找到。 </p>
+<h3 class="calibre7" id="nav_point_178">A.2.1  下载可供使用的数据文件</h3><p class="calibre2">可从上述URL下载一个填充了数据的如下格式的文件：</p>
+
+<ul class="calibre8">
+<li class="calibre9">Apache Open Office Base</li>
+<li class="calibre9">Microsoft Access（2000和2007）</li>
+<li class="calibre9">SQLite</li>
+</ul>
+
+<p class="calibre2">如果使用这些文件，不需要执行任何SQL创建和填充脚本。</p>
+<h3 class="calibre7" id="nav_point_179">A.2.2  下载DBMS SQL脚本</h3><p class="calibre2">大多数DBMS以不自己完成文件分布的格式存储数据（如Access、Open Office Base和SQLite那样）。对于这些DBMS，可以从上述URL下载SQL脚本。对于每个DBMS，有两个文件：</p>
+
+<ul class="calibre8">
+<li class="calibre9">create.text包含创建5个数据库表（包括定义所有主键和外键约束）的SQL语句。</li>
+<li class="calibre9">populate.txt包含用来填充这些表的SQL <code class="calibre11">INSERT</code>语句。</li>
+</ul>
+
+<p class="calibre2">这些文件中的SQL语句依赖于具体的DBMS，因此应该执行适合于你的DBMS的那个。这些脚本为方便读者而提供，作者对执行它们万一引起的问题不承担任何责任。</p>
+
+<p class="calibre2">在本书付印时，有以下脚本可供使用：</p>
+
+<ul class="calibre8">
+<li class="calibre9">IBM DB2；</li>
+<li class="calibre9">Microsoft SQL Server（包括Microsoft SQL Server
+Express）；</li>
+<li class="calibre9">MariaDB</li>
+<li class="calibre9">MySQL；</li>
+<li class="calibre9">Oracle（包括Oracle Express）；</li>
+<li class="calibre9">PostgreSQL。</li>
+</ul>
+
+<p class="calibre2">适用于其他DBMS的脚本可能会根据需要或请求而增加。</p>
+
+<p class="calibre2">附录B提供了在几个流行环境中执行脚本的说明。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：创建，然后填充</strong><br class="calibre14"/>
+  必须在执行表填充脚本前执行表创建脚本。应该检查这些脚本返回的错误。如果创建脚本失败，则应该在继续表填充前解决存在的问题。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：具体DBMS的设置指令</strong><br class="calibre14"/>
+  用于设置DBMS的具体步骤依使用的DBMS有很大不同。从本书网页下载脚本或数据库时，你会看到README文件，它提供了针对特定DBMS的具体设置和安装步骤。</p>
+</blockquote>
+<p class="calibre5" id="calibre_pb_171"> </p>
+</body>
+</html>

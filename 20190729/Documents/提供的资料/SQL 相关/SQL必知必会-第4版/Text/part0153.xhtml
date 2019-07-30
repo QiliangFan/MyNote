@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_214">D.3  日期和时间数据类型</h2><p class="calibre2">所有DBMS都支持用来存储日期和时间值的数据类型（见表D-3）。与数值一样，多数DBMS都支持多种数据类型，每种具有不同的取值范围和精度。</p>
+
+<p class="calibre2"><strong class="calibre3">表D-3  日期和时间数据类型</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">数据类型</th>
+      <th class="calibre17">说　　明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">DATE</td>
+      <td class="calibre19">日期值</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">DATETIME（或TIMESTAMP）</td>
+      <td class="calibre19">日期时间值</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">SMALLDATETIME</td>
+      <td class="calibre19">日期时间值，精确到分（无秒或毫秒）</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">TIME</td>
+      <td class="calibre19">时间值</td>
+   </tr>
+   <tr class="calibre18">
+   </tr>
+</table>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：指定日期</strong><br class="calibre14"/>
+  不存在所有DBMS都理解的定义日期的标准方法。多数实现都理解诸如<code class="calibre11">2015-12-30</code>或<code class="calibre11">Dec 30th, 2015</code>等格式，但即使这样，有的DBMS还是不理解它们。至于具体的DBMS能识别哪些日期格式，请参阅相应的文档。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：ODBC日期</strong><br class="calibre14"/>
+  因为每种DBMS都有自己特定的日期格式，所以ODBC创建了一种自己的格式，在使用ODBC时对每种数据库都起作用。ODBC格式对于日期类似于<code class="calibre11">{d '2005-12-30'}</code>，对于时间类似于<code class="calibre11">{t '21:46:29'}</code>，而对于日期时间类似于<code class="calibre11">{ts '2005-12-30 21:46:29'}</code>。如果通过ODBC使用SQL，应该以这种方式格式化日期和时间。</p>
+</blockquote>
+</body>
+</html>

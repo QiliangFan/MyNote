@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_123">16.2  删除数据</h2><p class="calibre2">从一个表中删除（去掉）数据，使用<code class="calibre11">DELETE</code>语句。有两种使用<code class="calibre11">DELETE</code>的方式：</p>
+
+<ul class="calibre8">
+<li class="calibre9">从表中删除特定的行；</li>
+<li class="calibre9">从表中删除所有行。</li>
+</ul>
+
+<p class="calibre2">下面分别介绍。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：不要省略<code class="calibre11">WHERE</code>子句</strong><br class="calibre14"/>
+  在使用<code class="calibre11">DELETE</code>时一定要细心。因为稍不注意，就会错误地删除表中所有行。在使用这条语句前，请完整地阅读本节。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">DELETE</code>与安全</strong><br class="calibre14"/>
+  在客户端/服务器的DBMS中，使用<code class="calibre11">DELETE</code>语句可能需要特殊的安全权限。在你使用<code class="calibre11">DELETE</code>前，应该保证自己有足够的安全权限。</p>
+</blockquote>
+
+<p class="calibre2">前面说过，<code class="calibre11">UPDATE</code>非常容易使用，而<code class="calibre11">DELETE</code>更容易使用。</p>
+
+<p class="calibre2">下面的语句从<code class="calibre11">Customers</code>表中删除一行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DELETE FROM Customers
+WHERE cust_id = '1000000006';
+</code></pre>
+
+<p class="calibre2">这条语句很容易理解。<code class="calibre11">DELETE FROM</code>要求指定从中删除数据的表名，<code class="calibre11">WHERE</code>子句过滤要删除的行。在这个例子中，只删除顾客<code class="calibre11">1000000006</code>。如果省略<code class="calibre11">WHERE</code>子句，它将删除表中每个顾客。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：友好的外键</strong><br class="calibre14"/>
+  第12课介绍了联结，简单联结两个表只需要这两个表中的常用字段。也可以让DBMS通过使用外键来严格实施关系（这些定义在附录A中）。存在外键时，DBMS使用它们实施引用完整性。例如要向<code class="calibre11">Products</code>表中插入一个新产品，DBMS不允许通过未知的供应商id插入它，因为<code class="calibre11">vend_id</code>列是作为外键连接到<code class="calibre11">Vendors</code>表的。那么，这与<code class="calibre11">DELETE</code>有什么关系呢？使用外键确保引用完整性的一个好处是，DBMS通常可以防止删除某个关系需要用到的行。例如，要从<code class="calibre11">Products</code>表中删除一个产品，而这个产品用在<code class="calibre11">OrderItems</code>的已有订单中，那么<code class="calibre11">DELETE</code>语句将抛出错误并中止。这是总要定义外键的另一个理由。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">FROM</code>关键字</strong><br class="calibre14"/>
+  在某些SQL实现中，跟在<code class="calibre11">DELETE</code>后的关键字<code class="calibre11">FROM</code>是可选的。但是即使不需要，也最好提供这个关键字。这样做将保证SQL代码在DBMS之间可移植。</p>
+</blockquote>
+
+<p class="calibre2"><code class="calibre11">DELETE</code>不需要列名或通配符。<code class="calibre11">DELETE</code>删除整行而不是删除列。要删除指定的列，请使用<code class="calibre11">UPDATE</code>语句。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：删除表的内容而不是表</strong><br class="calibre14"/>
+  <code class="calibre11">DELETE</code>语句从表中删除行，甚至是删除表中所有行。但是，<code class="calibre11">DELETE</code>不删除表本身。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：更快的删除</strong><br class="calibre14"/>
+  如果想从表中删除所有行，不要使用<code class="calibre11">DELETE</code>。可使用<code class="calibre11">TRUNCATE TABLE</code>语句，它完成相同的工作，而速度更快（因为不记录数据的变动）。</p>
+</blockquote>
+</body>
+</html>

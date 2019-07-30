@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_131">17.2  更新表</h2><p class="calibre2">更新表定义，可以使用<code class="calibre11">ALTER TABLE</code>语句。虽然所有的DBMS都支持<code class="calibre11">ALTER TABLE</code>，但它们所允许更新的内容差别很大。以下是使用<code class="calibre11">ALTER TABLE</code>时需要考虑的事情。</p>
+
+<ul class="calibre8">
+<li class="calibre9">理想情况下，不要在表中包含数据时对其进行更新。应该在表的设计过程中充分考虑未来可能的需求，避免今后对表的结构做大改动。</li>
+<li class="calibre9">所有的DBMS都允许给现有的表增加列，不过对所增加列的数据类型（以及<code class="calibre11">NULL</code>和<code class="calibre11">DEFAULT</code>的使用）有所限制。</li>
+<li class="calibre9">许多DBMS不允许删除或更改表中的列。</li>
+<li class="calibre9">多数DBMS允许重新命名表中的列。</li>
+<li class="calibre9">许多DBMS限制对已经填有数据的列进行更改，对未填有数据的列几乎没有限制。</li>
+</ul>
+
+<p class="calibre2">可以看出，对已有表做更改既复杂又不统一。对表的结构能进行何种更改，请参阅具体的DBMS文档。</p>
+
+<p class="calibre2">使用<code class="calibre11">ALTER TABLE</code>更改表结构，必须给出下面的信息：</p>
+
+<ul class="calibre8">
+<li class="calibre9">在<code class="calibre11">ALTER TABLE</code>之后给出要更改的表名（该表必须存在，否则将出错）；</li>
+<li class="calibre9">列出要做哪些更改。</li>
+</ul>
+
+<p class="calibre2">因为给已有表增加列可能是所有DBMS都支持的唯一操作，所以我们举个这样的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">ALTER TABLE Vendors
+ADD vend_phone CHAR(20);
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这条语句给<code class="calibre11">Vendors</code>表增加一个名为<code class="calibre11">vend_phone</code>的列，其数据类型为<code class="calibre11">CHAR</code>。</p>
+
+<p class="calibre2">更改或删除列、增加约束或增加键，这些操作也使用类似的语法（注意，下面的例子并非对所有DBMS都有效）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">ALTER TABLE Vendors
+DROP COLUMN vend_phone;
+</code></pre>
+
+<p class="calibre2">复杂的表结构更改一般需要手动删除过程，它涉及以下步骤：</p>
+
+<ol class="calibre21">
+<li class="calibre9">用新的列布局创建一个新表；</li>
+<li class="calibre9">使用<code class="calibre11">INSERT SELECT</code>语句（关于这条语句的详细介绍，请参阅第15课）从旧表复制数据到新表。有必要的话，可以使用转换函数和计算字段；</li>
+<li class="calibre9">检验包含所需数据的新表；</li>
+<li class="calibre9">重命名旧表（如果确定，可以删除它）；</li>
+<li class="calibre9">用旧表原来的名字重命名新表；</li>
+<li class="calibre9">根据需要，重新创建触发器、存储过程、索引和外键。</li>
+</ol>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：<code class="calibre11">ALTER TABLE</code>和SQLite</strong><br class="calibre14"/>
+  SQLite对使用<code class="calibre11">ALTER TABLE</code>执行的操作有所限制。最重要的一个限制是，它不支持使用<code class="calibre11">ALTER TABLE</code>定义主键和外键，这些必须在最初创建表时指定。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：小心使用<code class="calibre11">ALTER TABLE</code></strong><br class="calibre14"/>
+  使用<code class="calibre11">ALTER TABLE</code>要极为小心，应该在进行改动前做完整的备份（模式和数据的备份）。数据库表的更改不能撤销，如果增加了不需要的列，也许无法删除它们。类似地，如果删除了不应该删除的列，可能会丢失该列中的所有数据。</p>
+</blockquote>
+</body>
+</html>

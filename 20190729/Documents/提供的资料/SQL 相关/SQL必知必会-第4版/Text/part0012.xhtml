@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_17">2.3  检索多个列</h2><p class="calibre2">要想从一个表中检索多个列，仍然使用相同的<code class="calibre11">SELECT</code>语句。唯一的不同是必须在<code class="calibre11">SELECT</code>关键字后给出多个列名，列名之间必须以逗号分隔。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：当心逗号</strong><br class="calibre14"/>
+   在选择多个列时，一定要在列名之间加上逗号，但最后一个列名后不加。如果在最后一个列名后加了逗号，将出现错误。</p>
+</blockquote>
+
+<p class="calibre2">下面的<code class="calibre11">SELECT</code>语句从<code class="calibre11">Products</code>表中选择3列。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong> </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_name, prod_price
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+与前一个例子一样，这条语句使用<code class="calibre11">SELECT</code>语句从表<code class="calibre11">Products</code>中选择数据。在这个例子中，指定了3个列名，列名之间用逗号分隔。此语句的输出如下：</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>     </p>
+
+<pre class="calibre10"><code class="calibre11">prod_id       prod_name                prod_price
+---------     --------------------     ----------
+BNBG01        Fish bean bag toy        3.4900
+BNBG02        Bird bean bag toy        3.4900
+BNBG03        Rabbit bean bag toy      3.4900
+BR01          8 inch teddy bear        5.9900
+BR02          12 inch teddy bear       8.9900
+BR03          18 inch teddy bear       11.9900
+RGAN01        Raggedy Ann              4.9900
+RYL01         King doll                9.4900
+RYL02         Queen dool               9.4900
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：数据表示</strong><br class="calibre14"/>
+  从上述输出可以看到，SQL语句一般返回原始的、无格式的数据。数据的格式化是表示问题，而不是检索问题。因此，表示（如把上面的价格值显示为正确的十进制数值货币金额）一般在显示该数据的应用程序中规定。通常很少直接使用实际检索出的数据（没有应用程序提供的格式）。</p>
+</blockquote>
+</body>
+</html>

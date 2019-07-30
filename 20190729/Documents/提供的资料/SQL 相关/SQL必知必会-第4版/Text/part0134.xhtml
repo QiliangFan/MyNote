@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_195">B.15  使用SQLite</h2><p class="calibre2">SQLite通常在其他语言和应用程序中使用，不作为单独的数据库使用。然而，SQLite确实有一个命令行实用程序，可以用来执行SQLite数据库的语句。SQLite命令行实用程序称为<code class="calibre11">sqlite3</code>（或Windows上的sqlite3.exe）。从命令行使用<code class="calibre11">sqlite3</code>，要进行如下操作。</p>
+
+<ol class="calibre21">
+<li class="calibre9">理想情况下，<code class="calibre11">sqlite3</code>和数据库可以放在同一文件夹下。（ SQLite数据库包含在有.sqlite或.db扩展名的单独文件中，但事实上可以是任意扩展名，或者没有扩展名。）</li>
+<li class="calibre9">输入<code class="calibre11">sqlite3 database.sqlite</code>（用实际的数据库文件名替换<code class="calibre11">database.sqlite</code>）。</li>
+<li class="calibre9">可以看到<code class="calibre11">sqlite&gt;</code>提示符，在此输入SQL语句。所有语句必须用分号（<code class="calibre11">;</code>）结束。</li>
+<li class="calibre9">默认情况下，<code class="calibre11">sqlite3</code>用列之间的管道字符显示返回的数据，且没有标题。要改变这种行为，输入<code class="calibre11">.mode column</code>并按回车，然后输入<code class="calibre11">.header on</code>并按回车。</li>
+<li class="calibre9">输入<code class="calibre11">.quit</code>并按回车，退出<code class="calibre11">sqlite3</code>。 </li>
+</ol>
+</body>
+</html>

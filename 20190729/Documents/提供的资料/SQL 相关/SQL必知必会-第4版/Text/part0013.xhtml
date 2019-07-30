@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_18">2.4  检索所有列</h2><p class="calibre2">除了指定所需的列外（如上所述，一个或多个列），<code class="calibre11">SELECT</code>语句还可以检索所有的列而不必逐个列出它们。在实际列名的位置使用星号（<code class="calibre11">*</code>）通配符可以做到这点，如下所示。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>   </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT *
+FROM Products;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+如果给定一个通配符（<code class="calibre11">*</code>），则返回表中所有列。列的顺序一般是列在表定义中出现的物理顺序，但并不总是如此。不过，SQL数据很少这样（通常，数据返回给应用程序，根据需要进行格式化，再表示出来）。因此，这不应该造成什么问题。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：使用通配符</strong><br class="calibre14"/>
+   一般而言，除非你确实需要表中的每一列，否则最好别使用<code class="calibre11">*</code>通配符。虽然使用通配符能让你自己省事，不用明确列出所需列，但检索不需要的列通常会降低检索和应用程序的性能。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：检索未知列</strong><br class="calibre14"/>
+   使用通配符有一个大优点。由于不明确指定列名（因为星号检索每一列），所以能检索出名字未知的列。</p>
+</blockquote>
+</body>
+</html>

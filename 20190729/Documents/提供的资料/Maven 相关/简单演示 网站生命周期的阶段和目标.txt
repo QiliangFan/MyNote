@@ -1,0 +1,110 @@
+简单演示 Site Lifecycle 的阶段和目标
+附加 maven-antrun-plugin:run 目标网站的生命周期的所有阶段。这将使我们能够调用短信显示的生命周期的各个阶段。
+现在更新 pom.xml 文件在 C:\MVN\ 项目文件夹中。
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.companyname.projectgroup</groupId>
+<artifactId>project</artifactId>
+<version>1.0</version>
+<build>
+<plugins>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-antrun-plugin</artifactId>
+<version>1.1</version>
+   <executions>
+      <execution>
+         <id>id.pre-site</id>
+         <phase>pre-site</phase>
+         <goals>
+            <goal>run</goal>
+         </goals>
+         <configuration>
+            <tasks>
+               <echo>pre-site phase</echo>
+            </tasks>
+         </configuration>
+      </execution>
+      <execution>
+         <id>id.site</id>
+         <phase>site</phase>
+         <goals>
+         <goal>run</goal>
+         </goals>
+         <configuration><tasks>
+               <echo>site phase</echo>
+            </tasks>
+         </configuration>
+      </execution>
+      <execution>
+         <id>id.post-site</id>
+         <phase>post-site</phase>
+         <goals>
+            <goal>run</goal>
+         </goals>
+         <configuration>
+            <tasks>
+               <echo>post-site phase</echo>
+            </tasks>
+         </configuration>
+      </execution>
+      <execution>
+         <id>id.site-deploy</id>
+         <phase>site-deploy</phase>
+         <goals>
+            <goal>run</goal>
+         </goals>
+         <configuration>
+            <tasks>
+               <echo>site-deploy phase</echo>
+            </tasks>
+         </configuration>
+      </execution>
+   </executions>
+</plugin>
+</plugins>
+</build>
+</project>
+
+打开命令控制台，进入该文件夹包含 pom.xml 并执行以下 mvn 命令。
+
+C:\MVN\project>mvn site
+
+Maven将开始处理并显示网站的生命周期阶段的各个阶段。
+
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------
+[INFO] Building Unnamed - com.companyname.projectgroup:project:jar:1.0
+[INFO]    task-segment: [site]
+[INFO] ------------------------------------------------------------------
+[INFO] [antrun:run {execution: id.pre-site}]
+[INFO] Executing tasks
+     [echo] pre-site phase
+[INFO] Executed tasks
+[INFO] [site:site {execution: default-site}]
+[INFO] Generating "About" report.
+[INFO] Generating "Issue Tracking" report.
+[INFO] Generating "Project Team" report.
+[INFO] Generating "Dependencies" report.
+[INFO] Generating "Project Plugins" report.
+[INFO] Generating "Continuous Integration" report.
+[INFO] Generating "Source Repository" report.
+[INFO] Generating "Project License" report.
+[INFO] Generating "Mailing Lists" report.
+[INFO] Generating "Plugin Management" report.
+[INFO] Generating "Project Summary" report.
+[INFO] [antrun:run {execution: id.site}]
+[INFO] Executing tasks
+     [echo] site phase
+[INFO] Executed tasks
+[INFO] ------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ------------------------------------------------------------------
+[INFO] Total time: 3 seconds
+[INFO] Finished at: Sat Jul 07 15:25:10 IST 2012
+[INFO] Final Memory: 24M/149M
+[INFO] -

@@ -1,0 +1,117 @@
+简单演示 缺省生命周期的阶段和目标
+在下面的示例中，将附加 Maven 的 antrun 插件：运行目标构建生命周期的几个阶段。
+这将使我们能够回显的信息显示生命周期的各个阶段。
+我们已经更新了在 C:\MVN\ 项目文件夹中的 pom.xml 文件。
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.companyname.projectgroup</groupId>
+<artifactId>project</artifactId>
+<version>1.0</version>
+<build>
+<plugins>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-antrun-plugin</artifactId>
+<version>1.1</version>
+<executions>
+   <execution>
+      <id>id.validate</id>
+      <phase>validate</phase>
+      <goals>
+         <goal>run</goal>       </goals>
+      <configuration>
+         <tasks>
+            <echo>validate phase</echo>
+         </tasks>
+      </configuration>
+   </execution>
+   <execution>
+      <id>id.compile</id>
+      <phase>compile</phase>
+      <goals>
+         <goal>run</goal>
+      </goals>
+      <configuration>
+         <tasks>
+            <echo>compile phase</echo>
+         </tasks>
+      </configuration>
+   </execution>
+   <execution>
+      <id>id.test</id>
+      <phase>test</phase>
+      <goals>
+         <goal>run</goal>
+      </goals>
+      <configuration>
+         <tasks>
+            <echo>test phase</echo>
+         </tasks>
+      </configuration>
+   </execution>
+   <execution>
+         <id>id.package</id>
+         <phase>package</phase>
+         <goals>
+            <goal>run</goal>
+         </goals>
+         <configuration>
+         <tasks>
+            <echo>package phase</echo>
+         </tasks>
+      </configuration>
+   </execution>
+   <execution>
+      <id>id.deploy</id>
+      <phase>deploy</phase>
+      <goals>
+         <goal>run</goal>
+      </goals>
+      <configuration>
+      <tasks>
+         <echo>deploy phase</echo>
+      </tasks>
+      </configuration>
+   </execution>
+</executions>
+</plugin>
+</plugins>
+</build>
+</project>
+
+现在，打开命令控制台，进入包含 pom.xml 并执行以下 mvn 命令。
+
+C:\MVN\project>mvn compile
+
+编译阶段，Maven 将开始构建生命周期的阶段处理并显示。
+
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------
+[INFO] Building Unnamed - com.companyname.projectgroup:project:jar:1.0
+[INFO]    task-segment: [compile]
+[INFO] ------------------------------------------------------------------
+[INFO] [antrun:run {execution: id.validate}]
+[INFO] Executing tasks
+     [echo] validate phase
+[INFO] Executed tasks
+[INFO] [resources:resources {execution: default-resources}]
+[WARNING] Using platform encoding (Cp1252 actually) to copy filtered resources,
+i.e. build is platform dependent!
+[INFO] skip non existing resourceDirectory C:\MVN\project\src\main\resources
+[INFO] [compiler:compile {execution: default-compile}]
+[INFO] Nothing to compile - all classes are up to date
+[INFO] [antrun:run {execution: id.compile}]
+[INFO] Executing tasks
+     [echo] compile phase
+[INFO] Executed tasks
+[INFO] ------------------------------------------------------------------
+[INFO] BUILD SUCCESSFUL
+[INFO] ------------------------------------------------------------------
+[INFO] Total time: 2 seconds
+[INFO] Finished at: Sat Jul 07 20:18:25 IST 2012
+[INFO] Final Memory: 7M/64M
+[INFO] ------------------------------------------------------------------

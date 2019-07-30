@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_59">8.1  函数</h2><p class="calibre2">与大多数其他计算机语言一样，SQL也可以用函数来处理数据。函数一般是在数据上执行的，为数据的转换和处理提供了方便。</p>
+
+<p class="calibre2">前一课中用来去掉字符串尾的空格的<code class="calibre11">RTRIM()</code>就是一个函数。</p>
+<h3 class="calibre7" id="nav_point_60">函数带来的问题</h3><p class="calibre2">在学习这一课并进行实践之前，你应该了解使用SQL函数所存在的问题。</p>
+
+<p class="calibre2">与几乎所有DBMS都等同地支持SQL语句（如<code class="calibre11">SELECT</code>）不同，每一个DBMS都有特定的函数。事实上，只有少数几个函数被所有主要的DBMS等同地支持。虽然所有类型的函数一般都可以在每个DBMS中使用，但各个函数的名称和语法可能极其不同。为了说明可能存在的问题，表8-1列出了3个常用的函数及其在各个DBMS中的语法：</p>
+
+<p class="calibre2"><strong class="calibre3">表8-1  DBMS函数的差异</strong></p>
+
+<table class="table">
+   <tr class="calibre16"><th class="calibre20">函　　数</th><th class="calibre17">语　　法</th></tr>
+   <tr class="calibre18">
+      <td class="calibre19">提取字符串的组成部分</td>
+      <td class="calibre19">Access使用MID()；DB2、Oracle、PostgreSQL和SQLite使用SUBSTR()；MySQL和SQL Server使用SUBSTRING()</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">数据类型转换</td>
+      <td class="calibre19">Access和Oracle使用多个函数，每种类型的转换有一个函数；DB2和PostgreSQL使用CAST()；MariaDB、MySQL和SQL Server使用CONVERT()</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">取当前日期</td>
+      <td class="calibre19">Access使用NOW()；DB2和PostgreSQL使用CURRENT_DATE；MariaDB和MySQL使用CURDATE()；Oracle使用SYSDATE；SQL Server使用GETDATE()；SQLite使用DATE()</td>
+   </tr>
+  <tr class="calibre16">
+</tr></table>
+
+<p class="calibre2">可以看到，与SQL语句不一样，SQL函数不是可移植的。这表示为特定SQL实现编写的代码在其他实现中可能不正常。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">可移植（portable）</strong><br class="calibre14"/>
+  所编写的代码可以在多个系统上运行。</p>
+</blockquote>
+
+<p class="calibre2">为了代码的可移植，许多SQL程序员不赞成使用特定于实现的功能。虽然这样做很有好处，但有的时候并不利于应用程序的性能。如果不使用这些函数，编写某些应用程序代码会很艰难。必须利用其他方法来实现DBMS可以非常有效完成的工作。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：是否应该使用函数？</strong><br class="calibre14"/>
+  现在，你面临是否应该使用函数的选择。决定权在你，使用或是不使用也没有对错之分。如果你决定使用函数，应该保证做好代码注释，以便以后你（或其他人）能确切地知道所编写的SQL代码的含义。</p>
+</blockquote>
+</body>
+</html>

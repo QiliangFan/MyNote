@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_78">10.2  创建分组</h2><p class="calibre2">分组是使用<code class="calibre11">SELECT</code>语句的<code class="calibre11">GROUP BY</code>子句建立的。理解分组的最好办法是看一个例子：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_id, COUNT(*) AS num_prods
+FROM Products
+GROUP BY vend_id;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_id     num_prods
+-------     ---------
+BRS01       3
+DLL01       4
+FNG01       2
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+上面的<code class="calibre11">SELECT</code>语句指定了两个列：<code class="calibre11">vend_id</code>包含产品供应商的ID，<code class="calibre11">num_prods</code>为计算字段（用<code class="calibre11">COUNT(*)</code>函数建立）。<code class="calibre11">GROUP BY</code>子句指示DBMS按<code class="calibre11">vend_id</code>排序并分组数据。这就会对每个<code class="calibre11">vend_id</code>而不是整个表计算<code class="calibre11">num_prods</code>一次。从输出中可以看到，供应商<code class="calibre11">BRS01</code>有<code class="calibre11">3</code>个产品，供应商<code class="calibre11">DLL01</code>有<code class="calibre11">4</code>个产品，而供应商<code class="calibre11">FNG01</code>有<code class="calibre11">2</code>个产品。</p>
+
+<p class="calibre2">因为使用了<code class="calibre11">GROUP BY</code>，就不必指定要计算和估值的每个组了。系统会自动完成。<code class="calibre11">GROUP BY</code>子句指示DBMS分组数据，然后对每个组而不是整个结果集进行聚集。</p>
+
+<p class="calibre2">在使用<code class="calibre11">GROUP BY</code>子句前，需要知道一些重要的规定。  </p>
+
+<ul class="calibre8">
+<li class="calibre9"><code class="calibre11">GROUP BY</code>子句可以包含任意数目的列，因而可以对分组进行嵌套，更细致地进行数据分组。</li>
+<li class="calibre9">如果在<code class="calibre11">GROUP  BY</code>子句中嵌套了分组，数据将在最后指定的分组上进行汇总。换句话说，在建立分组时，指定的所有列都一起计算（所以不能从个别的列取回数据）。</li>
+<li class="calibre9"><code class="calibre11">GROUP BY</code>子句中列出的每一列都必须是检索列或有效的表达式（但不能是聚集函数）。如果在<code class="calibre11">SELECT</code>中使用表达式，则必须在<code class="calibre11">GROUP  BY</code>子句中指定相同的表达式。不能使用别名。</li>
+<li class="calibre9">大多数SQL实现不允许<code class="calibre11">GROUP BY</code>列带有长度可变的数据类型（如文本或备注型字段）。</li>
+<li class="calibre9">除聚集计算语句外，<code class="calibre11">SELECT</code>语句中的每一列都必须在<code class="calibre11">GROUP BY</code>子句中给出。</li>
+<li class="calibre9">如果分组列中包含具有<code class="calibre11">NULL</code>值的行，则<code class="calibre11">NULL</code>将作为一个分组返回。如果列中有多行<code class="calibre11">NULL</code>值，它们将分为一组。</li>
+<li class="calibre9"><code class="calibre11">GROUP BY</code>子句必须出现在<code class="calibre11">WHERE</code>子句之后，<code class="calibre11">ORDER BY</code>子句之前。</li>
+</ul>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：<code class="calibre11">ALL</code>子句</strong><br class="calibre14"/>
+  Microsoft SQL Server等有些SQL实现在<code class="calibre11">GROUP BY</code>中支持可选的<code class="calibre11">ALL</code>子句。这个子句可用来返回所有分组，即使是没有匹配行的分组也返回（在此情况下，聚集将返回<code class="calibre11">NULL</code>）。具体的DBMS是否支持<code class="calibre11">ALL</code>，请参阅相应的文档。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：通过相对位置指定列</strong><br class="calibre14"/>
+  有的SQL实现允许根据<code class="calibre11">SELECT</code>列表中的位置指定<code class="calibre11">GROUP BY</code>的列。例如，<code class="calibre11">GROUP BY 2, 1</code>可表示按选择的第二个列分组，然后再按第一个列分组。虽然这种速记语法很方便，但并非所有SQL实现都支持，并且使用它容易在编辑SQL语句时出错。</p>
+</blockquote>
+</body>
+</html>

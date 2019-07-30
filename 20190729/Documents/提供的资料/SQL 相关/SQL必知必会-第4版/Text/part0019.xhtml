@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_24">3.1  排序数据</h2><p class="calibre2">正如上一课所述，下面的SQL语句返回某个数据库表的单个列。但请看其输出，并没有特定的顺序。</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>    </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products;  
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>      </p>
+
+<pre class="calibre10"><code class="calibre11">prod_name
+--------------------
+Fish bean bag toy
+Bird bean bag toy
+Rabbit bean bag toy
+8 inch teddy bear
+12 inch teddy bear
+18 inch teddy bear
+Raggedy Ann
+King doll
+Queen doll
+</code></pre>
+
+<p class="calibre2">其实，检索出的数据并不是随机显示的。如果不排序，数据一般将以它在底层表中出现的顺序显示，这有可能是数据最初添加到表中的顺序。但是，如果数据随后进行过更新或删除，那么这个顺序将会受到DBMS重用回收存储空间的方式的影响。因此，如果不明确控制的话，则最终的结果不能（也不应该）依赖该排序顺序。关系数据库设计理论认为，如果不明确规定排序顺序，则不应该假定检索出的数据的顺序有任何意义。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">子句（clause）</strong><br class="calibre14"/>
+   SQL语句由子句构成，有些子句是必需的，有些则是可选的。一个子句通常由一个关键字加上所提供的数据组成。子句的例子有我们在前一课看到的<code class="calibre11">SELECT</code>语句的<code class="calibre11">FROM</code>子句。</p>
+</blockquote>
+
+<p class="calibre2">为了明确地排序用<code class="calibre11">SELECT</code>语句检索出的数据，可使用<code class="calibre11">ORDER BY</code>子句。<code class="calibre11">ORDER BY</code>子句取一个或多个列的名字，据此对输出进行排序。请看下面的例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+ORDER BY prod_name; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+除了指示DBMS软件对<code class="calibre11">prod_name</code>列以字母顺序排序数据的<code class="calibre11">ORDER BY</code>子句外，这条语句与前面的语句相同。结果如下。</p>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">prod_name
+--------------------
+12 inch teddy bear
+18 inch teddy bear
+8 inch teddy bear
+Bird bean bag toy
+Fish bean bag toy
+King doll
+Queen doll
+Rabbit bean bag toy
+Raggedy Ann 
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3"><code class="calibre11">ORDER BY</code>子句的位置</strong><br class="calibre14"/>
+  在指定一条<code class="calibre11">ORDER BY</code>子句时，应该保证它是<code class="calibre11">SELECT</code>语句中最后一条子句。如果它不是最后的子句，将会出现错误消息。</p>
+</blockquote>
+
+<p class="calibre2">　</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">通过非选择列进行排序</strong><br class="calibre14"/>
+  通常，<code class="calibre11">ORDER BY</code>子句中使用的列将是为显示而选择的列。但是，实际上并不一定要这样，用非检索的列排序数据是完全合法的。</p>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_193">B.13  使用PHP</h2><p class="calibre2">PHP是一个流行的Web脚本语言。它提供了用来连接各种数据库的函数和库，因此，用来执行SQL语句的代码可根据所用（以及如何访问）的DBMS而变化。因而，这里无法提供用于各种DBMS和各种情形的步骤，只提供一个使用MySQL的一般例子。关于如何连接到具体的DBMS的介绍，请参阅PHP文档。 </p>
+
+<ol class="calibre21">
+<li class="calibre9">创建一个新的PHP页面（和一个PHP扩展）。</li>
+<li class="calibre9">使用适当的函数连接数据库。使用<code class="calibre11">mysql_connect()</code>连接MySQL数据库。</li>
+<li class="calibre9">将SQL语句传给适当的查询函数。针对MySQL，使用<code class="calibre11">mysql_query()</code>。</li>
+<li class="calibre9">返回一组结果，循环遍历它们以显示。</li>
+<li class="calibre9">将页面保存在Web服务器根目录下的任何可执行目录中。</li>
+<li class="calibre9">通过从Web浏览器调用来执行页面。</li>
+</ol>
+</body>
+</html>

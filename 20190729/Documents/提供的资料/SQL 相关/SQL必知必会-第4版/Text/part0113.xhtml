@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_172">22.3  触发器</h2><p class="calibre2">触发器是特殊的存储过程，它在特定的数据库活动发生时自动执行。触发器可以与特定表上的<code class="calibre11">INSERT</code>、<code class="calibre11">UPDATE</code>和<code class="calibre11">DELETE</code>操作（或组合）相关联。</p>
+
+<p class="calibre2">与存储过程不一样（存储过程只是简单的存储SQL语句），触发器与单个的表相关联。与<code class="calibre11">Orders</code>表上的<code class="calibre11">INSERT</code>操作相关联的触发器只在<code class="calibre11">Orders</code>表中插入行时执行。类似地，<code class="calibre11">Customers</code>表上的<code class="calibre11">INSERT</code>和<code class="calibre11">UPDATE</code>操作的触发器只在表上出现这些操作时执行。</p>
+
+<p class="calibre2">触发器内的代码具有以下数据的访问权：</p>
+
+<ul class="calibre8">
+<li class="calibre9"><code class="calibre11">INSERT</code>操作中的所有新数据；</li>
+<li class="calibre9"><code class="calibre11">UPDATE</code>操作中的所有新数据和旧数据；</li>
+<li class="calibre9"><code class="calibre11">DELETE</code>操作中删除的数据。</li>
+</ul>
+
+<p class="calibre2">根据所使用的DBMS的不同，触发器可在特定操作执行之前或之后执行。</p>
+
+<p class="calibre2">下面是触发器的一些常见用途。</p>
+
+<ul class="calibre8">
+<li class="calibre9">保证数据一致。例如，在<code class="calibre11">INSERT</code>或<code class="calibre11">UPDATE</code>操作中将所有州名转换为大写。</li>
+<li class="calibre9">基于某个表的变动在其他表上执行活动。例如，每当更新或删除一行时将审计跟踪记录写入某个日志表。</li>
+<li class="calibre9">进行额外的验证并根据需要回退数据。例如，保证某个顾客的可用资金不超限定，如果已经超出，则阻塞插入。</li>
+<li class="calibre9">计算计算列的值或更新时间戳。</li>
+</ul>
+
+<p class="calibre2">读者可能已经注意到了，不同DBMS的触发器创建语法差异很大，更详细的信息请参阅相应的文档。</p>
+
+<p class="calibre2">下面的例子创建一个触发器，它对所有<code class="calibre11">INSERT</code>和<code class="calibre11">UPDATE</code>操作，将<code class="calibre11">Customers</code>表中的<code class="calibre11">cust_state</code>列转换为大写。</p>
+
+<p class="calibre2">这是本例子的SQL Server版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE TRIGGER customer_state
+ON Customers
+FOR INSERT, UPDATE
+AS
+UPDATE Customers
+SET cust_state = Upper(cust_state)
+WHERE Customers.cust_id = inserted.cust_id;
+</code></pre>
+
+<p class="calibre2">这是本例子的Oracle和PostgreSQL的版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE TRIGGER customer_state
+AFTER INSERT OR UPDATE
+FOR EACH ROW
+BEGIN
+UPDATE Customers
+SET cust_state = Upper(cust_state)
+WHERE Customers.cust_id = :OLD.cust_id
+END;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：约束比触发器更快</strong><br class="calibre14"/>
+  一般来说，约束的处理比触发器快，因此在可能的时候，应该尽量使用约束。 </p>
+</blockquote>
+</body>
+</html>

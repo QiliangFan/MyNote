@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_99">13.2  使用不同类型的联结</h2><p class="calibre2">迄今为止，我们使用的只是内联结或<strong class="calibre3">等值联结</strong>的简单联结。现在来看三种其他联结：自联结（self-join）、自然联结（natural join）和外联结（outer join）。 </p>
+<h3 class="calibre7" id="nav_point_100">13.2.1  自联结</h3><p class="calibre2">如前所述，使用表别名的一个主要原因是能在一条<code class="calibre11">SELECT</code>语句中不止一次引用相同的表。下面举一个例子。</p>
+
+<p class="calibre2">假如要给与Jim Jones同一公司的所有顾客发送一封信件。这个查询要求首先找出Jim Jones工作的公司，然后找出在该公司工作的顾客。下面是解决此问题的一种方法：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_id, cust_name, cust_contact
+FROM Customers
+WHERE cust_name = (SELECT cust_name
+                   FROM Customers
+                   WHERE cust_contact = 'Jim Jones');
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id      cust_name          cust_contact
+--------     --------------     --------------
+1000000003   Fun4All            Jim Jones
+1000000004   Fun4All            Denise L. Stephens
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这是第一种解决方案，使用了子查询。内部的<code class="calibre11">SELECT</code>语句做了一个简单检索，返回Jim Jones工作公司的<code class="calibre11">cust_name</code>。该名字用于外部查询的<code class="calibre11">WHERE</code>子句中，以检索出为该公司工作的所有雇员（第11课中讲授了子查询，更多信息请参阅该课）。</p>
+
+<p class="calibre2">现在来看使用联结的相同查询：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT c1.cust_id, c1.cust_name, c1.cust_contact
+FROM Customers AS c1, Customers AS c2
+WHERE c1.cust_name = c2.cust_name
+ AND c2.cust_contact = 'Jim Jones'; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">cust_id     cust_name       cust_contact
+-------     -----------     --------------
+1000000003  Fun4All         Jim Jones
+1000000004  Fun4All         Denise L. Stephens
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：Oracle中没有<code class="calibre11">AS</code></strong><br class="calibre14"/>
+  Oracle用户应该记住去掉<code class="calibre11">AS</code>。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此查询中需要的两个表实际上是相同的表，因此<code class="calibre11">Customers</code>表在<code class="calibre11">FROM</code>子句中出现了两次。虽然这是完全合法的，但对<code class="calibre11">Customers</code>的引用具有歧义性，因为DBMS不知道你引用的是哪个<code class="calibre11">Customers</code>表。</p>
+
+<p class="calibre2">解决此问题，需要使用表别名。<code class="calibre11">Customers</code>第一次出现用了别名<code class="calibre11">C1</code>，第二次出现用了别名<code class="calibre11">C2</code>。现在可以将这些别名用作表名。例如，<code class="calibre11">SELECT</code>语句使用<code class="calibre11">C1</code>前缀明确给出所需列的全名。如果不这样，DBMS将返回错误，因为名为<code class="calibre11">cust_id</code>、<code class="calibre11">cust_name</code>、<code class="calibre11">cust_contact</code>的列各有两个。DBMS不知道想要的是哪一列（即使它们其实是同一列）。<code class="calibre11">WHERE</code>首先联结两个表，然后按第二个表中的<code class="calibre11">cust_contact</code>过滤数据，返回所需的数据。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：用自联结而不用子查询</strong><br class="calibre14"/>
+  自联结通常作为外部语句，用来替代从相同表中检索数据的使用子查询语句。虽然最终的结果是相同的，但许多DBMS处理联结远比处理子查询快得多。应该试一下两种方法，以确定哪一种的性能更好。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_101">13.2.2  自然联结</h3><p class="calibre2">无论何时对表进行联结，应该至少有一列不止出现在一个表中（被联结的列）。标准的联结（前一课中介绍的内联结）返回所有数据，相同的列甚至多次出现。自然联结排除多次出现，使每一列只返回一次。</p>
+
+<p class="calibre2">怎样完成这项工作呢？答案是，系统不完成这项工作，由你自己完成它。自然联结要求你只能选择那些唯一的列，一般通过对一个表使用通配符（<code class="calibre11">SELECT *</code>），而对其他表的列使用明确的子集来完成。下面举一个例子： </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT C.*, O.order_num, O.order_date,
+       OI.prod_id, OI.quantity, OI.item_price
+FROM Customers AS C, Orders AS O, OrderItems AS OI
+WHERE C.cust_id = O.cust_id
+ AND OI.order_num = O.order_num
+ AND prod_id = 'RGAN01';
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：Oracle中没有<code class="calibre11">AS</code></strong><br class="calibre14"/>
+  Oracle用户应该记住去掉<code class="calibre11">AS</code>。</p>
+</blockquote>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在这个例子中，通配符只对第一个表使用。所有其他列明确列出，所以没有重复的列被检索出来。</p>
+
+<p class="calibre2">事实上，我们迄今为止建立的每个内联结都是自然联结，很可能永远都不会用到不是自然联结的内联结。</p>
+<h3 class="calibre7" id="nav_point_102">13.2.3  外联结</h3><p class="calibre2">许多联结将一个表中的行与另一个表中的行相关联，但有时候需要包含没有关联行的那些行。例如，可能需要使用联结完成以下工作：</p>
+
+<ul class="calibre8">
+<li class="calibre9">对每个顾客下的订单进行计数，包括那些至今尚未下订单的顾客；</li>
+<li class="calibre9">列出所有产品以及订购数量，包括没有人订购的产品；</li>
+<li class="calibre9">计算平均销售规模，包括那些至今尚未下订单的顾客。</li>
+</ul>
+
+<p class="calibre2">在上述例子中，联结包含了那些在相关表中没有关联行的行。这种联结称为外联结。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：语法差别</strong><br class="calibre14"/>
+  需要注意，用来创建外联结的语法在不同的SQL实现中可能稍有不同。下面段落中描述的各种语法形式覆盖了大多数实现，在继续学习之前请参阅你使用的DBMS文档，以确定其语法。</p>
+</blockquote>
+
+<p class="calibre2">下面的<code class="calibre11">SELECT</code>语句给出了一个简单的内联结。它检索所有顾客及其订单：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT Customers.cust_id, Orders.order_num
+FROM Customers INNER JOIN Orders
+ ON Customers.cust_id = Orders.cust_id;
+</code></pre>
+
+<p class="calibre2">外联结语法类似。要检索包括没有订单顾客在内的所有顾客，可如下进行：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT Customers.cust_id, Orders.order_num
+FROM Customers LEFT OUTER JOIN Orders
+ ON Customers.cust_id = Orders.cust_id; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id        order_num
+----------     ---------
+1000000001     20005
+1000000001     20009
+1000000002     NULL
+1000000003     20006
+1000000004     20007
+1000000005     20008
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+类似上一课提到的内联结，这条<code class="calibre11">SELECT</code>语句使用了关键字<code class="calibre11">OUTER JOIN</code>来指定联结类型（而不是在<code class="calibre11">WHERE</code>子句中指定）。但是，与内联结关联两个表中的行不同的是，外联结还包括没有关联行的行。在使用<code class="calibre11">OUTER JOIN</code>语法时，必须使用<code class="calibre11">RIGHT</code>或<code class="calibre11">LEFT</code>关键字指定包括其所有行的表（<code class="calibre11">RIGHT</code>指出的是<code class="calibre11">OUTER JOIN</code>右边的表，而<code class="calibre11">LEFT</code>指出的是<code class="calibre11">OUTER JOIN</code>左边的表）。上面的例子使用<code class="calibre11">LEFT OUTER JOIN</code>从<code class="calibre11">FROM</code>子句左边的表（<code class="calibre11">Customers</code>表）中选择所有行。为了从右边的表中选择所有行，需要使用<code class="calibre11">RIGHT OUTER JOIN</code>，如下例所示：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT Customers.cust_id, Orders.order_num
+FROM Customers RIGHT OUTER JOIN Orders
+ ON Orders.cust_id = Customers.cust_id;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：SQLite外联结</strong><br class="calibre14"/>
+  SQLite支持<code class="calibre11">LEFT OUTER JOIN</code>，但不支持<code class="calibre11">RIGHT OUTER JOIN</code>。幸好，如果你确实需要在SQLite中使用<code class="calibre11">RIGHT OUTER JOIN</code>，有一种更简单的办法，这将在下面的提示中介绍。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：外联结的类型</strong><br class="calibre14"/>
+  要记住，总是有两种基本的外联结形式：左外联结和右外联结。它们之间的唯一差别是所关联的表的顺序。换句话说，调整<code class="calibre11">FROM</code>或<code class="calibre11">WHERE</code>子句中表的顺序，左外联结可以转换为右外联结。因此，这两种外联结可以互换使用，哪个方便就用哪个。</p>
+</blockquote>
+
+<p class="calibre2">还存在另一种外联结，就是全外联结（full outer join），它检索两个表中的所有行并关联那些可以关联的行。与左外联结或右外联结包含一个表的不关联的行不同，全外联结包含两个表的不关联的行。全外联结的语法如下：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT Customers.cust_id, Orders.order_num
+FROM Orders FULL OUTER JOIN Customers
+ON Orders.cust_id = Customers.cust_id;
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：<code class="calibre11">FULL OUTER JOIN</code>的支持</strong><br class="calibre14"/>
+  Access、MariaDB、MySQL、Open Office Base或SQLite不支持<code class="calibre11">FULL OUTER JOIN</code>语法。</p>
+</blockquote>
+</body>
+</html>

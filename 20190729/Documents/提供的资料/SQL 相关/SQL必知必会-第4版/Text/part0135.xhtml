@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_196">B.16  配置ODBC数据源</h2><p class="calibre2">上面描述的几个应用程序使用了ODBC进行数据库集成，因此，这里简要概述一下ODBC，以及配置ODBC数据源的指令。</p>
+
+<p class="calibre2">ODBC是一个标准，能使客户端应用与不同的后端数据库或基础数据库引擎交互。使用ODBC，能够在一个客户端中编写代码，并使前述各种工具与几乎所有数据库或DBMS交互。</p>
+
+<p class="calibre2">ODBC本身不是数据库，但它包装了数据库，使所有数据库以一致和清晰定义的方式工作。它利用具有两种主要功能的软件驱动程序实现这一点。首先，它们封装数据库的本身特性或特色，并对客户端隐藏它们。其次，它们提供一种常用的语言与这些数据库交互（在需要时进行转换）。ODBC所用的语言就是SQL。</p>
+
+<p class="calibre2">ODBC客户端应用程序并不直接与数据库交互，而是与ODBC数据源交互。数据源是一个逻辑数据库，包括驱动程序（每种类型的数据库有自己的驱动程序）和如何连接到数据库的信息（文件路径、服务器名等）。</p>
+
+<p class="calibre2">定义了ODBC数据源后，任何兼容ODBC的应用程序都可以使用这些数据源。ODBC数据源并不针对具体的应用程序，它们针对的是系统。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：ODBC的差别</strong><br class="calibre14"/>
+  存在许多不同的ODBC程序版本，因此不可能提供适用于所有版本的指令。在设置具体的数据源时，应该密切注意具体的提示。</p>
+</blockquote>
+
+<p class="calibre2">ODBC数据源用Windows Control Panel的ODBC程序来定义。设置ODBC数据源，进行如下操作。</p>
+
+<ol class="calibre21">
+<li class="calibre9">打开Windows Control Panel的ODBC程序。</li>
+<li class="calibre9">大多数ODBC数据源应该设置为系统范围的数据源（相对于用户专用的数据源），因此，如果可以，应该选择System DSN。</li>
+<li class="calibre9">单击Add按钮添加新的数据源。</li>
+<li class="calibre9">选择要使用的驱动程序。通常有一组默认的驱动程序，支持主要的微软产品。你的系统上也可以安装其他驱动程序。必须选择一个与将要连接到的数据库类型相匹配的驱动程序。</li>
+<li class="calibre9">系统根据数据库或DBMS的类型，提示输入服务器名或文件路径信息，以及可能的登录信息。根据要求提供这些信息，然后遵循其他提示创建数据源。</li>
+</ol>
+<p class="calibre5" id="calibre_pb_190"> </p>
+</body>
+</html>

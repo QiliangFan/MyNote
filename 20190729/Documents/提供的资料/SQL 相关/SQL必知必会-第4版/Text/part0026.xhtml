@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_31">4.2  WHERE子句操作符</h2><p class="calibre2">我们在做相等检验时看到了第一个<code class="calibre11">WHERE</code>子句，它确定一个列是否包含指定的值。SQL支持表4-1列出的所有条件操作符。</p>
+
+<p class="calibre2"><strong class="calibre3">表4-1  <code class="calibre11">WHERE</code>子句操作符</strong>  </p>
+
+<table class="table">
+   <tr class="calibre16">
+      <th class="calibre17">操作符</th>
+      <th class="calibre17">说   明</th>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">=</td>
+      <td class="calibre19">等于</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">&lt; &gt;</td>
+      <td class="calibre19">不等于</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">!=</td>
+      <td class="calibre19">不等于</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">&lt;</td>
+      <td class="calibre19">小于</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">&lt;=</td>
+      <td class="calibre19">小于等于</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">!</td>
+      <td class="calibre19">不小于</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">&gt;</td>
+      <td class="calibre19">大于</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">&gt;=</td>
+      <td class="calibre19">大于等于</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">!&gt;</td>
+      <td class="calibre19">不大于</td>
+   </tr>
+   <tr class="calibre16">
+      <td class="calibre19">BETWEEN</td>
+      <td class="calibre19">在指定的两个值之间</td>
+   </tr>
+   <tr class="calibre18">
+      <td class="calibre19">IS NULL</td>
+      <td class="calibre19">为NULL值</td>
+   </tr>
+</table>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告： 操作符兼容</strong><br class="calibre14"/>
+   表4-1中列出的某些操作符是冗余的（如<code class="calibre11">&lt; &gt;</code>与<code class="calibre11">!=</code>相同，<code class="calibre11">!&lt;</code>相当于<code class="calibre11">&gt;=</code>）。并非所有DBMS都支持这些操作符。想确定你的DBMS支持哪些操作符，请参阅相应的文档。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_32">4.2.1  检查单个值</h3><p class="calibre2">我们已经看到了检验相等的例子，现在来看看几个使用其他操作符的例子。</p>
+
+<p class="calibre2">第一个例子是列出所有价格小于10美元的产品：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price &lt; 10; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name               prod_price
+-------------------     ----------
+Fish bean bag toy       3.49
+Bird bean bag toy       3.49
+Rabbit bean bag toy     3.49
+8 inch teddy bear       5.99
+12 inch teddy bear      8.99
+Raggedy Ann             4.99
+King doll               9.49
+Queen doll              9.49
+</code></pre>
+
+<p class="calibre2">下一条语句检索所有价格小于等于10美元的产品（因为没有价格恰好是10美元的产品，所以结果与前一个例子相同）：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price &lt;= 10;
+</code></pre>
+<h3 class="calibre7" id="nav_point_33">4.2.2  不匹配检查</h3><p class="calibre2">这个例子列出所有不是供应商<code class="calibre11">DLL01</code>制造的产品：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_id, prod_name
+FROM Products
+WHERE vend_id &lt;&gt; 'DLL01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">vend_id        prod_name
+----------     ------------------
+BRS01          8 inch teddy bear
+BRS01          12 inch teddy bear
+BRS01          18 inch teddy bear
+FNG01          King doll
+FNG01          Queen doll
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：何时使用引号</strong><br class="calibre14"/>
+   如果仔细观察上述<code class="calibre11">WHERE</code>子句中的条件，会看到有的值括在单引号内，而有的值未括起来。单引号用来限定字符串。如果将值与字符串类型的列进行比较，就需要限定引号。用来与数值列进行比较的值不用引号。</p>
+</blockquote>
+
+<p class="calibre2">下面是相同的例子，其中使用<code class="calibre11">!=</code>而不是<code class="calibre11">&lt;&gt;</code>操作符：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT vend_id, prod_name
+FROM Products
+WHERE vend_id != 'DLL01';
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：是<code class="calibre11">!=</code>还是<code class="calibre11">&lt;&gt;</code>？</strong><br class="calibre14"/>
+   <code class="calibre11">!=</code>和<code class="calibre11">&lt;&gt;</code>通常可以互换。但是，并非所有DBMS都支持这两种不等于操作符。例如，Microsoft Access支持<code class="calibre11">&lt;&gt;</code>而不支持<code class="calibre11">!=</code>。如果有疑问，请参阅相应的DBMS文档。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_34">4.2.3  范围值检查</h3><p class="calibre2">要检查某个范围的值，可以使用<code class="calibre11">BETWEEN</code>操作符。其语法与其他<code class="calibre11">WHERE</code>子句的操作符稍有不同，因为它需要两个值，即范围的开始值和结束值。例如，<code class="calibre11">BETWEEN</code>操作符可用来检索价格在5美元和10美元之间的所有产品，或在指定的开始日期和结束日期之间的所有日期。</p>
+
+<p class="calibre2">下面的例子说明如何使用<code class="calibre11">BETWEEN</code>操作符，它检索价格在5美元和10美元之间的所有产品：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name, prod_price
+FROM Products
+WHERE prod_price BETWEEN 5 AND 10; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">prod_name               prod_price
+-------------------     ----------
+8 inch teddy bear       5.99
+12 inch teddy bear      8.99
+King doll               9.49
+Queen doll              9.49 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+从这个例子可以看到，在使用<code class="calibre11">BETWEEN</code>时，必须指定两个值——所需范围的低端值和高端值。这两个值必须用<code class="calibre11">AND</code>关键字分隔。<code class="calibre11">BETWEEN</code>匹配范围中所有的值，包括指定的开始值和结束值。</p>
+<h3 class="calibre7" id="nav_point_35">4.2.4  空值检查</h3><p class="calibre2">在创建表时，表设计人员可以指定其中的列能否不包含值。在一个列不包含值时，称其包含空值<code class="calibre11">NULL</code>。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3"><code class="calibre11">NULL</code></strong><br class="calibre14"/>
+   <strong class="calibre3">无值</strong>（no value），它与字段包含0、空字符串或仅仅包含空格不同。</p>
+</blockquote>
+
+<p class="calibre2">确定值是否为<code class="calibre11">NULL</code>，不能简单地检查是否<code class="calibre11">= NULL</code>。<code class="calibre11">SELECT</code>语句有一个特殊的<code class="calibre11">WHERE</code>子句，可用来检查具有<code class="calibre11">NULL</code>值的列。这个<code class="calibre11">WHERE</code>子句就是<code class="calibre11">IS NULL</code>子句。其语法如下：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_name
+FROM Products
+WHERE prod_price IS NULL;
+</code></pre>
+
+<p class="calibre2">这条语句返回所有没有价格（空<code class="calibre11">prod_price</code>字段，不是价格为<code class="calibre11">0</code>）的产品，由于表中没有这样的行，所以没有返回数据。但是，<code class="calibre11">Customers</code>表确实包含具有<code class="calibre11">NULL</code>值的列：如果没有电子邮件地址，则<code class="calibre11">cust_email</code>列将包含<code class="calibre11">NULL</code>值：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name
+FROM CUSTOMERS
+WHERE cust_email IS NULL; 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">cust_name
+----------
+Kids Place
+The Toy Store
+</code></pre>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：各DBMS特有的操作符</strong><br class="calibre14"/>
+   许多DBMS扩展了标准的操作符集，提供了更高级的过滤选择。更多信息请参阅相应的DBMS文档。</p>
+  
+  <p class="calibre2"><strong class="calibre3">警告：<code class="calibre11">NULL</code>和非匹配</strong><br class="calibre14"/>
+  通过过滤选择不包含指定值的所有行时，你可能希望返回含<code class="calibre11">NULL</code>值的行。但是这做不到。因为未知（unknown）有特殊的含义，数据库不知道它们是否匹配，所以在进行匹配过滤或非匹配过滤时，不会返回这些结果。</p>
+  
+  <p class="calibre2">过滤数据时，一定要验证被过滤列中含<code class="calibre11">NULL</code>的行确实出现在返回的数据中。</p>
+</blockquote>
+</body>
+</html>

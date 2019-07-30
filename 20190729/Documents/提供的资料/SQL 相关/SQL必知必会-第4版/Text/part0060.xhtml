@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_85">11.2  利用子查询进行过滤</h2><p class="calibre2">本书所有课中使用的数据库表都是关系表（关于每个表及关系的描述，请参阅附录A）。订单存储在两个表中。每个订单包含订单编号、客户ID、订单日期，在<code class="calibre11">Orders</code>表中存储为一行。各订单的物品存储在相关的<code class="calibre11">OrderItems</code>表中。<code class="calibre11">Orders</code>表不存储顾客信息，只存储顾客ID。顾客的实际信息存储在<code class="calibre11">Customers</code>表中。</p>
+
+<p class="calibre2">现在，假如需要列出订购物品<code class="calibre11">RGAN01</code>的所有顾客，应该怎样检索？下面列出具体的步骤。  </p>
+
+<ol class="calibre21">
+<li class="calibre9">检索包含物品<code class="calibre11">RGAN01</code>的所有订单的编号。</li>
+<li class="calibre9">检索具有前一步骤列出的订单编号的所有顾客的ID。</li>
+<li class="calibre9">检索前一步骤返回的所有顾客ID的顾客信息。</li>
+</ol>
+
+<p class="calibre2">上述每个步骤都可以单独作为一个查询来执行。可以把一条<code class="calibre11">SELECT</code>语句返回的结果用于另一条<code class="calibre11">SELECT</code>语句的<code class="calibre11">WHERE</code>子句。 </p>
+
+<p class="calibre2">也可以使用子查询来把3个查询组合成一条语句。</p>
+
+<p class="calibre2">第一条<code class="calibre11">SELECT</code>语句的含义很明确，它对<code class="calibre11">prod_id</code>为<code class="calibre11">RGAN01</code>的所有订单物品，检索其<code class="calibre11">order_num</code>列。输出列出了两个包含此物品的订单：    </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num
+FROM OrderItems
+WHERE prod_id = 'RGAN01';
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>     </p>
+
+<pre class="calibre10"><code class="calibre11">order_num
+-----------
+20007
+20008
+</code></pre>
+
+<p class="calibre2">现在，我们知道了哪个订单包含要检索的物品，下一步查询与订单<code class="calibre11">20007</code>和<code class="calibre11">20008</code>相关的顾客ID。利用第5课介绍的<code class="calibre11">IN</code>子句，编写如下的<code class="calibre11">SELECT</code>语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_id
+FROM Orders
+WHERE order_num IN (20007,20008);
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id
+----------
+1000000004
+1000000005
+</code></pre>
+
+<p class="calibre2">现在，结合这两个查询，把第一个查询（返回订单号的那一个）变为子查询。请看下面的<code class="calibre11">SELECT</code>语句：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_id
+FROM Orders
+WHERE order_num IN (SELECT order_num
+                    FROM OrderItems
+                    WHERE prod_id = 'RGAN01');
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_id
+----------
+1000000004
+1000000005
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+在<code class="calibre11">SELECT</code>语句中，子查询总是从内向外处理。在处理上面的<code class="calibre11">SELECT</code>语句时，DBMS实际上执行了两个操作。</p>
+
+<p class="calibre2">首先，它执行下面的查询：  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT order_num FROM orderitems WHERE prod_id='RGAN01'
+</code></pre>
+
+<p class="calibre2">此查询返回两个订单号：<code class="calibre11">20007</code>和<code class="calibre11">20008</code>。然后，这两个值以<code class="calibre11">IN</code>操作符要求的逗号分隔的格式传递给外部查询的<code class="calibre11">WHERE</code>子句。外部查询变成：  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_id FROM orders WHERE order_num IN (20007,20008)
+</code></pre>
+
+<p class="calibre2">可以看到，输出是正确的，与前面硬编码<code class="calibre11">WHERE</code>子句所返回的值相同。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：格式化SQL</strong><br class="calibre14"/>
+  包含子查询的<code class="calibre11">SELECT</code>语句难以阅读和调试，它们在较为复杂时更是如此。如上所示，把子查询分解为多行并进行适当的缩进，能极大地简化子查询的使用。</p>
+  
+  <p class="calibre2">顺便一提，这就是颜色编码起作用的地方，好的DBMS客户端正是出于这个原因使用了颜色代码SQL。</p>
+</blockquote>
+
+<p class="calibre2">现在得到了订购物品<code class="calibre11">RGAN01</code>的所有顾客的ID。下一步是检索这些顾客ID的顾客信息。检索两列的SQL语句为：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers
+WHERE cust_id IN ('1000000004','1000000005');
+</code></pre>
+
+<p class="calibre2">可以把其中的<code class="calibre11">WHERE</code>子句转换为子查询，而不是硬编码这些顾客ID：  </p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">SELECT cust_name, cust_contact
+FROM Customers
+WHERE cust_id IN (SELECT cust_id
+                  FROM Order
+                  WHERE order_num IN (SELECT order_num
+                                      FROM OrderItems
+                                      WHERE prod_id = 'RGAN01')); 
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">cust_name                         cust_contact
+-----------------------------     --------------------
+Fun4All                           Denise L. Stephens
+The Toy Store                     Kim Howard
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+为了执行上述<code class="calibre11">SELECT</code>语句，DBMS实际上必须执行三条<code class="calibre11">SELECT</code>语句。最里边的子查询返回订单号列表，此列表用于其外面的子查询的<code class="calibre11">WHERE</code>子句。外面的子查询返回顾客ID列表，此顾客ID列表用于最外层查询的<code class="calibre11">WHERE</code>子句。最外层查询返回所需的数据。</p>
+
+<p class="calibre2">可见，在<code class="calibre11">WHERE</code>子句中使用子查询能够编写出功能很强且很灵活的SQL语句。对于能嵌套的子查询的数目没有限制，不过在实际使用时由于性能的限制，不能嵌套太多的子查询。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：只能是单列</strong><br class="calibre14"/>
+  作为子查询的<code class="calibre11">SELECT</code>语句只能查询单个列。企图检索多个列将返回错误。</p>
+</blockquote>
+
+<p class="calibre2"></p><p class="calibre2"></p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">警告：子查询和性能</strong><br class="calibre14"/>
+  这里给出的代码有效，并且获得了所需的结果。但是，使用子查询并不总是执行这类数据检索的最有效方法。更多的论述，请参阅第12课，其中将再次给出这个例子。</p>
+</blockquote>
+</body>
+</html>

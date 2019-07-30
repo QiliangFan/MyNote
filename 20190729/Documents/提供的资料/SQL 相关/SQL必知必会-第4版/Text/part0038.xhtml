@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_53">7.1  计算字段</h2><p class="calibre2">存储在数据库表中的数据一般不是应用程序所需要的格式，下面举几个例子。</p>
+
+<ul class="calibre8">
+<li class="calibre9">需要显示公司名，同时还需要显示公司的地址，但这两个信息存储在不同的表列中。</li>
+<li class="calibre9">城市、州和邮政编码存储在不同的列中（应该这样），但邮件标签打印程序需要把它们作为一个有恰当格式的字段检索出来。</li>
+<li class="calibre9">列数据是大小写混合的，但报表程序需要把所有数据按大写表示出来。</li>
+<li class="calibre9">物品订单表存储物品的价格和数量，不存储每个物品的总价格（用价格乘以数量即可）。但为打印发票，需要物品的总价格。</li>
+<li class="calibre9">需要根据表数据进行诸如总数、平均数的计算。</li>
+</ul>
+
+<p class="calibre2">在上述每个例子中，存储在表中的数据都不是应用程序所需要的。我们需要直接从数据库中检索出转换、计算或格式化过的数据，而不是检索出数据，然后再在客户端应用程序中重新格式化。</p>
+
+<p class="calibre2">这就是计算字段可以派上用场的地方了。与前几课介绍的列不同，计算字段并不实际存在于数据库表中。计算字段是运行时在<code class="calibre11">SELECT</code>语句内创建的。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">字段（field）</strong><br class="calibre14"/>
+  基本上与<strong class="calibre3">列</strong>（column）的意思相同，经常互换使用，不过数据库列一般称为列，而术语<strong class="calibre3">字段</strong>通常与计算字段一起使用。</p>
+</blockquote>
+
+<p class="calibre2">需要特别注意，只有数据库知道<code class="calibre11">SELECT</code>语句中哪些列是实际的表列，哪些列是计算字段。从客户端（如应用程序）来看，计算字段的数据与其他列的数据的返回方式相同。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：客户端与服务器的格式</strong><br class="calibre14"/>
+  在SQL语句内可完成的许多转换和格式化工作都可以直接在客户端应用程序内完成。但一般来说，在数据库服务器上完成这些操作比在客户端中完成要快得多。</p>
+</blockquote>
+</body>
+</html>

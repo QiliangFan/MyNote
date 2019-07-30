@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_89">12.1  联结</h2><p class="calibre2">SQL最强大的功能之一就是能在数据查询的执行中联结（join）表。联结是利用SQL的<code class="calibre11">SELECT</code>能执行的最重要的操作，很好地理解联结及其语法是学习SQL的极为重要的部分。  </p>
+
+<p class="calibre2">在能够有效地使用联结前，必须了解关系表以及关系数据库设计的一些基础知识。下面的介绍并不能涵盖这一主题的所有内容，但作为入门已经够了。</p>
+<h3 class="calibre7" id="nav_point_90">12.1.1  关系表</h3><p class="calibre2">理解关系表，最好是来看个例子。</p>
+
+<p class="calibre2">有一个包含产品目录的数据库表，其中每类物品占一行。对于每一种物品，要存储的信息包括产品描述、价格，以及生产该产品的供应商。</p>
+
+<p class="calibre2">现在有同一供应商生产的多种物品，那么在何处存储供应商名、地址、联系方法等供应商信息呢？将这些数据与产品信息分开存储的理由是：  </p>
+
+<ul class="calibre8">
+<li class="calibre9">同一供应商生产的每个产品，其供应商信息都是相同的，对每个产品重复此信息既浪费时间又浪费存储空间；</li>
+<li class="calibre9">如果供应商信息发生变化，例如供应商迁址或电话号码变动，只需修改一次即可；</li>
+<li class="calibre9">如果有重复数据（即每种产品都存储供应商信息），则很难保证每次输入该数据的方式都相同。不一致的数据在报表中就很难利用。</li>
+</ul>
+
+<p class="calibre2">关键是，相同的数据出现多次决不是一件好事，这是关系数据库设计的基础。关系表的设计就是要把信息分解成多个表，一类数据一个表。各表通过某些共同的值互相关联（所以才叫关系数据库）。</p>
+
+<p class="calibre2">在这个例子中可建立两个表：一个存储供应商信息，另一个存储产品信息。<code class="calibre11">Vendors</code>表包含所有供应商信息，每个供应商占一行，具有唯一的标识。此标识称为主键（primary key），可以是供应商ID或任何其他唯一值。</p>
+
+<p class="calibre2"><code class="calibre11">Products</code>表只存储产品信息，除了存储供应商ID（<code class="calibre11">Vendors</code>表的主键）外，它不存储其他有关供应商的信息。<code class="calibre11">Vendors</code>表的主键将<code class="calibre11">Vendors</code>表与<code class="calibre11">Products</code>表关联，利用供应商ID能从<code class="calibre11">Vendors</code>表中找出相应供应商的详细信息。</p>
+
+<p class="calibre2">这样做的好处是：  </p>
+
+<ul class="calibre8">
+<li class="calibre9">供应商信息不重复，不会浪费时间和空间；</li>
+<li class="calibre9">如果供应商信息变动，可以只更新<code class="calibre11">Vendors</code>表中的单个记录，相关表中的数据不用改动；</li>
+<li class="calibre9">由于数据不重复，数据显然是一致的，使得处理数据和生成报表更简单。</li>
+</ul>
+
+<p class="calibre2">总之，关系数据可以有效地存储，方便地处理。因此，关系数据库的可伸缩性远比非关系数据库要好。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">可伸缩（scale）</strong><br class="calibre14"/>
+  能够适应不断增加的工作量而不失败。设计良好的数据库或应用程序称为可伸缩性好（scale well）。</p>
+</blockquote>
+<h3 class="calibre7" id="nav_point_91">12.1.2  为什么使用联结</h3><p class="calibre2">如前所述，将数据分解为多个表能更有效地存储，更方便地处理，并且可伸缩性更好。但这些好处是有代价的。</p>
+
+<p class="calibre2">如果数据存储在多个表中，怎样用一条<code class="calibre11">SELECT</code>语句就检索出数据呢？</p>
+
+<p class="calibre2">答案是使用联结。简单说，联结是一种机制，用来在一条<code class="calibre11">SELECT</code>语句中关联表，因此称为联结。使用特殊的语法，可以联结多个表返回一组输出，联结在运行时关联表中正确的行。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：使用交互式DBMS工具</strong><br class="calibre14"/>
+  重要的是，要理解联结不是物理实体。换句话说，它在实际的数据库表中并不存在。DBMS会根据需要建立联结，它在查询执行期间一直存在。</p>
+  
+  <p class="calibre2">许多DBMS提供图形界面，用来交互式地定义表关系。这些工具极其有助于维护引用完整性。在使用关系表时，仅在关系列中插入合法数据是非常重要的。回到这里的例子，如果<code class="calibre11">Products</code>表中存储了无效的供应商ID，则相应的产品不可访问，因为它们没有关联到某个供应商。为避免这种情况发生，可指示数据库只允许在<code class="calibre11">Products</code>表的供应商ID列中出现合法值（即出现在<code class="calibre11">Vendors</code>表中的供应商）。引用完整性表示DBMS强制实施数据完整性规则。这些规则一般由提供了界面的DBMS管理。</p>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_26">3.3  按列位置排序</h2><p class="calibre2">除了能用列名指出排序顺序外，<code class="calibre11">ORDER BY</code>还支持按相对列位置进行排序。为理解这一内容，我们来看个例子：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong>  </p>
+
+<pre class="calibre10"><code class="calibre11">SELECT prod_id, prod_price, prod_name
+FROM Products
+ORDER BY 2, 3;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">输出▼</strong>    </p>
+
+<pre class="calibre10"><code class="calibre11">prod_id     prod_price     prod_name
+-------     ----------     --------------------
+BNBG02      3.4900         Bird bean bag toy
+BNBG01      3.4900         Fish bean bag toy
+BNBG03      3.4900         Rabbit bean bag toy
+RGAN01      4.9900         Raggedy Ann
+BR01        5.9900         8 inch teddy bear
+BR02        8.9900         12 inch teddy bear
+RYL01       9.4900         King doll
+RYL02       9.4900         Queen doll
+BR03        11.9900        18 inch teddy bear
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong>  </p>
+
+<p class="calibre2">可以看到，这里的输出与上面的查询相同，不同之处在于<code class="calibre11">ORDER BY</code>子句。<code class="calibre11">SELECT</code>清单中指定的是选择列的相对位置而不是列名。<code class="calibre11">ORDER BY 2</code>表示按<code class="calibre11">SELECT</code>清单中的第二个列<code class="calibre11">prod_name</code>进行排序。<code class="calibre11">ORDER BY 2，3</code>表示先按<code class="calibre11">prod_price</code>，再按<code class="calibre11">prod_name</code>进行排序。</p>
+
+<p class="calibre2">这一技术的主要好处在于不用重新输入列名。但它也有缺点。首先，不明确给出列名有可能造成错用列名排序。其次，在对<code class="calibre11">SELECT</code>清单进行更改时容易错误地对数据进行排序（忘记对<code class="calibre11">ORDER BY</code>子句做相应的改动）。最后，如果进行排序的列不在<code class="calibre11">SELECT</code>清单中，显然不能使用这项技术。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">按非选择列排序</strong><br class="calibre14"/>
+   显然，当根据不出现在<code class="calibre11">SELECT</code>清单中的列进行排序时，不能采用这项技术。但是，如果有必要，可以混合匹配使用实际列名和相对列位置。</p>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_152">20.1  事务处理</h2><p class="calibre2">使用事务处理（transaction processing），通过确保成批的SQL操作要么完全执行，要么完全不执行，来维护数据库的完整性。</p>
+
+<p class="calibre2">正如第12课所述，关系数据库把数据存储在多个表中，使数据更容易操纵、维护和重用。不用深究如何以及为什么进行关系数据库设计，在某种程度上说，设计良好的数据库模式都是关联的。</p>
+
+<p class="calibre2">前面使用的<code class="calibre11">Orders</code>表就是一个很好的例子。订单存储在<code class="calibre11">Orders</code>和<code class="calibre11">OrderItems</code>两个表中：<code class="calibre11">Orders</code>存储实际的订单，<code class="calibre11">OrderItems</code>存储订购的各项物品。这两个表使用称为主键（参阅第1课）的唯一ID互相关联，又与包含客户和产品信息的其他表相关联。</p>
+
+<p class="calibre2">给系统添加订单的过程如下：</p>
+
+<ol class="calibre21">
+<li class="calibre9">检查数据库中是否存在相应的顾客，如果不存在，添加他；</li>
+<li class="calibre9">检索顾客的ID；</li>
+<li class="calibre9">在<code class="calibre11">Orders</code>表添加一行，它与顾客ID相关联；</li>
+<li class="calibre9">检索<code class="calibre11">Orders</code>表中赋予的新订单ID；</li>
+<li class="calibre9">为订购的每个物品在<code class="calibre11">OrderItems</code>表中添加一行，通过检索出来的ID把它与<code class="calibre11">Orders</code>表关联（并且通过产品ID与<code class="calibre11">Products</code>表关联）。</li>
+</ol>
+
+<p class="calibre2">现在假设由于某种数据库故障（如超出磁盘空间、安全限制、表锁等），这个过程无法完成。数据库中的数据会出现什么情况？</p>
+
+<p class="calibre2">如果故障发生在添加顾客之后，添加<code class="calibre11">Orders</code>表之前，则不会有什么问题。某些顾客没有订单是完全合法的。重新执行此过程时，所插入的顾客记录将被检索和使用。可以有效地从出故障的地方开始执行此过程。</p>
+
+<p class="calibre2">但是，如果故障发生在插入<code class="calibre11">Orders</code>行之后，添加<code class="calibre11">OrderItems</code>行之前，怎么办？现在，数据库中有一个空订单。</p>
+
+<p class="calibre2">更糟的是，如果系统在添加<code class="calibre11">OrderItems</code>行之时出现故障，怎么办？结果是数据库中存在不完整的订单，而你还不知道。</p>
+
+<p class="calibre2">如何解决这种问题？这就需要使用事务处理了。事务处理是一种机制，用来管理必须成批执行的SQL操作，保证数据库不包含不完整的操作结果。利用事务处理，可以保证一组操作不会中途停止，它们要么完全执行，要么完全不执行（除非明确指示）。如果没有错误发生，整组语句提交给（写到）数据库表；如果发生错误，则进行回退（撤销），将数据库恢复到某个已知且安全的状态。</p>
+
+<p class="calibre2">再看这个例子，这次我们说明这一过程是如何工作的：</p>
+
+<ol class="calibre21">
+<li class="calibre9">检查数据库中是否存在相应的顾客，如果不存在，添加他；  </li>
+<li class="calibre9">提交顾客信息；</li>
+<li class="calibre9">检索顾客的ID；</li>
+<li class="calibre9">在<code class="calibre11">Orders</code>表中添加一行；</li>
+<li class="calibre9">如果向<code class="calibre11">Orders</code>表添加行时出现故障，回退；</li>
+<li class="calibre9">检索<code class="calibre11">Orders</code>表中赋予的新订单ID；</li>
+<li class="calibre9">对于订购的每项物品，添加新行到<code class="calibre11">OrderItems</code>表；</li>
+<li class="calibre9">如果向<code class="calibre11">OrderItems</code>添加行时出现故障，回退所有添加的<code class="calibre11">OrderItems</code>行和<code class="calibre11">Orders</code>行。</li>
+</ol>
+
+<p class="calibre2">在使用事务处理时，有几个反复出现的关键词。下面是关于事务处理需要知道的几个术语：</p>
+
+<ul class="calibre8">
+<li class="calibre9">事务（transaction）指一组SQL语句；</li>
+<li class="calibre9">回退（rollback）指撤销指定SQL语句的过程；</li>
+<li class="calibre9">提交（commit）指将未存储的SQL语句结果写入数据库表；</li>
+<li class="calibre9">保留点（savepoint）指事务处理中设置的临时占位符（placeholder），可以对它发布回退（与回退整个事务处理不同）。</li>
+</ul>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">提示：可以回退哪些语句？</strong><br class="calibre14"/>
+  事务处理用来管理<code class="calibre11">INSERT</code>、<code class="calibre11">UPDATE</code>和<code class="calibre11">DELETE</code>语句。不能回退<code class="calibre11">SELECT</code>语句（回退<code class="calibre11">SELECT</code>语句也没有必要），也不能回退<code class="calibre11">CREATE</code>或<code class="calibre11">DROP</code>操作。事务处理中可以使用这些语句，但进行回退时，这些操作也不撤销。</p>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>未知</title>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type"/>
+  <link href="../Styles/style0002.css" rel="stylesheet" type="text/css"/>
+<link href="../Styles/style0001.css" rel="stylesheet" type="text/css"/>
+</head>
+  <body class="calibre">
+<h2 class="calibre15" id="nav_point_149">19.4  创建存储过程</h2><p class="calibre2">正如所述，存储过程的编写很重要。为了获得感性认识，我们来看一个简单的存储过程例子，它对邮件发送清单中具有邮件地址的顾客进行计数。</p>
+
+<p class="calibre2">下面是该过程的Oracle版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE PROCEDURE MailingListCount (
+  ListCount OUT INTEGER
+)
+IS
+v_rows INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO v_rows
+    FROM Customers
+    WHERE NOT cust_email IS NULL;
+    ListCount := v_rows;
+END;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这个存储过程有一个名为<code class="calibre11">ListCount</code>的参数。此参数从存储过程返回一个值而不是传递一个值给存储过程。关键字<code class="calibre11">OUT</code>用来指示这种行为。Oracle支持<code class="calibre11">IN</code>（传递值给存储过程）、<code class="calibre11">OUT</code>（从存储过程返回值，如这里）、<code class="calibre11">INOUT</code>（既传递值给存储过程也从存储过程传回值）类型的参数。存储过程的代码括在<code class="calibre11">BEGIN</code>和<code class="calibre11">END</code>语句中，这里执行一条简单的<code class="calibre11">SELECT</code>语句，它检索具有邮件地址的顾客。然后用检索出的行数设置<code class="calibre11">ListCount</code>（要传递的输出参数）。</p>
+
+<p class="calibre2">调用Oracle例子可以像下面这样：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">var ReturnValue NUMBER
+EXEC MailingListCount(:ReturnValue);
+SELECT ReturnValue;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这段代码声明了一个变量来保存存储过程返回的任何值，然后执行存储过程，再使用<code class="calibre11">SELECT</code>语句显示返回的值。</p>
+
+<p class="calibre2">下面是该过程的SQL Server版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE PROCEDURE MailingListCount
+AS
+DECLARE @cnt INTEGER
+SELECT @cnt = COUNT(*)
+FROM Customers
+WHERE NOT cust_email IS NULL;
+RETURN @cnt;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此存储过程没有参数。调用程序检索SQL Server的返回代码支持的值。其中用<code class="calibre11">DECLARE</code>语句声明了一个名为<code class="calibre11">@cnt</code>的局部变量（SQL Server中所有局部变量名都以<code class="calibre11">@</code>起头）；然后在<code class="calibre11">SELECT</code>语句中使用这个变量，让它包含<code class="calibre11">COUNT()</code>函数返回的值；最后，用<code class="calibre11">RETURN @cnt</code>语句将计数返回给调用程序。</p>
+
+<p class="calibre2">调用SQL Server例子可以像下面这样：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">DECLARE @ReturnValue INT
+EXECUTE @ReturnValue=MailingListCount;
+SELECT @ReturnValue;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+这段代码声明了一个变量来保存存储过程返回的任何值，然后执行存储过程，再使用<code class="calibre11">SELECT</code>语句显示返回的值。</p>
+
+<p class="calibre2">下面是另一个例子，这次在<code class="calibre11">Orders</code>表中插入一个新订单。此程序仅适用于SQL Server，但它说明了存储过程的某些用途和技术：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE PROCEDURE NewOrder @cust_id CHAR(10)
+AS
+-- Declare variable for order number
+DECLARE @order_num INTEGER
+-- Get current highest order number
+SELECT @order_num=MAX(order_num)
+FROM Orders
+-- Determine next order number
+SELECT @order_num=@order_num+1
+-- Insert new order
+INSERT INTO Orders(order_num, order_date, cust_id)
+VALUES(@order_num, GETDATE(), @cust_id)
+-- Return order number
+RETURN @order_num;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此存储过程在<code class="calibre11">Orders</code>表中创建一个新订单。它只有一个参数，即下订单顾客的ID。订单号和订单日期这两列在存储过程中自动生成。代码首先声明一个局部变量来存储订单号。接着，检索当前最大订单号（使用<code class="calibre11">MAX()</code>函数）并增加1（使用<code class="calibre11">SELECT</code>语句）。然后用<code class="calibre11">INSERT</code>语句插入由新生成的订单号、当前系统日期（用<code class="calibre11">GETDATE()</code>函数检索）和传递的顾客ID组成的订单。最后，用<code class="calibre11">RETURN @order_num</code>返回订单号（处理订单物品需要它）。请注意，此代码加了注释，在编写存储过程时应该多加注释。</p>
+
+<blockquote class="calibre13">
+  <p class="calibre2"><strong class="calibre3">说明：注释代码</strong><br class="calibre14"/>
+  应该注释所有代码，存储过程也不例外。增加注释不影响性能，因此不存在缺陷（除了增加编写时间外）。注释代码的好处很多，包括使别人（以及你自己）更容易地理解和更安全地修改代码。</p>
+  
+  <p class="calibre2">对代码进行注释的标准方式是在之前放置<code class="calibre11">--</code>（两个连字符）。有的DBMS还支持其他的注释语法，不过所有DBMS都支持<code class="calibre11">--</code>，因此在注释代码时最好都使用这种语法。</p>
+</blockquote>
+
+<p class="calibre2">下面是相同SQL Server代码的一个很不同的版本：</p>
+
+<p class="calibre2"><strong class="calibre3">输入▼</strong></p>
+
+<pre class="calibre10"><code class="calibre11">CREATE PROCEDURE NewOrder @cust_id CHAR(10)
+AS
+-- Insert new order
+INSERT INTO Orders(cust_id)
+VALUES(@cust_id)
+-- Return order number
+SELECT order_num = @@IDENTITY;
+</code></pre>
+
+<p class="calibre2"><strong class="calibre3">分析▼</strong><br class="calibre14"/>
+此存储过程也在<code class="calibre11">Orders</code>表中创建一个新订单。这次由DBMS生成订单号。大多数DBMS都支持这种功能；SQL Server中称这些自动增量的列为标识字段（identity field），而其他DBMS称之为自动编号（auto number）或序列（sequence）。传递给此过程的参数也是一个，即下订单的顾客ID。订单号和订单日期没有给出，DBMS对日期使用默认值（<code class="calibre11">GETDATE()</code>函数），订单号自动生成。怎样才能得到这个自动生成的ID？在SQL Server上可在全局变量<code class="calibre11">@@IDENTITY</code>中得到，它返回到调用程序（这里使用<code class="calibre11">SELECT</code>语句）。</p>
+
+<p class="calibre2">可以看到，借助存储过程，可以有多种方法完成相同的工作。不过，所选择的方法受所用DBMS特性的制约。</p>
+</body>
+</html>
