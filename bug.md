@@ -1,18 +1,20 @@
 # 1. 配置fiddler
 
+(运行python爬虫时记得把fiddler关了,不然太慢了)
+
  1. tools->options->https
 
      	1. 勾选captrue https
-     	2. 勾选decrypt https trafic
-     	3. 勾选ignore xxx
-     	4. 点击Action ,信任证书
-     	5. 关闭重启fiddler
+          	2. 勾选decrypt https trafic
+               	3. 勾选ignore xxx
+                    	4. 点击Action ,信任证书
+                         	5. 关闭重启fiddler
 
  2. 抓包
 
      	1. <>: html内容
-     	2. ...其他图标(主要关注json,很有可能是前后端接口,)
-     	3. file-> capture traffic (f12)  反选,停止监听
+          	2. ...其他图标(主要关注json,很有可能是前后端接口,)
+               	3. file-> capture traffic (f12)  反选,停止监听
 
  3. 点击请求, 由窗口选中inspectors. 
 
@@ -210,8 +212,113 @@ loads函数的效果会随json编码变化而变化.
 
 ## 7. AJAX请求捕获
 
-### 	1. 捕获get请求:
+### 	1. 捕获get请求:(豆瓣电影排名,右边子模块, 动作\喜剧\\...)
 
+### 	2. 捕获post请求:百度翻译\肯德基的翻页
 
+(要善于分析参数信息中无效的参数,以及有规律的参数, 要多尝试)
 
-​	
+## 8. Error(异常处理try-except):
+
+*urllib.error* 下有两个异常类:URLError, HTTPError
+
+### 1. URLError
+
+* 产生情况:
+  	* 没有网
+  	* 服务器连接失败
+  	* 找不到指定的服务器
+
+### 2. HTTPError
+
+ * 是*<u>URLError的子类</u>*,(注意捕获顺序)产生情况:
+   	* e.code  可以打印错误码
+
+## 9. Handler处理器/自定义Opener
+
+​	urlopen() 给一个url, 发送请求, 获取响应(缺点, 不能定制头部,需要自己加)
+
+​	Request 类, 通过这个对象定制请求头,创建请求对象.
+
+以上两个无法实现的高级功能:
+
+	* 使用代理_当ip被封时, 不能通过代理继续访问
+	* cookie无法使用,只能在请求头中手动加cookie,过于麻烦.
+
+### 1. Handler类和Opener类的使用:
+
+~~~python
+#注意使用不同高级功能时,Handler类型也不一致
+handler = urlib.request.HTTPHandler()
+opener = urllib.request.build_opener(handler)
+#构建请求对象
+request = urllib.request.Request(url, headers = headers)
+#发送请求
+response = opener.open(request)
+~~~
+
+### 2. 代理(proxy):
+
+​	1.含义:
+
+			* 正向代理: 在使用爬虫时,当同个频繁访问一个服务器时,就可能会被封禁.将请求发给代理服务器,代理服务器转发给目标服务器, 代理服务器将response返回. 如果能同一时间段随机使用一个代理服务器,对目标服务器访问时,就可以避免被检测到进而封禁IP.[代理客户端获取数据]
+			* 反向代理: 服务器有多个**镜像服务器**, DNS服务器根据某种规则,将请求分发给最优的服务器.[代理服务端提供数据]
+
+2. 透明代理\匿名代理\高匿名代理
+
+3. www.kuaidaili.com 上面有免费的代理服务器(一般都不好用
+
+   西刺代理 这个网站也有免费的代理服务器(有点慢)
+
+4. **浏览器配置代理服务器**
+
+设置->高级->打开代理设置->局域网设置->代理服务器->设置ip地址和端口
+
+5. 筛选代理是否可用的软件:ProxyThorn
+
+   最好首先将免费代理都爬取, 放在txt文件中
+
+   ~~~htt
+   ***.***.***.***:port
+   ~~~
+
+6. **代码设置代理** :
+
+~~~python
+dic={
+    'http':'113.79.75.104:9797'
+}
+handler = urllib.request.ProxyHandler(dic)
+opener = urllib.request.build_opener(handler)
+url = "..."
+headers = {
+    'User-Agent':'...'
+}
+request = urlib.requets.Request(url,headers=headers)
+response = opener.open(request)
+~~~
+
+### 3. Cookie 模拟登陆:
+
+{根源于HTTP的无状态,却又需要保存数据}=>多用于登陆验证时提供身份信息
+
+在headers中添加cookie, 如果还不行就将抓包抓取的headers全部复制进去
+
+~~~tex
+代码保存cookie,用于进一步操作.
+
+~~~
+
+~~~python
+import http.cookiejar
+
+cj=http.cookiejar.CookirJar()
+handler = rullib.request.HttpCookieProcessor(cj)
+opener = urllib.request.build_opener(handler)
+requet= ...
+opener.open(request,data=form_data)
+
+#用这个opener.open 发送请求,服务端返回的cookie会保存在opener中!
+#通过这种opener就可以模拟真实浏览器
+~~~
+
