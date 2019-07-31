@@ -217,9 +217,26 @@ public ModelAndView doLogin(){
 在web.xml配置了分发器urlpattern 为/, 则在controller中所有的mapping,return的 /**都是 这个/
 而这个 / 是在项目根路径的基础上的即 controller中所有的/**都是:
 127.0.0.1:8080/bookshop/**
+
+然而在前端页面的的根目录是, 127.0.0.1:8080/   
+!!!!!!! 因为前端访问以域为根!!!!
 ~~~
 
+### 4. 跳转
 
+~~~java
+1. 转向 - 转发{ 通过URL重写带有参数}
+2. 	page - page 
+		href <=> url转向
+	page - controller
+		href <=> url转向
+		form submit action  = url 提交跳转
+	controller - page
+		url 转向 \ 转发
+     controller - controller
+     	url 转向 \ 转发
+//这一切的前提是jsp被视图解析器解析, 而controller 要也已经被注册
+~~~
 
 
 
@@ -232,5 +249,9 @@ public ModelAndView doLogin(){
 ~~~python
 postman : 接口测试工具
 websockt: 基于spring 的网页通信技术方向
+~~~
+
+~~~JSP
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="utf8"%>
 ~~~
 
