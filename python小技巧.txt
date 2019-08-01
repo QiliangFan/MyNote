@@ -1,0 +1,5 @@
+eval( string) 函数会根据string内容转化为相应的数据类型
+
+"I am {0} and {1}".format("liang","jie")
+"I am {a} and {b}".format(a="liang", b="jie")
+ 
