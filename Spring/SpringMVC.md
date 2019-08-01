@@ -212,8 +212,22 @@ public ModelAndView test(){
     mav.setViewName("...");  //设置视图名称
     mav.addObject(obj);   //默认key为obj对应class的首字母小写名
     mav.addObject("萨达",obj);
-    mav.addOjects(map);   //将一个map中的数据添加到ModelAndView中
+    mav.addAllOjects(map);   //将一个map中的数据添加到ModelAndView中
     return mav;
+}
+
+@RequestMapping("/test")
+public String test1(Modelmap map){
+    map.put("sd",obj);
+    ...
+}
+
+@RequestMapping("/test")
+public String test2(Model model){
+    model.addAttribute("user",user);
+    ...
+    model.addAttributes(map);
+    ...
 }
 //返回视图的同时,reuqest还带有参数
 ~~~
@@ -239,7 +253,16 @@ public class SpringMVC{
 //所有值为String Integer的参数将在返回时保存至session中
 ~~~
 
-### 9.通过@ModelAttribute注解,预先从后台提供数据:
+### 9. 通过@SessionAttribute注解, 从session中存取数据
+
+~~~java
+@RequestMapping("/test")
+public String get(@SessionAttribute("UserName") String usrname){
+    ...
+}
+~~~
+
+### 10.通过@ModelAttribute注解,预先从后台提供数据:
 
 ~~~java
 @ModelAtrribute
@@ -250,7 +273,7 @@ public void getUser(@RequestParam(value="id",required=false) Integer id, Map<Str
 //异或是, 如果在后续的方法中,有参数是POJO, 且属性名称与map中key值一致, 则会进行binding, 将属性依次填充. ---2
 ~~~
 
-### 10.支持的参数类型:
+### 11.支持的参数类型:
 
 ~~~java
 //几乎所有Servlet API, 如HttpServletRequest都可作为参数
@@ -282,6 +305,8 @@ public String test2(){
 
 @RequestMapping("\test1")
 public ModelAndView test1(){
+    //ModelAndView mav=new ModelAndView();
+    //mav.setViewName("redirect:/");
 	ModelAndView mav=new ModelAndView("redirect:/");
 }
 
@@ -294,5 +319,94 @@ public String testForward(){
 //用redirect重定向后,不通过视图解析器处理,直接转向(可以转向Controller!)
 //用forward转发后,也不通过视图解析器处理
 //注意, forward转发时, 转发原有请求, 其HTTP请求方式和参数都不变!是服务器跳转
+~~~
+
+## 5.	配置service(IoC ,DI 控制反转\依赖注入)
+
+~~~java
+//spring-servlet.xml
+<context:component-scan base-package="<service-biz-package>"/> //biz下有接口类,还有一个包,是实现类的包
+    
+ //UserServiceImpl.java
+ //用@Component也可以
+ @Service("userService")  //一个名为userService的bean就会被创建
+ public class UserServiceImpl{
+     ...
+ }
+
+//UserController.java
+@Controller
+public class UserController{
+    //自动装配
+    @AutoWired   //从BeanFactory 中寻找同名Bean, 并进行自动装配
+    UserService userService;
+    
+    ...
+}
+//当需要改变功能时, 并不需要修改源代码, 只需要修改Componenet扫描路径, 换一个包, 这样BeanFactory中同一个名字的Bean会有不同功能
+
+@Autowired
+private HttpServletRequest request;
+
+@Autowired
+private HttpSession session;
+//尽管可以但是并不推荐
+
+@Autorwired 和 @Resource 都可以用来装饰字段或set方法上
+@Autowired 默认按类型装配. @Resource默认按名称装配
+@Autowired() @Qualifier("userDao")    //通过名称装载
+@Resource(name="woman")
+@Autowired() @Qualifier("baseDao")  
+@Autowired(required=false)   //允许bean不存在,即允许为控制
+~~~
+
+## 6.文件上传:
+
+1. pom导入依赖
+
+   commons-fileupload
+
+   commons-io
+
+2.
+
+~~~jsp
+<form action="" method="" enctype="multipart/form-data">
+    <input type="file" name="img">
+    <input type="submit">
+</form>
+~~~
+
+3. 声明一个文件上传的解析器
+
+~~~xml
+<!--spring-servlet.xml-->
+...
+<!--声明一个文件上次的解析器-->
+<bean id="multipartResolver" class="org.springframework.web.multipart.com.CommonsMultipartResolver">
+    <!--设置文件最大上传大小设置(B字节)-->
+    <!--不记得名字去源码中找,注意要小写-->
+    <!--找所有的set方法-->
+	<property name="maxUploadSize"  value="1024000" ></property>
+    <property name="" value=""></property>
+</bean>
+... 
+~~~
+
+~~~java
+//Controller
+
+@RequestMapping("/upload")
+public String upload(String usn, @RequestParam("img") MultipartFile file){
+    String coentType = file.getContentType();   //文件类型: image/jpeg ...
+    String name=file.name();      //表单域的名字 : img
+    String oname = file.getOriginalFilename();   // 文件的名字:c.tld
+    long size= file.getSize();    //文件大小
+    InputStream is=file.getInputStream();  //会抛出个异常
+    String path=request.getServletContext().getRealPath("/");
+    String path=upload.class.getClassLoader()+System.currentTimeMillis()+".jpg";
+    FileUtils.copyInputStreamToFile(file.getInputStream(),new File(path+filename);
+    ...
+}
 ~~~
 

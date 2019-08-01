@@ -1,4 +1,4 @@
-基于 Linux CentOS 7 的 Hadoop 3.1.2 环境搭·建
+﻿基于 Linux CentOS 7 的 Hadoop 3.1.2 环境搭·建
 1. 卸载 VMWare Workstation 14， 升级为 15
     0. 原因：14 太慢，有卡顿，15快些，占用资源少。 
     1. 步骤：
@@ -79,6 +79,7 @@
                     注意：均需要两次点击完成
                         root 为管理员用户
 						icss 为普通用户
+
                 5. 重启 
                 6. 现在是字符界面的 Linux CentOS
                     使用用户 icss/icss 登录

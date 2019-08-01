@@ -238,6 +238,48 @@ public ModelAndView doLogin(){
 //这一切的前提是jsp被视图解析器解析, 而controller 要也已经被注册
 ~~~
 
+### 5.	service
+
+~~~java
+//spring-servlet.xml
+<context:component-scan base-package="<service-biz-package>"/> //biz下有接口类,还有一个包,是实现类的包
+    
+ //UserServiceImpl.java
+ @Service("userService")
+ public class UserServiceImpl{
+     ...
+ }
+
+//UserController.java
+@Controller
+public class UserController{
+    //自动装配
+    @AutoWired
+    UserService userService;
+    
+    ...
+}
+~~~
+
+### 6. 在Maven中使用jstl 
+
+~~~java
+首先要加jstl ,后面加 standard lib
+<!-- https://mvnrepository.com/artifact/jstl/jstl -->
+<dependency>
+    <groupId>jstl</groupId>
+    <artifactId>jstl</artifactId>
+    <version>1.2</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/taglibs/standard -->
+<dependency>
+    <groupId>taglibs</groupId>
+    <artifactId>standard</artifactId>
+    <version>1.1.2</version>
+</dependency>
+~~~
+
 
 
 
