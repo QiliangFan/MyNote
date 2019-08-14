@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+	   <div id="container1" style="height: 100%"></div>
+	   <div id="container2" style="height: 100%"></div>
+	   <div id="container3" style="height: 100%"></div>
+	   <script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=xfhhaTThl11qYVrqLZii6w8qE5ggnhrY&__ec_v__=20190126"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+       <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>
+       <script type="text/javascript">
+
+
+$(function a(){
+	$.get("json/hk.json", function(da) {
+					var dom = document.getElementById("container");
+					var myChart = echarts.init(dom);
+					var app = {};
+					option = null;
+					var base = +new Date(1988, 1, 1);
+					var oneDay = 24 * 3600 * 1000;
+					var date = [];
+					var data = [];
+					$(da).each(function(i, o) {
+						//var colValue = "<tr><td>" + o.name + "</td><td>" + o.value + "</tr>";
+						date.push(o.key);
+						data.push(o.value.split(',')[0]);
+					});	
+					option = {
+					    tooltip: {
+					        trigger: 'axis',
+					        position: function (pt) {
+					            return [pt[0], '10%'];
+					        }
+					    },
+					    title: {
+					        left: 'center',
+					        text: '1988~2008每天航班总数',
+					    },
+					    toolbox: {
+					        feature: {
+					            dataZoom: {
+					                yAxisIndex: 'none'
+					            },
+					            restore: {},
+					            saveAsImage: {}
+					        }
+					    },
+					    xAxis: {
+					        type: 'category',
+					        boundaryGap: false,
+					        data: date
+					    },
+					    yAxis: {
+					        type: 'value',
+					        boundaryGap: [0, '100%']
+					    },
+					    dataZoom: [{
+					        type: 'inside',
+					        start: 0,
+					        end: 10
+					    }, {
+					        start: 0,
+					        end: 10,
+					        handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+					        handleSize: '80%',
+					        handleStyle: {
+					            color: '#fff',
+					            shadowBlur: 3,
+					            shadowColor: 'rgba(0, 0, 0, 0.6)',
+					            shadowOffsetX: 2,
+					            shadowOffsetY: 2
+					        }
+					    }],
+					    series: [
+					        {
+					            name:'人次',
+					            type:'line',
+					            smooth:true,
+					            symbol: 'none',
+					            sampling: 'average',
+					            itemStyle: {
+					                color: 'rgb(255, 70, 131)'
+					            },
+					            areaStyle: {
+					                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+					                    offset: 0,
+					                    color: 'rgb(255, 158, 68)'
+					                }, {
+					                    offset: 1,
+					                    color: 'rgb(255, 70, 131)'
+					                }])
+					            },
+					            data: data
+					        }
+					    ]
+					};
+					;
+					if (option && typeof option === "object") {
+					    myChart.setOption(option, true);
+					}
+				});
+})
+
+
+$(function a(){
+	$.get("json/hk.json", function(da) {
+					var dom = document.getElementById("container1");
+					var myChart = echarts.init(dom);
+					var app = {};
+					option = null;
+					var base = +new Date(1988, 1, 1);
+					var oneDay = 24 * 3600 * 1000;
+					var date = [];
+					var data = [];
+					$(da).each(function(i, o) {
+						//var colValue = "<tr><td>" + o.name + "</td><td>" + o.value + "</tr>";
+						date.push(o.key);
+						data.push(o.value.split(',')[1]);
+					});	
+					option = {
+					    tooltip: {
+					        trigger: 'axis',
+					        position: function (pt) {
+					            return [pt[0], '10%'];
+					        }
+					    },
+					    title: {
+					        left: 'center',
+					        text: '1988~2008每天取消次数',
+					    },
+					    toolbox: {
+					        feature: {
+					            dataZoom: {
+					                yAxisIndex: 'none'
+					            },
+					            restore: {},
+					            saveAsImage: {}
+					        }
+					    },
+					    xAxis: {
+					        type: 'category',
+					        boundaryGap: false,
+					        data: date
+					    },
+					    yAxis: {
+					        type: 'value',
+					        boundaryGap: [0, '100%']
+					    },
+					    dataZoom: [{
+					        type: 'inside',
+					        start: 0,
+					        end: 10
+					    }, {
+					        start: 0,
+					        end: 10,
+					        handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+					        handleSize: '80%',
+					        handleStyle: {
+					            color: '#fff',
+					            shadowBlur: 3,
+					            shadowColor: 'rgba(0, 0, 0, 0.6)',
+					            shadowOffsetX: 2,
+					            shadowOffsetY: 2
+					        }
+					    }],
+					    series: [
+					        {
+					            name:'人次',
+					            type:'line',
+					            smooth:true,
+					            symbol: 'none',
+					            sampling: 'average',
+					            itemStyle: {
+					                color: 'rgb(255, 70, 131)'
+					            },
+					            areaStyle: {
+					                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+					                    offset: 0,
+					                    color: 'rgb(255, 158, 68)'
+					                }, {
+					                    offset: 1,
+					                    color: 'rgb(255, 70, 131)'
+					                }])
+					            },
+					            data: data
+					        }
+					    ]
+					};
+					;
+					if (option && typeof option === "object") {
+					    myChart.setOption(option, true);
+					}
+				});
+})
+
+$(function a(){
+	$.get("json/hk.json", function(da) {
+					var dom = document.getElementById("container2");
+					var myChart = echarts.init(dom);
+					var app = {};
+					option = null;
+					var base = +new Date(1988, 1, 1);
+					var oneDay = 24 * 3600 * 1000;
+					var date = [];
+					var data = [];
+					$(da).each(function(i, o) {
+						//var colValue = "<tr><td>" + o.name + "</td><td>" + o.value + "</tr>";
+						date.push(o.key);
+						data.push(o.value.split(',')[2]);
+					});	
+					option = {
+					    tooltip: {
+					        trigger: 'axis',
+					        position: function (pt) {
+					            return [pt[0], '10%'];
+					        }
+					    },
+					    title: {
+					        left: 'center',
+					        text: '1988~2008每天到达延误时间总和',
+					    },
+					    toolbox: {
+					        feature: {
+					            dataZoom: {
+					                yAxisIndex: 'none'
+					            },
+					            restore: {},
+					            saveAsImage: {}
+					        }
+					    },
+					    xAxis: {
+					        type: 'category',
+					        boundaryGap: false,
+					        data: date
+					    },
+					    yAxis: {
+					        type: 'value',
+					        boundaryGap: [0, '100%']
+					    },
+					    dataZoom: [{
+					        type: 'inside',
+					        start: 0,
+					        end: 10
+					    }, {
+					        start: 0,
+					        end: 10,
+					        handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+					        handleSize: '80%',
+					        handleStyle: {
+					            color: '#fff',
+					            shadowBlur: 3,
+					            shadowColor: 'rgba(0, 0, 0, 0.6)',
+					            shadowOffsetX: 2,
+					            shadowOffsetY: 2
+					        }
+					    }],
+					    series: [
+					        {
+					            name:'分钟',
+					            type:'line',
+					            smooth:true,
+					            symbol: 'none',
+					            sampling: 'average',
+					            itemStyle: {
+					                color: 'rgb(255, 70, 131)'
+					            },
+					            areaStyle: {
+					                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+					                    offset: 0,
+					                    color: 'rgb(255, 158, 68)'
+					                }, {
+					                    offset: 1,
+					                    color: 'rgb(255, 70, 131)'
+					                }])
+					            },
+					            data: data
+					        }
+					    ]
+					};
+					;
+					if (option && typeof option === "object") {
+					    myChart.setOption(option, true);
+					}
+				});
+})
+
+$(function a(){
+	$.get("json/hk.json", function(da) {
+					var dom = document.getElementById("container3");
+					var myChart = echarts.init(dom);
+					var app = {};
+					option = null;
+					var base = +new Date(1988, 1, 1);
+					var oneDay = 24 * 3600 * 1000;
+					var date = [];
+					var data = [];
+					$(da).each(function(i, o) {
+						//var colValue = "<tr><td>" + o.name + "</td><td>" + o.value + "</tr>";
+						date.push(o.key);
+						data.push(o.value.split(',')[3]);
+					});	
+					option = {
+					    tooltip: {
+					        trigger: 'axis',
+					        position: function (pt) {
+					            return [pt[0], '10%'];
+					        }
+					    },
+					    title: {
+					        left: 'center',
+					        text: '1988~2008每天起飞延误时间总和',
+					    },
+					    toolbox: {
+					        feature: {
+					            dataZoom: {
+					                yAxisIndex: 'none'
+					            },
+					            restore: {},
+					            saveAsImage: {}
+					        }
+					    },
+					    xAxis: {
+					        type: 'category',
+					        boundaryGap: false,
+					        data: date
+					    },
+					    yAxis: {
+					        type: 'value',
+					        boundaryGap: [0, '100%']
+					    },
+					    dataZoom: [{
+					        type: 'inside',
+					        start: 0,
+					        end: 10
+					    }, {
+					        start: 0,
+					        end: 10,
+					        handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+					        handleSize: '80%',
+					        handleStyle: {
+					            color: '#fff',
+					            shadowBlur: 3,
+					            shadowColor: 'rgba(0, 0, 0, 0.6)',
+					            shadowOffsetX: 2,
+					            shadowOffsetY: 2
+					        }
+					    }],
+					    series: [
+					        {
+					            name:'分钟',
+					            type:'line',
+					            smooth:true,
+					            symbol: 'none',
+					            sampling: 'average',
+					            itemStyle: {
+					                color: 'rgb(255, 70, 131)'
+					            },
+					            areaStyle: {
+					                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+					                    offset: 0,
+					                    color: 'rgb(255, 158, 68)'
+					                }, {
+					                    offset: 1,
+					                    color: 'rgb(255, 70, 131)'
+					                }])
+					            },
+					            data: data
+					        }
+					    ]
+					};
+					;
+					if (option && typeof option === "object") {
+					    myChart.setOption(option, true);
+					}
+				});
+})
+
+
+
+       </script>
+   </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<!-- 引入 ECharts 文件 -->
+<script src="js/echarts.js"></script>
+<script src="js/jquery.min.js"></script>
+<meta http-equiv="Expires" content="0"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Cache" content="no-cache"/>
+<title>Local 2</title>
+</head>
+<body>
+	<h1>ECharts 可视化数据来自于网页自身</h1>
+	<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+	<div id="main" style="width: 600px; height: 400px;"></div>
+	<script type="text/javascript">
+		function loadLocalDataAndShow(){
+			// 基于准备好的dom，初始化echarts实例
+			var myChart = echarts.init(document.getElementById('main'));
+			
+			// 设置图表的配置项目
+			myChart.setOption({
+				title : {
+					text : '本地数据获取'
+				},
+				tooltip : {},
+				legend : {},
+				xAxis : {
+					data : []
+				},
+				yAxis : {
+					splitLine : {
+						show : false
+					},
+					name : 'ttt'
+				},
+				series : [ {
+					barWidth : "30px",
+					name : '本地销量1',		// 和 legend 中的 data 必须一致，如果不同，不会显示。
+					type : 'bar',
+					itemStyle : {
+						normal : {
+							label : {
+								show : true,
+								position : 'top',
+								textStyle : {
+									color : '#00F'
+								}
+							}
+						}
+					},
+					data : []
+				} ]
+			});
+			myChart.showLoading();
+			
+			var names = [];
+			var nums = [];
+			
+			$.ajax({
+				type : 'get',
+				url : 'json/localdata2.json',
+				dataType : "json",
+				success : function(result){
+					// 提取数组中的每一个元素的 category 和 num 分别放入 names、nums
+					$.each(result, function(index, item){
+						alert(index + item.category + item.num);
+						names.push(item.category);
+						nums.push(item.num);
+					});
+					
+					myChart.hideLoading();
+					myChart.setOption({
+						xAxis : {
+							data : names
+						},
+						series : [ {
+							data : nums
+						} ]
+					});
+				},
+				error : function(errorMsg){
+					alert("Data is Error.");
+					myChart.hideLoading();
+				}
+			});
+			
+		};
+	
+		loadLocalDataAndShow();
+	</script>
+</body>
+</html>

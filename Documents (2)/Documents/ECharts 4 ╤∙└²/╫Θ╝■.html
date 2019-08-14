@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Document</title>
+	</head>
+
+	<body>
+
+		<script type="text/javascript" src="chart/echarts.js"></script>
+
+		<div id="main" style="width:900px;height: 400px;"></div>
+		<script type="text/javascript">
+//			$("#main").css('width',$("#main").width());
+			//基于准备好的demo,初始化echarts实例
+			var myChart = echarts.init(document.getElementById('main'));
+			//指定图表的配置项和数据
+			var option = {
+				// 标题
+				title: {
+					text: 'Echarts',
+
+				},
+				// 工具箱
+				toolbox: {
+					show: true,
+					feature: {
+						// 数据视图
+						dataView: {
+							show: true
+						},
+						// 还原
+						restore: {
+							show: true
+						},
+						// 区域缩放
+						dataZoom: {
+							show: true
+						},
+						// 保存图片
+						saveAsImage: {
+							show: true
+						},
+						//动态类型切换
+						magicType: {
+							type: ['line', 'bar']
+						}
+					}
+				},
+				// 弹框
+				tooltip: {
+					trigger: 'axis'
+				},
+				// 图例
+				legend: {
+					data: ['销量']
+				},
+				// x轴
+				xAxis: {
+					data: ['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']
+				},
+				// y轴
+				yAxis: {},
+				// 数据
+				series: [{
+					name: '销量',
+					// 直方图
+					type: 'line',
+					color: 'green',
+					data: [35, 20, 36, 11, 10, 20,12],
+					//标记点
+					markPoint: {
+						data: [{
+								type: 'max',
+								name: '最大值',
+								itemStyle: {
+									normal: {
+										color: 'red'
+									}
+								},
+							},
+							{
+								type: 'min',
+								name: '最小值',
+								symbol: 'diamond',
+								itemStyle: {
+									normal: {
+										color: 'blue'
+									}
+								},
+							} //标记的图形
+						]
+					},
+					//标记线
+					markLine: {
+						data: [{
+							type: 'average',
+							name: '平均值',
+							itemStyle: {
+								normal: {
+									color: 'blue'
+								}
+							},
+						}]
+					}
+				}]
+			}
+			// 使用刚指定的配置项和数据显示图表
+			myChart.setOption(option);
+		</script>
+	</body>
+
+</html>

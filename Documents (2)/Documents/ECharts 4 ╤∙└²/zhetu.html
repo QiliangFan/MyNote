@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>折线</title>
+		<script type="text/javascript" src="chart/echarts.js"></script>
+		<script type="text/javascript" src="chart/jquery.jqprint-0.3.js"></script>
+	</head>
+	<body>
+		
+		<div id="chart" style="width:800px;height: 500px;"></div>
+		<script>
+			var myChart = echarts.init(document.getElementById("chart"));
+			var option = {
+				backgroundColor: '#FBFBFB',
+                        tooltip : {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data:['充值','消费']
+                        },
+
+                        calculable : true,
+
+
+                        xAxis : [
+                            {
+                                axisLabel:{
+                                    rotate: 30,
+                                    interval:0
+                                },
+                                axisLine:{
+                                  lineStyle :{
+                                      color: 'red'
+                                  }
+                                },
+                                type : 'category',
+                                boundaryGap : false,
+                                data : function (){
+                                    var list = [];
+                                    for (var i = 10; i <= 18; i++) {
+                                        if(i<= 12){
+                                            list.push('2016-'+i + '-01');
+                                        }else{
+                                            list.push('2017-'+(i-12) + '-01');
+                                        }
+                                    }
+                                    return list;
+                                }()
+                            }
+                        ],
+                        yAxis : [
+                            {
+
+                                type : 'value',
+                                axisLine:{
+                                    lineStyle :{
+                                        color: '#CECECE'
+                                    }
+                                }
+                            }
+                        ],
+                        series : [
+                            {
+                                name:'充值',
+                                type:'line',
+                                symbol:'none',
+                                smooth: 0.2,
+                                color:['#66AEDE'],
+                                data:[800, 300, 500, 800, 300, 600,500,600]
+                            },
+                            {
+                                name:'消费',
+                                type:'line',
+                                symbol:'none',
+                                smooth: 0.2,
+                                color:['#90EC7D'],
+                                data:[600, 300, 400, 200, 300, 300,200,400]
+                            }
+                        ]
+                    };
+			
+			myChart.setOption(option);
+			
+		</script>
+	</body>
+</html>

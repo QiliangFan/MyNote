@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>echarts-JSON请求数据</title>
+        <!-- 引入 jquery js -->
+        <script type="text/javascript" src="js/jquery.min.js" ></script>
+        <!-- 引入 echarts js -->
+        <script type="text/javascript" src="js/echarts.min.js" ></script>
+    </head>	
+    
+    <body>
+    	<h1>ECharts 可视化数据来自网页内部模拟的 JSon 数据</h1>
+    	<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+        <div id="main" style="width: 600px;height: 400px;margin-bottom: 20px;"></div>
+        <script>
+        // 0 - 准备数据
+        function initData(cb) {
+        	alert("0");
+            // 0 - 通过 setTimeout 模拟异步数据（JSon格式）加载
+            setTimeout(function () {
+                cb({
+                    categories: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"],
+                    data: [5, 20, 36, 10, 10, 20]
+                });
+            }, 1000);
+        }
+
+     	// 1 - 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        alert("1");
+        // 2-0 初始 ECharts 的配置项 option
+        option = {
+            title: {
+                text: '模拟异步数据加载，数据来源于网页内部模拟生成。'
+            },
+            tooltip: {},
+            legend: {
+            	x:"right"	// 指定图例的位置
+            },
+            xAxis: {
+                data: []
+            },
+            yAxis: {},
+            series: [{
+                name: '销量',	// 同时也是图例的文字
+                type: 'bar',
+                data: []
+            }]
+        };
+        alert("2-0");
+
+        // 2-1 实际获取 ECharts 所需的 JSon 数据（来源于网页内部模拟生成）
+        initData(function (data) {
+        	alert("2-1");
+            myChart.setOption({
+                xAxis: {
+                	// 数据来源于 data 中的 categories 
+                    data: data.categories
+                },
+                series: [{
+                    // 数据来源于 data 中的 data
+                    data: data.data
+                }]
+            });
+        });
+		//3 -  使用刚指定的配置项和获取的数据显示图表。
+		myChart.setOption(option);
+    </script>
+    </body>
+</html>

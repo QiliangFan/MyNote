@@ -1,0 +1,27 @@
+package com.test.hadoop.echarts.entity;
+
+public class MyData2 {
+	private String category;
+	private Integer num;
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	public Integer getNum() {
+		return num;
+	}
+	public void setNum(Integer num) {
+		this.num = num;
+	}
+	public MyData2(String category, Integer num) {
+		super();
+		this.category = category;
+		this.num = num;
+	}
+	public MyData2() {
+		super();
+	}
+	
+}

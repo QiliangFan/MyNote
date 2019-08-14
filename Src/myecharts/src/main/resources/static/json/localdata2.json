@@ -1,0 +1,22 @@
+[
+	{
+	    "category":"Java",
+	    "num":200
+	},
+	{
+	    "category":"Tomcat",
+	    "num":380
+	},
+	{
+	    "category":"C C#",
+	    "num":366
+	},
+	{
+	    "category":"Linux",
+	    "num":320
+	},
+	{
+	    "category":"Hadoop",
+	    "num":300
+	}
+]
