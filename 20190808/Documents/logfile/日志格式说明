@@ -1,0 +1,23 @@
+
+标准的单条Nginx日志，参数属性之间使用了标准的空格作为分隔符
+1 - 日志格式说明
+60.208.6.156 - - [18/Sep/2013:06:49:48 +0000] "GET /wp-content/uploads/2013/07/rcassandra.png HTTP/1.0" 200 185524 "http://cos.name/category/software/packages/" "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.66 Safari/537.36"
+    日志格式:
+日志对应的变量取值如下：
+remote_addr: 
+    记录客户端的ip地址, 222.68.172.190
+remote_user: 
+    记录客户端用户名称, –
+time_local:
+    记录访问时间与时区, [18/Sep/2013:06:49:57 +0000]
+request:
+    记录请求的url与http协议, “GET /images/my.jpg HTTP/1.1″
+status:
+    记录请求状态,成功是200, 200
+body_bytes_sent:
+    记录发送给客户端文件主体内容大小, 19939
+http_referer:
+    记录从那个页面链接访问过来的, “http://etc.chinasofti.com”
+http_user_agent:
+    记录客户浏览器的相关信息, “Mozilla/5.0 (Windows NT 6.1) 					AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.1547.66 				Safari/537.36″
+

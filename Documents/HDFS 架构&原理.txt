@@ -1,0 +1,852 @@
+刘相兵 @诗檀软件 的讲述，比较底层
+【dbdao Hadoop 大数据学习】Hadoop Architecture 架构
+    http://www.askmaclean.com/archives/hadoop-architecture.html
+【dbdao.com hadoop大数据教程】hadoop HA 实验
+    http://www.askmaclean.com/archives/hadoop-ha-test.html
+该blog中其他相关内容
+    http://www.askmaclean.com/?s=%E3%80%90dbdao+Hadoop+%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AD%A6%E4%B9%A0%E3%80%91
+HDFS的架构及原理
+引子：
+00. 从RAID说起
+    大数据技术主要要解决的问题的是大规模数据的计算处理问题，首先要解决的就是大规模数据的存储问题，要解决的核心问题有三个方面：
+        1. 数据存储容量的问题，大数据要解决的是以PB计的数据计算问题，而一般的服务器磁盘容量通常1-2TB，如何存储这么大规模的数据？
+        2. 数据读写速度的问题，一般磁盘的连续读写速度为几十MB，以这样的速度，几十PB的数据读写到何时？
+        3. 数据可靠性的问题，磁盘是计算机设备中最易损坏的硬件，如果磁盘损坏了，数据怎么办？
+    在大数据技术出现之前，对应的解决方案就是RAID技术。
+    RAID技术：
+        RAID（独立磁盘冗余阵列）技术主要是为了改善磁盘的存储容量，读写速度，增强磁盘的可用性和容错能力。
+        目前服务器级别的计算机都支持插入多块磁盘（8块或者更多），通过使用RAID技术，实现数据在多块磁盘上的并发读写和数据备份。
+    常用RAID技术：（常用RAID技术原理图）假设服务器有N块磁盘
+        1. RAID0
+            数据在从内存缓冲区写入磁盘时，根据磁盘数量将数据分成N份，
+            这些数据同时并发写入N块磁盘，使得数据整体写入速度是一块磁盘的N倍。
+            读取的时候也一样，因此RAID0具有极快的数据读写速度，
+            但是RAID0不做数据备份，N块磁盘中只要有一块损坏，数据完整性就被破坏，所有磁盘的数据都会损坏。
+        2. RAID1
+            数据在写入磁盘时，将一份数据同时写入两块磁盘，
+            这样任何一块磁盘损坏都不会导致数据丢失，插入一块新磁盘就可以通过复制数据的方式自动修复，具有极高的可靠性。
+        3. RAID10
+            结合RAID0和RAID1两种方案，将所有磁盘平均分成两份，数据同时在两份磁盘写入，相当于RAID1，
+            但是在每一份磁盘里面的N/2块磁盘上，利用RAID0技术并发读写，既提高可靠性又改善性能，
+            不过RAID10的磁盘利用率较低，有一半的磁盘用来写备份数据。
+        4. RAID3
+            一般情况下，一台服务器上不会出现同时损坏两块磁盘的情况，
+            在只损坏一块磁盘的情况下，如果能利用其他磁盘的数据恢复损坏磁盘的数据，
+            这样在保证可靠性和性能的同时，磁盘利用率也得到大幅提升。
+            在数据写入磁盘的时候，将数据分成N-1份，并发写入N-1块磁盘，
+            并在第N块磁盘记录校验数据，任何一块磁盘损坏（包括校验数据磁盘），都可以利用其他N-1块磁盘的数据修复。
+            但是在数据修改较多的场景中，任何磁盘修改数据都会导致第N块磁盘重写校验数据，
+            频繁写入的后果是第N块磁盘比其他磁盘容易损坏，需要频繁更换，所以RAID3很少在实践中使用。
+        5. RAID5
+            相比RAID3，更多被使用的方案是RAID5。
+            RAID5和RAID3很相似，但是校验数据不是写入第N块磁盘，而是螺旋式地写入所有磁盘中。
+            这样校验数据的修改也被平均到所有磁盘上，避免RAID3频繁写坏一块磁盘的情况。
+        6. RAID6
+            如果数据需要很高的可靠性，在出现同时损坏两块磁盘的情况下
+            （或者运维管理水平比较落后，坏了一块磁盘但是迟迟没有更换，导致又坏了一块磁盘），
+            仍然需要修复数据，这时候可以使用RAID6。
+            RAID6和RAID5类似，但是数据只写入N-2块磁盘，并螺旋式地在两块磁盘中写入校验信息（使用不同算法生成）。
+    在相同磁盘数目（N）的情况下，各种RAID技术的比较如下表所示。（几种RAID技术比较）
+        RAID技术有硬件实现，比如专用的RAID卡或者主板直接支持，
+        也可以通过软件实现，在操作系统层面将多块磁盘组成RAID，在逻辑视作一个访问目录。
+        RAID技术在传统关系数据库及文件系统中应用比较广泛，是改善计算机存储特性的重要手段。
+        RAID技术只是在单台服务器的多块磁盘上组成阵列，大数据需要更大规模的存储空间和访问速度。
+        将RAID技术原理应用到分布式服务器集群上，就形成了Hadoop分布式文件系统HDFS的架构思想。
+
+主要内容：
+0、DFS或分布式文件系统
+    分布式文件系统讨论管理数据，即跨多台计算机或服务器的文件或文件夹。
+    DFS是一种文件系统，允许将数据存储在群集中的多个节点或机器上，并允许多个用户访问数据。
+    与单机中的文件系统具有相同的用途，例如Windows的NTFS、Mac的HFS。
+    唯一的区别是，在分布式文件系统的情况下，将数据存储在多台机器而不是单台机器上。
+        即使文件存储在整个网络中，DFS也可以组织和显示数据，用户感觉所有数据都存储在当前机器中。
+    DFS不限于每台机器的物理边界！
+    举例：
+        当从Hadoop集群中的10台机器（每台机器1T存储）中的任何一台访问Hadoop分布式文件系统时，
+        就像登录到一台具有10 TB存储容量的大型机器（总计存储十台以上的机器）。
+        意味着可以存储一个10 TB的大文件，这个文件将分布在10台机器上（每台1 TB）。
+    基于DFS的分布式&并行计算
+        由于数据在机器上分配，可以利用分布式和并行计算。
+        继续举例： 
+        假设在一台机器上处理1TB文件需要43分钟。
+        如果在具有类似配置的Hadoop集群中有10台机器（43分钟或4.3分钟），处理相同的1TB文件需要4.3分钟？
+        每个节点并行处理1TB文件的一部分。以前43分钟的工作，现在只需要4.3分钟完成，工作分发到了了十几台机器。
+        
+1、HDFS 是做什么的
+    HDFS是一个分布式文件系统，具有高容错的特点，它可以部署在廉价的通用硬件上，提供高吞吐率的数据访问，适合那些需要处理海量数据集的应用程序。
+    HDFS（Hadoop Distributed File System）
+        是Hadoop项目的核心子项目，
+        是分布式计算中数据存储管理的基础，
+        是基于流数据模式访问和处理超大文件的需求而开发的，
+        是管理网络中跨多台计算机存储的文件系统，
+        可以运行于廉价的商用服务器上。
+    具有：
+        高容错、高可靠性、高可扩展性、高获得性、高吞吐率等特征
+    为海量数据提供了冗余和容错存储，适于处理超大数据集（Large Data Set）的应用。
+    不适合用在：
+        要求低时间延迟数据访问的应用，
+        存储大量的小文件，
+        多用户写入，
+        任意修改文件。
+    HDFS体系结构 - 见同名图
+        Namenode上保存着HDFS的名字空间，
+            任何对文件系统元数据产生修改的操作都会作用于Namenode上。
+        Datanode将HDFS数据以文件的形式存储在本地的文件系统中，
+            它并不知道有关HDFS文件的信息，它把每个HDFS数据块存储在本地文件系统的一个单独的文件中。
+    
+2、HDFS 从何而来
+    HDFS 源于 Google 在2003年10月份发表的GFS（Google File System）论文。
+    其实就是 GFS 的一个克隆版本。
+    
+3、为什么选择 HDFS 存储数据
+    选择 HDFS 存储数据，因为 HDFS 具有以下优点：
+        1、高容错性 - 检测和快读应对硬件故障
+            HDFS的检测和冗余机制很好的克服了大量通用硬件平台上硬件故障的问题；
+            数据自动保存多个副本。它通过增加副本的形式，提高容错性。
+            某一个副本丢失以后，它可以自动恢复，这是由 HDFS 内部机制实现的。
+        2、适合批处理：能自动感知并找到数据的位置
+            它是通过移动计算而不是移动数据。
+            它会把数据位置暴露给计算框架。
+        3、适合大数据处理 - 支持超大文件
+            处理数据达到 GB、TB、甚至PB级别的数据。
+            能够处理百万规模以上的文件数量。
+            能够处理10K节点的规模。
+        4、流式文件访问
+                一次写入，多次读取。文件一旦写入不能修改，只能追加。
+                它能保证数据的一致性。
+                HDFS处理的数据规模都很大，应用一次需要访问大量数据，
+                同时，这些应用一般是批量处理，而不是用户交互式处理，
+                HDFS使用户能够以流的形式访问数据集，注重的是数据的吞吐；
+                大部分的HDFS程序操作文件时，需要一次写入，多次读取，
+                在HDFS中，一个文件一旦经过创建写入，关闭后一般不需要修改，
+                这样简单的一致性模型有利于提高吞吐量。
+        5、可构建在廉价机器上
+            通过多副本机制，提高可靠性。
+            提供了容错和恢复机制。比如某一个副本丢失，可以通过其它副本来恢复。
+
+    HDFS 的劣势，并不适合所有的场合：
+        1、低延时数据访问
+            比如做不到毫秒级的存储数据。
+            适合高吞吐率的场景（在某一时间内写入大量的数据）。
+                但在低延时的情况下做不到。
+        2、小文件存储
+            存储大量小文件(这里的小文件是指小于HDFS系统的Block大小的文件（默认64M）)，会占用 NameNode大量的内存来存储文件、目录和块信息。
+                （NameNode的内存总是有限的。）
+            小文件存储的寻道时间会超过读取时间，违反了HDFS的设计目标。
+        3、并发写入、文件随机修改
+            一个文件只能有一个写，不允许多个线程同时写。
+            仅支持数据 append（追加），不支持文件的随机修改。
+
+4、HDFS 如何存储数据
+    00. HDFS的架构图
+        参看 HDFS的架构图.jpg & （官方）HDFS架构
+    0、HDFS数据块：
+        HDFS上的文件被划分为块大小的多个分块，作为独立的存储单元，称为数据块，默认大小是64MB。
+        HDFS也有块的概念，Hadoop2中HDFS块默认大小为128MB
+            （此大小可以根据各自的业务情况进行配置，Hadoop1中HDFS块默认大小为64MB），
+            以Linux上普通文件的形式保存在数据节点的文件系统中，数据块是HDFS的文件存储处理的单元。
+        使用数据块的好处：
+            一个文件的大小可以大于网络中任意一个磁盘的容量。
+                -- HDFS可以保存比存储节点单一磁盘大的文件
+            文件的所有块不需要存储在同一个磁盘上，可以利用集群上的任意一个磁盘进行存储。
+            简化了存储子系统的设计，将存储子系统控制单元设置为块，可简化存储管理，
+                -- 简化了存储子系统和存储管理，也消除了分布式管理文件元数据的复杂性
+            同时元数据就不需要和块一同存储，用一个单独的系统就可以管理这些块的元数据。
+            数据块适合用于数据备份进而提供数据容错能力和提高可用性。
+                -- 方便容错，有利于数据复制
+        查看块信息：
+            hdfs fsck / -file -blocks
+        HDFS的block复制备份策略 - 图
+            block多份复制存储如上图所示，
+            对于文件/users/sameerp/data/part-0，其复制备份数设置为2，存储的block id为1，3。
+            block1的两个备份存储在DataNode0和DataNode2两个服务器上，
+            block3的两个备份存储DataNode4和DataNode6两个服务器上，
+            上述任何一台服务器宕机后，每个block都至少还有一个备份存在，不会影响对文件/users/sameerp/data/part-0的访问。
+            DataNode会通过心跳和NameNode保持通信，
+                如果DataNode超时未发送心跳，NameNode就会认为这个DataNode已经失效，
+                立即查找这个DataNode上存储的block有哪些，以及这些block还存储在哪些服务器上，
+                随后通知这些服务器再复制一份block到其他服务器上，保证HDFS存储的block备份数符合用户设置的数目，
+                即使再有服务器宕机，也不会丢失数据。
+        HDFS中的文件在物理上是分块存储（block），块的大小可以通过配置参数( dfs.blocksize)来规定，
+            默认大小在hadoop2.x版本中是128M，老版本中是64M
+        HDFS的块比磁盘的块大，其目的是为了最小化寻址开销。
+            如果块设置得足够大，从磁盘传输数据的时间会明显大于定位这个块开始位置所需的时间。
+            因而，传输一个由多个块组成的文件的时间取决于磁盘传输速率。
+        如果寻址时间约为10ms，而传输速率为100MB/s，为了使寻址时间仅占传输时间的1%，
+        我们要将块大小设置约为100MB。默认的块大小128MB。
+            块的大小：10ms100100M/s = 100M
+        参看：HDFS 文件块大小 图
+    HDFS 采用Master/Slave的架构来存储数据，这种架构主要由四个部分组成，
+        分别为HDFS Client、NameNode、DataNode和Secondary NameNode：
+    1、Client：就是客户端。
+        文件切分。文件上传 HDFS 的时候，Client 将文件切分成 一个一个的Block，然后进行存储。
+        与 NameNode 交互，获取文件的位置信息。
+        与 DataNode 交互，读取或者写入数据。
+        Client 提供一些命令来管理 HDFS，比如启动或者关闭HDFS。
+        Client 可以通过一些命令来访问 HDFS。
+    HDFS中关键组件有两个，一个是NameNode，一个是DataNode。
+    2、NameNode：就是 master，是主管、管理者。
+        管理 HDFS 的名称空间
+        管理数据块（Block）映射信息
+        配置副本策略
+        处理客户端读写请求。
+        NameNode负责整个分布式文件系统的元数据（MetaData）管理，
+            也就是文件路径名，数据block的ID以及存储位置等信息，承担着操作系统中文件分配表（FAT）的角色。
+        HDFS为了保证数据的高可用，会将一个block复制为多份（缺省情况为3份），并将三份相同的block存储在不同的服务器上。
+        这样当有磁盘损坏或者某个DataNode服务器宕机导致其存储的block不能访问的时候，Client会查找其备份的block进行访问。
+    3、DataNode：是Slave。NameNode 下达命令，DataNode 执行实际的操作。
+        存储实际的数据块。
+        执行数据块的读/写操作。
+        DataNode负责文件数据的存储和读写操作，
+        HDFS将文件数据分割成若干块（block），每个DataNode存储一部分block，
+        这样文件就分布存储在整个HDFS服务器集群中。
+        应用程序客户端（Client）可以并行对这些数据块进行访问，
+            从而使得HDFS可以在服务器集群规模上实现数据并行访问，极大地提高访问速度。
+        实践中HDFS集群的DataNode服务器会有很多台，一般在几百台到几千台这样的规模，
+            每台服务器配有数块磁盘，整个集群的存储容量大概在几PB到数百PB。
+        DataNode会通过心跳和NameNode保持通信，
+            如果DataNode超时未发送心跳，NameNode就会认为这个DataNode已经失效，
+            立即查找这个DataNode上存储的block有哪些，以及这些block还存储在哪些服务器上，
+            随后通知这些服务器再复制一份block到其他服务器上，保证HDFS存储的block备份数符合用户设置的数目，
+            即使再有服务器宕机，也不会丢失数据。
+    4、Secondary NameNode：并非 NameNode 的热备。
+            当NameNode 挂掉的时候，并不能马上替换 NameNode 并提供服务。
+        辅助 NameNode，分担其工作量。
+        定期合并 fsimage和fsedits，并推送给NameNode。
+        在紧急情况下，可辅助恢复 NameNode。
+
+5、HDFS 如何读取文件
+    0. HDFS 如何读取文件.png
+    1. HDFS的文件读取原理，主要包括以下几个步骤：
+        （1）客户端调用FileSyste对象的open()方法在分布式文件系统中打开要读取的文件。
+            首先调用FileSystem对象的open方法，其实获取的是一个DistributedFileSystem的实例。
+        （2）分布式文件系统通过使用RPC（远程过程调用）来调用namenode，确定文件起始块的位置。
+            DistributedFileSystem通过RPC(远程过程调用)获得文件的第一批block的locations，
+            同一block按照重复数会返回多个locations，
+            这些locations按照hadoop拓扑结构排序，距离客户端近的排在前面。
+        （3）分布式文件系统的DistributedFileSystem类返回一个支持文件定位的输入流FSDataInputStream对象，
+                FSDataInputStream对象接着封装DFSInputStream对象（存储着文件起始几个块的datanode地址），
+                客户端对这个输入流调用read()方法。
+            前两步返回一个FSDataInputStream对象，该对象会被封装成 DFSInputStream对象，
+            DFSInputStream可以管理datanode和namenode数据流。
+            客户端调用read方法，DFSInputStream就会找出离客户端最近的datanode并连接datanode。
+        （4）DFSInputStream连接距离最近的datanode，通过反复调用read方法，将数据从datanode传输到客户端。
+            数据从datanode源源不断的流向客户端。
+        （5） 到达块的末端时，DFSInputStream关闭与该datanode的连接，寻找下一个块的最佳datanode。
+            如果第一个block块的数据读完了，就会关闭指向第一个block块的datanode连接，
+            接着读取下一个block块。这些操作对客户端来说是透明的，从客户端的角度来看只是读一个持续不断的流。
+        （6）客户端完成读取，对FSDataInputStream调用close()方法关闭连接。
+            如果第一批block都读完了，DFSInputStream就会去namenode拿下一批blocks的location，
+            然后继续读，如果所有的block块都读完，这时就会关闭掉所有的流。
+    2. HDFS的读数据流程 参看 HDFS的读数据流程 图
+        1）客户端向namenode请求下载文件，namenode通过查询元数据，找到文件块所在的datanode地址。
+        2）挑选一台datanode（就近原则，然后随机）服务器，请求读取数据。
+        3）datanode开始传输数据给客户端（从磁盘里面读取数据放入流，以packet为单位来做校验）。
+        4）客户端以packet为单位接收，先在本地缓存，然后写入目标文件。
+    3. HDFS读流程 参看 HDFS 如何读取文件
+        1、客户端client使用open函数打开文件；
+        2、DistributedFileSystem用RPC调用元数据节点，得到文件的数据块信息；
+        3、对于每一个数据块，元数据节点返回保存数据块的数据节点的地址；
+        4、DistributedFileSystem返回FSDataInputStream给客户端，用来读取数据；
+        5、客户端调用FSDataInputStream的read函数开始读取数据；
+        6、FSDataInputStream连接保存此文件第一个数据块的最近的数据节点；
+        7、Data从数据节点读到客户端；
+        8、当此数据块读取完毕时，FSDataInputStream关闭和此数据节点的连接，然后连接此文件下一个数据块的最近的数据节点；
+        9、当客户端读取数据完毕时，调用FSDataInputStream的close函数；
+        10、在读取数据的过程中，如果客户端在与数据节点通信出现错误，则尝试连接包含此数据块的下一个数据节点。
+            失败的数据节点将被记录，以后不再连接。
+
+6、HDFS 如何写入文件
+    0. HDFS 如何写入文件.png
+    1. 写入文件的简化版：
+        Hadoop分布式文件系统可以象一般的文件系统那样进行访问：使用命令行或者编程语言API进行文件读写操作。
+        以HDFS写文件为例看HDFS处理过程，如HDFS写文件操作图。
+        1. 应用程序Client调用HDFS API，请求创建文件，HDFS API包含在Client进程中。
+        2. HDFS API将请求参数发送给NameNode服务器，NameNode在meta信息中创建文件路径，并查找DataNode中空闲的block。然后将空闲block的id、对应的DataNode服务器信息返回给Client。因为数据块需要多个备份，所以即使Client只需要一个block的数据量，NameNode也会返回多个NameNode信息。
+        3. Client调用HDFS API，请求将数据流写出。
+        4. HDFS API连接第一个DataNode服务器，将Client数据流发送给DataNode，该DataNode一边将数据写入本地磁盘，一边发送给第二个DataNode。同理第二个DataNode记录数据并发送给第三个DataNode。
+        5. Client通知NameNode文件写入完成，NameNode将文件标记为正常，可以进行读操作了。
+    2. HDFS的文件写入原理，主要包括以下几个步骤：
+        （1） 客户端通过对DistributedFileSystem对象调用create()函数来新建文件。
+            客户端通过调用 DistributedFileSystem 的create方法，创建一个新的文件。
+        （2） 分布式文件系统对namenod创建一个RPC调用，在文件系统的命名空间中新建一个文件。
+            DistributedFileSystem 通过 RPC（远程过程调用）调用 NameNode，去创建一个没有blocks关联的新文件。
+            创建前，NameNode 会做各种校验，比如文件是否存在，客户端有无权限去创建等。
+            如果校验通过，NameNode 就会记录下新文件，否则就会抛出IO异常。
+        （3）Namenode对新建文件进行检查无误后，分布式文件系统返回给客户端一个FSDataOutputStream对象，FSDataOutputStream对象封装一个DFSoutPutstream对象，负责处理namenode和datanode之间的通信，客户端开始写入数据。
+            前两步结束后会返回 FSDataOutputStream 的对象，
+            和读文件的时候相似，FSDataOutputStream 被封装成 DFSOutputStream，
+            DFSOutputStream 可以协调 NameNode和 DataNode。
+            客户端开始写数据到DFSOutputStream,DFSOutputStream会把数据切成一个个小packet，
+            然后排成队列 data queue。
+        （4）FSDataOutputStream将数据分成一个一个的数据包，写入内部队列“数据队列”，DataStreamer负责将数据包依次流式传输到由一组namenode构成的管线中。
+            DataStreamer 会去处理接受 data queue，先问询 NameNode 这个新的 block 最适合存储的在哪几个DataNode里，
+            比如重复数是3，那么就找到3个最适合的 DataNode，把它们排成一个 pipeline。
+            DataStreamer 把 packet 按队列输出到管道的第一个 DataNode 中，第一个 DataNode又把 packet 输出到第二个 DataNode 中，以此类推。
+        （5）DFSOutputStream维护着确认队列来等待datanode收到确认回执，收到管道中所有datanode确认后，数据包从确认队列删除。
+            DFSOutputStream 还有队列 ack queue，也由 packet 组成，等待DataNode的收到响应，
+            当pipeline中的所有DataNode都表示已经收到的时候，这时akc queue才会把对应的packet包移除掉。
+        （6）客户端完成数据的写入，对数据流调用close()方法。
+            客户端完成写数据后，调用close方法关闭写入流。
+        （7）namenode确认完成。
+            DataStreamer 把剩余的包都刷到 pipeline 里，然后等待 ack 信息，
+            收到最后一个 ack 后，通知 NameNode 把文件标示为已完成。
+    3. HDFS的写数据流程， 参看HDFS的写数据流程 图
+        1）客户端向namenode请求上传文件，namenode检查目标文件是否已存在，父目录是否存在。
+        2）namenode返回是否可以上传。
+        3）客户端请求第一个 block上传到哪几个datanode服务器上。
+        4）namenode返回3个datanode节点，分别为dn1、dn2、dn3。
+        5）客户端请求dn1上传数据，dn1收到请求会继续调用dn2，然后dn2调用dn3，将这个通信管道建立完成
+        6）dn1、dn2、dn3逐级应答客户端
+        7）客户端开始往dn1上传第一个block（先从磁盘读取数据放到一个本地内存缓存），以packet为单位，dn1收到一个packet就会传给dn2，dn2传给dn3；dn1每传一个packet会放入一个应答队列等待应答
+        8）当一个block传输完成之后，客户端再次请求namenode上传第二个block的服务器。（重复执行3-7步）
+    4. 写流程 见图HDFS 如何写入文件
+        1、客户端client调用create函数创建文件；
+        2、DistributedFileSystem用RPC调用元数据节点，在文件系统的命名空间中创建一个新的文件；
+        3、元数据节点首先确定文件是否存在，并且客户端是否有创建文件的权限，然后创建新文件；
+        4、DistributedFileSystem返回FSDataOutputStream给客户端用于写数据；
+        5、客户端开始写入数据，FSDataOutputStream将数据分成块，写入data queue；
+        6、Data queue由DataStreamer读取，并通知元数据节点分配数据节点，用来存储数据块（每块默认复制3块），分配的数据节点放在一个pipeline里；
+        7、DataStreamer将数据块写入pipeline中的第一个数据节点，
+            第一个数据节点将数据块发送给第二个数据节点，第二个数据节点将数据发送给第三个数据节点；
+        8、FSDataOutputStream为发出去的数据块保存了ack queue，
+            等待pipeline中的数据节点告知数据已经写入成功；
+        9、如果数据节点在写入的过程中失败，则进行以下几个操作：
+            一是关闭pipeline并将ack queue中的数据块放入data queue的开始；
+            二是当前数据块在已写入的数据节点中被元数据节点赋予新的标示，错误节点重启后察觉其数据块过时而被删除；
+            三是失败的数据节点从pipeline中移除，另外的数据块则写入pipeline中的另外两个数据节点；
+            四是元数据节点被通知此数据块的复制块数不足，从而再创建第三份备份；
+        10、当客户端结束写入数据，则调用close函数将所有的数据块写入pipeline中的数据节点，
+            并等待ack queue返回成功，最后通知元数据节点写入完毕。
+附加：
+    创建子路径流程，参见同名图
+    删除数据流程，参见同名图
+
+
+7、HDFS一致性：
+    HDFS在写数据务必要保证数据的一致性与持久性，目前HDFS提供的两种两个保证数据一致性的方法 hsync()方法和hflush()方法。
+        hflush: 保证flush的数据被新的reader读到，但是不保证数据被datanode持久化。
+        hsync: 与hflush几乎一样，不同的是hsync保证数据被datanode持久化。
+    深入hsync()和hflush()参考两篇博客
+        http://www.cnblogs.com/foxmailed/p/4145330.html
+        http://www.cnblogs.com/yangjiandan/p/3540498.html
+        
+8、HDFS 副本存放策略
+    0. HDFS 副本存放策略.jpg
+        namenode如何选择在哪个datanode 存储副本（replication）？
+        这里需要对可靠性、写入带宽和读取带宽进行权衡。
+        Hadoop对datanode存储副本有自己的副本策略，在其发展过程中一共有两个版本的副本策略，分别如图所示。
+        1. Hadoop 0.17 之前
+            副本1：同机架的和提交程序Client节点的不同节点
+            副本2：同机架的另一个节点
+            副本3：不同机架的另一节点
+            其他副本：随机挑选
+        2. Hadoop 0.17 之后
+            副本1：同Client的节点上
+            副本2：不同机架的节点上
+            副本3：同第2个副本的机架中的另一个节点
+            其他副本：随机挑选
+
+9、Hadoop中的  横向扩展或扩展。
+    有两种缩放比例：垂直和水平。
+    在垂直缩放（放大）中，增加系统的硬件容量。
+        购买更多的RAM或CPU，并将其添加到您的现有系统，使其更强大，更强大。
+        垂直缩放或扩大挑战：
+            总是有一个限制，可以增加硬件容量，不能继续增加机器的RAM或CPU。
+        在垂直缩放中，首先停止机器。然后增加内存或CPU，增加硬件容量后，重新启动机器。
+        停机成为一个挑战。
+    在水平缩放（横向扩展）的情况，可以向现有集群添加更多节点，而不是增加单个机器的硬件容量。
+        可以添加更多的机器，同时不停止系统。
+        在扩大规模的同时，没有任何停机时间或绿色地带。
+            
+10、通过Flume和Sqoop导入数据
+     可以考虑使用一些现成的工具将数据导入。
+    Apache Fluem是一个将大规模流数据导入HDFS的工具。
+        典型应用是从另外一个系统中收集日志数据并实现在HDFS中的聚集操作以便用于后期的分析操作。
+    Apache Sqoop用来将数据从结构化存储设备批量导入HDFS中，例如关系数据库。
+        Sqoop应用场景是组织将白天生产的数据库中的数据在晚间导入Hive数据仓库中进行分析。
+
+11、通过distcp并行复制
+    distcp分布式复制程序，它从Hadoop文件系统间复制大量数据，也可以将大量的数据复制到Hadoop。
+    典型应用场景是在HDFS集群之间传输数据。
+    % hadoop  distcp  hdfs://namenode1/foo  hdfs://namenode2/bar
+    
+12、Hadoop存档
+    HDFS中每个文件均按块方式存储，每个块的元数据存储在namenode的内存中，因此Hadoop存储小文件会非常低效。
+    因为大量的小文件会耗尽namenode中的大部分内存。
+    Hadoop的存档文件或HAR文件，将文件存入HDFS块，减少namenode内存使用，允许对文件进行透明地访问。
+    Hadoop存档是通过archive工具根据一组文件创建而来的。运行archive指令：
+        % hadoop  archive  -archiveName  files.har  /my/files  /my
+    列出HAR文件的组成部分：
+        % hadoop  fs  -ls  /my/files.har
+            files.har是存档文件的名称，这句指令存储 HDFS下/my/files中的文件。
+    HAR文件的组成部分：两个索引文件以及部分文件的集合。
+        存档的不足：
+            新建一个存档文件会创建原始文件的一个副本，因此需要与要存档的文件容量相同大小的磁盘空间。
+            一旦存档文件，不能从中增加或删除文件。
+            
+/** 附加
+0. Hadoop1和Hadoop2的结构对比：见图 - hadoop1和hadoop2结构对比
+    Hadoop2主要改进：
+        YARN
+            通过YARN实现资源的调度与管理，从而使Hadoop 2.0可以运行更多种类的计算框架，如Spark等；
+        NameNode HA
+            实现了NameNode的HA方案，即同时有2个NameNode（一个Active另一个Standby），
+            如果ActiveNameNode挂掉的话，另一个NameNode会转入Active状态提供服务，保证了整个集群的高可用；
+        HDFS federation
+            实现了HDFS federation，由于元数据放在NameNode的内存当中，内存限制了整个集群的规模，
+            通过HDFS federation使多个NameNode组成一个联邦共同管理DataNode，这样就可以扩大集群规模；
+        Hadoop RPC序列化扩展性
+            Hadoop RPC序列化扩展性好，通过将数据类型模块从RPC中独立出来，成为一个独立的可插拔模块。
+    
+1、hadoop 特性
+    0. 特性
+        NameNode Federation，解决了横向内存扩展
+        Namenode HA，解决了namenode单点故障
+        了YARN，负责资源管理和调度
+        增加了ResourceManager HA解决了ResourceManager单点故障
+    1、NameNode Federation
+        架构如下图
+        存在多个NameNode，每个NameNode分管一部分目录
+        NameNode共用DataNode
+        这样做的好处就是当NN内存受限时，能扩展内存，解决内存扩展问题，而且每个NN独立工作相互不受影响，比如其中一个NN挂掉啦，它不会影响其他NN提供服务，但我们需要注意的是，虽然有多个NN，分管不同的目录，但是对于特定的NN，依然存在单点故障，因为没有它没有热备，解决单点故障使用NameNode HA
+    2、NameNode HA
+        解决方案    
+            基于NFS共享存储解决方案
+            基于Qurom Journal Manager(QJM)解决方案
+        1、基于NFS方案
+            Active NN与Standby NN通过NFS实现共享数据，但如果Active NN与NFS之间或Standby NN与NFS之间，其中一处有网络故障的话，那就会造成数据同步问题
+        2、基于QJM方案
+     　　架构如下图
+            Active NN、Standby NN有主备之分，NN Active是主的，NN Standby备用的
+            集群启动之后，一个namenode是active状态，来处理client与datanode之间的请求，并把相应的日志文件写到本地中或JN中；
+            Active NN与Standby NN之间是通过一组JN共享数据（JN一般为奇数个，ZK一般也为奇数个），Active NN会把日志文件、镜像文件写到JN中去，只要JN中有一半写成功，那就表明Active NN向JN中写成功啦，Standby NN就开始从JN中读取数据，来实现与Active NN数据同步，这种方式支持容错，因为Standby NN在启动的时候，会加载镜像文件（fsimage）并周期性的从JN中获取日志文件来保持与Active NN同步
+            为了实现Standby NN在Active NN挂掉之后，能迅速的再提供服务，需要DN不仅需要向Active NN汇报，同时还要向Standby NN汇报，这样就使得Standby NN能保存数据块在DN上的位置信息，因为在NameNode在启动过程中最费时工作，就是处理所有DN上的数据块的信息
+            为了实现Active NN高热备，增加了FailoverController和ZK，FailoverController通过Heartbeat的方式与ZK通信，通过ZK来选举，一旦Active NN挂掉，就选取另一个FailoverController作为active状态，然后FailoverController通过rpc，让standby NN转变为Active NN
+            FailoverController一方面监控NN的状态信息，一方面还向ZK定时发送心跳，使自己被选举。当自己被选为主（Active）的时候，就会通过rpc使相应NN转变Active状态
+        3、结合HDFS2的新特性，在实际生成环境中部署图
+            这里有12个DN,有4个NN，NN-1与NN-2是主备关系，它们管理/share目录；NN-3与NN-4是主备关系，它们管理/user目录
+            
+2、NameNode工作机制 - 参看同名图
+    1、fsimage（镜像文件）文件其实是Hadoop文件系统元数据的一个永久性的检查点，其中包含Hadoop文件系统中的所有目录和文件idnode的序列化信息；
+    2、edits（编辑日志）文件存放的是Hadoop文件系统的所有更新操作的路径，文件系统客户端执行的所有写操作首先会被记录到edits文件中。
+        第一阶段：namenode启动
+            （1）第一次启动namenode格式化后，创建fsimage和edits文件。如果不是第一次启动，直接加载编辑日志和镜像文件到内存。
+            （2）客户端对元数据进行增删改的请求。
+            （3）namenode记录操作日志，更新滚动日志（edits）。
+            （4）namenode在内存中对数据进行增删改查（fsimage）。
+
+        第二阶段：Secondary NameNode工作
+            （1）Secondary NameNode询问namenode是否需要checkpoint。直接带回namenode是否检查结果。
+            （2）Secondary NameNode请求执行checkpoint（同步nameNode当前状态）。
+            （3）namenode滚动正在写的edits日志生成新版的edits日志和新的edits.inprogress。（正在写的日志是edits.inprogress）。
+            （4）将滚动生成编辑日志（新版edits）和镜像文件拷贝到Secondary NameNode。
+            （5）Secondary NameNode加载编辑日志和镜像文件到内存，并合并。
+            （6）生成新的镜像文件fsimage.chkpoint
+            （7）拷贝fsimage.chkpoint到namenode
+            （8）namenode将fsimage.chkpoint重新命名成fsimage
+
+        第三阶段：web端访问SecondaryNameNode
+            （1）启动集群
+            （2）浏览器中输入：http://SecondaryNameNode:9868/status.html
+                /* 3.0 的 端口号更改：SNN ports 	SNN HTTP UI 	50090 	9868 */
+            （3）查看SecondaryNameNode信息
+        第四阶段：chkpoint检查时间参数设置
+            （1）通常情况下，SecondaryNameNode每隔一小时执行一次。[hdfs-default.xml]
+                <property>
+                  <name>dfs.namenode.checkpoint.period</name>
+                  <value>3600</value>
+                </property>
+
+            （2）一分钟检查一次操作次数，当操作次数达到1百万时，SecondaryNameNode执行一次。
+                <property>
+                  <name>dfs.namenode.checkpoint.txns</name>
+                  <value>1000000</value>
+                <description>操作动作次数</description>
+                </property>
+
+                <property>
+                  <name>dfs.namenode.checkpoint.check.period</name>
+                  <value>60</value>
+                  <description> 1分钟检查一次操作次数</description>
+                </property>
+
+3、 镜像文件、编辑日志文件、namenode版本号
+    1、镜像文件和编辑日志文件简介
+        namenode被格式化之后，将在/opt/module/hadoop-2.7.2/data/tmp/dfs/name/current目录中产生如下文件：
+            edits_0000000000000000000
+            fsimage_0000000000000000000.md5
+            seen_txid
+            VERSION
+            （1）fsimage文件：HDFS文件系统元数据的一个永久性的检查点，其中包含HDFS文件系统的所有目录和文件idnode的序列化信息。
+            （2）Edits文件：存放HDFS文件系统的所有更新操作的路径，文件系统客户端执行的所有写操作首先会被记录到edits文件中。
+            （3）edits文件保存的是一个数字，就是最后一个edits_的数字
+            （4）VERSION：nameNode版本信息记录文件
+            （5）每次Namenode启动的时候都会将fsimage文件读入内存，
+                并从00001开始到seen_txid中记录的数字依次执行每个edits里面的更新操作，
+                保证内存中的元数据信息是最新的、同步的，
+                可以看成Namenode启动的时候就将fsimage和edits文件进行了合并。
+    2、oiv查看fsimage文件
+        转到：dfs/name/current 目录下，执行：
+            hdfs oiv -p XML -i fsimage_0000000000000000147 -o simage.xml
+                -p  声明生成的文件类型               
+                -o  声明生成的文件地址及名称         output
+                -i   声明镜像文件的名称              input
+    3、oev查看edits文件
+            hdfs oev -p XML -i edits_0000000000000000001-0000000000000000002 -o edits.xml
+            cat edits.xml
+                <?xml version="1.0" encoding="UTF-8"?>
+                <EDITS>
+                  <EDITS_VERSION>-63</EDITS_VERSION>
+                  <RECORD>
+                    <OPCODE>OP_START_LOG_SEGMENT</OPCODE>
+                    <DATA>
+                      <TXID>1</TXID>
+                    </DATA>
+                  </RECORD>
+                  <RECORD>
+                    <OPCODE>OP_END_LOG_SEGMENT</OPCODE>
+                    <DATA>
+                      <TXID>2</TXID>
+                    </DATA>
+                  </RECORD>
+                </EDITS>
+    4、VERSION文件（namenode版本号）
+        cat VERSION 
+            #Tue Oct 16 09:17:37 CST 2018
+            namespaceID=1559882375
+            clusterID=CID-7190521e-8209-49d7-a523-7bfad04efa1c
+            cTime=0
+            storageType=NAME_NODE
+            blockpoolID=BP-1669107349-192.168.1.114-1539453679564
+            layoutVersion=-63
+            [用户@MASTER机器名 cu
+        （1） namespaceID在HDFS上，会有多个Namenode，所以不同Namenode的namespaceID是不同的，分别管理一组blockpoolID。
+        （2）clusterID集群id，全局唯一
+        （3）cTime属性标记了namenode存储系统的创建时间，对于刚刚格式化的存储系统，这个属性为0；但在文件系统升级之后，该值会更新到新的时间戳。
+        （4）storageType属性说明该存储目录包含的是namenode的数据结构。
+        （5）blockpoolID：一个block pool id标识一个block pool，并且是跨集群的全局唯一。
+            当一个新的Namespace被创建的时候(format过程的一部分)会创建并持久化一个唯一ID。
+            在创建过程构建全局唯一的BlockPoolID比人为的配置更可靠一些。
+            NN将BlockPoolID持久化到磁盘中，在后续的启动过程中，会再次load并使用。
+        （6）layoutVersion是一个负整数。通常只有HDFS增加新特性时才会更新这个版本号。
+    5、滚动编辑日志
+        正常情况HDFS文件系统有更新操作时，就会滚动编辑日志。也可以用命令强制滚动编辑日志。
+        （1）滚动编辑日志（前提必须启动集群）
+            hdfs dfsadmin -rollEdits
+        （2）镜像文件什么时候产生
+            Namenode启动时加载镜像文件和编辑日志
+    6、分析镜像文件、编辑日志文件的生成
+        使用一个文件上传来分析镜像文件、编辑日志文件中都记录了什么内容。
+        1、初始化集群
+            初始化：
+                删除数据文件 
+                $ xcall rm -rf /tmp/hadoop*
+                删除日志文件 
+                $ xcall rm -rf /opt/module/hadoop-2.7.2/logs/ /opt/module/hadoop-2.7.2/data/
+                格式化 HDFS 
+                bin/hdfs namenode -format
+            启动：
+                $ sbin/start-dfs.sh
+                $ sbin/start-yarn.sh
+        2、查看编辑日志
+            编辑日志文件记录的是文件系统（hdfs）的操作步骤
+                $ cd /opt/module/hadoop-2.7.2/data/tmp/dfs/name/current
+                上传文件
+                $ hadoop hdfs -put VERSION /
+                查看编辑日志文件：
+                $ hdfs oev -p XML -i edits_inprogress_0000000000000000001 -o edit.xml
+                $ cat edit.xml
+                    <?xml version="1.0" encoding="UTF-8"?>
+                        <EDITS> 
+                            <EDITS_VERSION>-63</EDITS_VERSION> 
+                            <RECORD><!--第一步操作：集群启动--> 
+                                <OPCODE>OP_START_LOG_SEGMENT</OPCODE> 
+                                <DATA> 
+                                    <TXID>1</TXID> 
+                                </DATA> 
+                            </RECORD> 
+                            <RECORD><!--第二步操作：文件上传--> 
+                                <OPCODE>OP_ADD</OPCODE> 
+                                <DATA><!--数据节点：数据的具体信息--> 
+                                    <TXID>2</TXID> 
+                                    <LENGTH>0</LENGTH> 
+                                    <INODEID>16386</INODEID> 
+                                    <PATH>/VERSION._COPYING_</PATH> 
+                                    <REPLICATION>3</REPLICATION> 
+                                    <MTIME>1540018511447</MTIME> 
+                                    <ATIME>1540018511447</ATIME> 
+                                    <BLOCKSIZE>134217728</BLOCKSIZE> 
+                                    <CLIENT_NAME>DFSClient_NONMAPREDUCE_201991339_1</CLIENT_NAME> 
+                                    <CLIENT_MACHINE>192.168.1.114</CLIENT_MACHINE> 
+                                    <OVERWRITE>true</OVERWRITE> 
+                                    <PERMISSION_STATUS><!--权限信息--> 
+                                        <USERNAME>admin</USERNAME> 
+                                        <GROUPNAME>supergroup</GROUPNAME> 
+                                        <MODE>420</MODE> 
+                                    </PERMISSION_STATUS> 
+                                    <RPC_CLIENTID>38625766-ebba-405c-9c66-352cc9e1e908</RPC_CLIENTID> 
+                                    <RPC_CALLID>3</RPC_CALLID> 
+                                </DATA> 
+                            </RECORD> 
+                            <RECORD><!---第三步操作：分配块id--> 
+                                <OPCODE>OP_ALLOCATE_BLOCK_ID</OPCODE> 
+                                <DATA> 
+                                    <TXID>3</TXID> 
+                                    <BLOCK_ID>1073741825</BLOCK_ID> 
+                                </DATA> 
+                            </RECORD> 
+                            <RECORD> 
+                                <OPCODE>OP_SET_GENSTAMP_V2</OPCODE> 
+                                <DATA> 
+                                    <TXID>4</TXID> 
+                                    <GENSTAMPV2>1001</GENSTAMPV2> 
+                                </DATA> 
+                            </RECORD> 
+                            <RECORD><!--第四步：分配块--> 
+                                <OPCODE>OP_ADD_BLOCK</OPCODE> 
+                                <DATA> 
+                                    <TXID>5</TXID> 
+                                    <PATH>/VERSION._COPYING_</PATH> 
+                                    <BLOCK> 
+                                        <BLOCK_ID>1073741825</BLOCK_ID> 
+                                        <NUM_BYTES>0</NUM_BYTES> 
+                                        <GENSTAMP>1001</GENSTAMP> 
+                                    </BLOCK> 
+                                    <RPC_CLIENTID></RPC_CLIENTID> 
+                                    <RPC_CALLID>-2</RPC_CALLID> 
+                                </DATA> 
+                            </RECORD> 
+                            <RECORD><!--第五步：块关闭--> 
+                                <OPCODE>OP_CLOSE</OPCODE> 
+                                <DATA> 
+                                    <TXID>6</TXID> 
+                                    <LENGTH>0</LENGTH> 
+                                    <INODEID>0</INODEID> 
+                                    <PATH>/VERSION._COPYING_</PATH> 
+                                    <REPLICATION>3</REPLICATION> 
+                                    <MTIME>1540018514438</MTIME> 
+                                    <ATIME>1540018511447</ATIME> 
+                                    <BLOCKSIZE>134217728</BLOCKSIZE> 
+                                    <CLIENT_NAME></CLIENT_NAME> 
+                                    <CLIENT_MACHINE></CLIENT_MACHINE> 
+                                    <OVERWRITE>false</OVERWRITE> 
+                                    <BLOCK> 
+                                        <BLOCK_ID>1073741825</BLOCK_ID> 
+                                        <NUM_BYTES>229</NUM_BYTES> 
+                                        <GENSTAMP>1001</GENSTAMP> 
+                                    </BLOCK> 
+                                    <PERMISSION_STATUS> 
+                                        <USERNAME>admin</USERNAME> 
+                                        <GROUPNAME>supergroup</GROUPNAME> 
+                                        <MODE>420</MODE> 
+                                    </PERMISSION_STATUS> 
+                                </DATA> 
+                            </RECORD> 
+                            <RECORD><!--第六步:重命名--> 
+                                <OPCODE>OP_RENAME_OLD</OPCODE> 
+                                <DATA> 
+                                    <TXID>7</TXID> 
+                                    <LENGTH>0</LENGTH> 
+                                    <SRC>/VERSION._COPYING_</SRC> 
+                                    <DST>/VERSION</DST> 
+                                    <TIMESTAMP>1540018514452</TIMESTAMP> 
+                                    <RPC_CLIENTID>38625766-ebba-405c-9c66-352cc9e1e908</RPC_CLIENTID> 
+                                    <RPC_CALLID>8</RPC_CALLID> 
+                                </DATA> 
+                            </RECORD> 
+                        </EDITS>
+        3、查看镜像文件
+            $ hdfs oiv -p XML -i fsimage_0000000000000000000 -o image.xml
+            $ cat image.xml
+                <?xml version="1.0"?> 
+                    <fsimage> 
+                        <NameSection> 
+                            <genstampV1>1000</genstampV1> 
+                            <genstampV2>1000</genstampV2> 
+                            <genstampV1Limit>0</genstampV1Limit> 
+                            <lastAllocatedBlockId>1073741824</lastAllocatedBlockId> 
+                            <txid>0</txid> 
+                        </NameSection> 
+                        <INodeSection> 
+                            <lastInodeId>16385</lastInodeId> 
+                            <inode> 
+                                <id>16385</id> 
+                                <type>DIRECTORY</type> 
+                                <name/> 
+                                <mtime>0</mtime> 
+                                <permission>admin:supergroup:rwxr-xr-x</permission> 
+                                <nsquota>9223372036854775807</nsquota> 
+                                <dsquota>-1</dsquota> 
+                            </inode> 
+                        </INodeSection> 
+                        <INodeReferenceSection/> 
+                        <SnapshotSection> 
+                            <snapshotCounter>0</snapshotCounter> 
+                        </SnapshotSection> 
+                        <INodeDirectorySection/> 
+                        <FileUnderConstructionSection/> 
+                        <SnapshotDiffSection> 
+                            <diff> 
+                                <inodeid>16385</inodeid>
+                            </diff> 
+                        </SnapshotDiffSection> 
+                        <SecretManagerSection> 
+                            <currentId>0</currentId> 
+                            <tokenSequenceNumber>0</tokenSequenceNumber> 
+                        </SecretManagerSection> 
+                        <CacheManagerSection> 
+                            <nextDirectiveId>1</nextDirectiveId> 
+                        </CacheManagerSection> 
+                    </fsimage>
+
+4、SecondaryNameNode目录结构、nameNode故障恢复
+    1、 SecondaryNameNode目录结构
+        Secondary NameNode用来监控HDFS状态的辅助后台程序，每隔一段时间获取HDFS元数据的快照。
+        在/opt/module/hadoop-2.7.2/data/tmp/dfs/namesecondary/current这个目录中查看SecondaryNameNode目录结构：
+            edits_0000000000000000001-0000000000000000002
+            fsimage_0000000000000000002
+            fsimage_0000000000000000002.md5
+            VERSION
+        SecondaryNameNode的namesecondary/current目录和主namenode的current目录的布局相同。
+        好处：在主namenode发生故障时（假设没有及时备份数据），可以从SecondaryNameNode恢复数据。
+    2、nameNode故障处理一：将SecondaryNameNode中数据拷贝到namenode存储数据的目录
+        （1）kill -9 namenode进程号
+        （2）删除namenode存储的数据（/opt/module/hadoop-2.7.2/data/tmp/dfs/name）
+        （3）拷贝SecondaryNameNode中数据到原namenode存储数据目录
+                $ rsync -rvl /opt/module/hadoop-2.7.2/data/tmp/dfs/namesecondary/* admin@hadoop14:/opt/module/hadoop-2.7.2/data/tmp/dfs/namesending incremental file list
+        （4）重新启动namenode
+                sbin/hadoop-daemon.sh start namenode
+                或者：
+                    sbin/stop-dfs.sh
+                    sbin/start-dfs.sh 
+    3、nameNode故障处理二：使用-importCheckpoint选项启动namenode守护进程，从而将SecondaryNameNode中数据拷贝到namenode目录中
+        （1）删除namenode存储的数据（/opt/module/hadoop-2.7.2/data/tmp/dfs/name）
+            $ rm -rf /opt/module/hadoop-2.7.2/data/tmp/dfs/name/*
+        （2）杀死NameNode进程
+            kill -9 使用jps查询到的NameNode的进程号
+        （3）修改hdfs-site.xml文件
+            <property> 
+                <name>dfs.namenode.checkpoint.period</name> 
+                <value>120</value> 
+            </property> 
+            <property> 
+                <name>dfs.namenode.name.dir</name> 
+                <value>/opt/module/hadoop-2.7.2/data/tmp/dfs/name</value> 
+            </property>
+        （4）如果SecondaryNameNode不和Namenode在一个主机节点上，
+            需要将SecondaryNameNode存储数据的目录（namesecondary ）拷贝到Namenode存储数据的平级目录（name）。
+                rsync -rvl /opt/module/hadoop-2.7.2/data/tmp/dfs/namesecondary admin@hadoop14:/opt/module/hadoop-2.7.2/data/tmp/dfs
+        （5）导入检查点数据（等待一会ctrl+c结束掉）
+            这个操作会将将namesecondary目录的数据拷贝到name目录下
+                ： bin/hdfs namenode -importCheckpoint
+        （6）启动namenode
+            sbin/hadoop-daemon.sh start namenode
+        （7）如果提示文件锁了，可以删除in_use.lock
+            rm -rf /opt/module/hadoop-2.7.2/data/tmp/dfs/namesecondary/in_use.lock
+            
+5、集群安全模式操作
+    1、集群概述
+        Namenode启动时，首先将映像文件（fsimage）载入内存，并执行编辑日志（edits）中的各项操作。
+            一旦在内存中成功建立文件系统元数据的映像，则创建一个新的fsimage文件和一个空的编辑日志。
+            此时，namenode开始监听datanode请求。
+            但是此刻，namenode运行在安全模式，即namenode的文件系统对于客户端来说是只读的。
+        系统中的数据块的位置并不是由namenode维护的，而是以块列表的形式存储在datanode中。
+            在系统的正常操作期间，namenode会在内存中保留所有块位置的映射信息。[也就是在镜像文件中保存文件的元数据]
+            在安全模式下，各个datanode会向namenode发送最新的块列表信息，namenode了解到足够多的块位置信息之后，即可高效运行文件系统。
+        如果满足“最小副本条件”，namenode会在30秒钟之后就退出安全模式。
+            所谓的最小副本条件指的是在整个文件系统中99.9%的块满足最小副本级别（默认值：dfs.replication.min=1）。
+            在启动一个刚刚格式化的HDFS集群时，因为系统中还没有任何块，所以namenode不会进入安全模式。
+        集群处于安全模式，不能执行重要操作（写操作）。集群启动完成后，自动退出安全模式。
+        命令：
+            （1）bin/hdfs dfsadmin -safemode get （功能描述：查看安全模式状态） 
+            （2）bin/hdfs dfsadmin -safemode enter （功能描述：进入安全模式状态） 
+            （3）bin/hdfs dfsadmin -safemode leave （功能描述：离开安全模式状态） 
+            （4）bin/hdfs dfsadmin -safemode wait （功能描述：等待安全模式状态）
+    2、Namenode多目录配置
+        1）namenode的本地目录可以配置成多个，且每个目录存放内容相同，增加了可靠性。
+        2）具体配置如下：
+            hdfs-site.xml[这个文件的修改需要分发到集群的各个节点]
+                <property>
+                    <name>dfs.namenode.name.dir</name>
+                    <value>file:///${hadoop.tmp.dir[hadoop.tmp.dir在core-site.xml中进行配置]}/dfs/name1,file:///${hadoop.tmp.dir}/dfs/name2</value>
+                </property>
+                
+6、DataNode工作机制 
+    1、工作机制
+        - 参看： DataNode工作机制 图
+        1）一个数据块在datanode上以文件形式存储在磁盘上，
+            包括两个文件，一个是数据本身，一个是元数据包括数据块的长度，块数据的校验和，以及时间戳[传给image镜像文件]。
+            ll 命令查看
+        2）DataNode启动后向namenode注册，通过后，周期性（1小时）的向namenode上报所有的块信息。
+        3）心跳是每3秒一次，心跳返回结果带有namenode给该datanode的命令，如：复制块数据到另一台机器，或删除某个数据块。如果超过10分钟没有收到某个datanode的心跳，则认为该节点不可用。
+        4）集群运行中可以安全加入和退出一些机器
+    2、数据完整性 - 参看数据完整性图
+        本质上是一个hash算法，输入文件，得到一个hash值，当文件损坏，得到的hash值不一样。
+        1）当DataNode读取block的时候，它会计算checksum
+        2）如果计算后的checksum，与block创建时值不一样，说明block已经损坏。
+        3）client读取其他DataNode上的block.
+        4）datanode在其文件创建后周期验证checksum
+    3、掉线时限参数设置
+        datanode进程死亡或者网络故障造成datanode无法与namenode通信，namenode不会立即把该节点判定为死亡，
+            要经过一段时间，这段时间暂称作超时时长。
+        HDFS默认的超时时长为10分钟+30秒。如果定义超时时间为timeout，则超时时长的计算公式为：
+            timeout  = 2 * dfs.namenode.heartbeat.recheck-interval + 10 * dfs.heartbeat.interval
+        而默认的dfs.namenode.heartbeat.recheck-interval 大小为5分钟，dfs.heartbeat.interval默认为3秒。
+            需要注意的是hdfs-site.xml 配置文件中的heartbeat.recheck.interval的单位为毫秒，dfs.heartbeat.interval的单位为秒。
+            hdfs-site.xml 
+                <property> 
+                    <name>dfs.namenode.heartbeat.recheck-interval</name> 
+                    <value>300000</value> 
+                </property> 
+                <property> 
+                    <name> dfs.heartbeat.interval </name> 
+                    <value>3</value> 
+                </property>
+
+7、DataNode的目录结构
+    和namenode不同的是，datanode的存储目录是初始阶段自动创建的，不需要额外格式化。
+    1、在/opt/module/hadoop-2.7.2/data/tmp/dfs/data/current这个目录下查看版本号
+        $ cat VERSION 
+            storageID=DS-1b998a1d-71a3-43d5-82dc-c0ff3294921b 
+            clusterID=CID-1f2bf8d1-5ad2-4202-af1c-6713ab381175 
+            cTime=0 
+            datanodeUuid=970b2daf-63b8-4e17-a514-d81741392165 
+            storageType=DATA_NODE 
+            layoutVersion=-56
+        具体解释：
+            （1）storageID：存储id号
+            （2）clusterID集群id，全局唯一
+            （3）cTime属性标记了datanode存储系统的创建时间，对于刚刚格式化的存储系统，这个属性为0；
+                    但是在文件系统升级之后，该值会更新到新的时间戳。
+            （4）datanodeUuid：datanode的唯一识别码
+            （5）storageType：存储类型
+            （6）layoutVersion是一个负整数。通常只有HDFS增加新特性时才会更新这个版本号。
+    2、在/opt/module/hadoop-2.7.2/data/tmp/dfs/data/current/BP-97847618-192.168.10.102-1493726072779/current这个目录下查看该数据块的版本号
+        $ cat VERSION 
+            #Mon May 08 16:30:19 CST 2017 
+            namespaceID=1933630176 
+            cTime=0 
+            blockpoolID=BP-97847618-192.168.10.102-1493726072779 
+            layoutVersion=-56
+        具体解释：
+            （1）namespaceID：是datanode首次访问namenode的时候从namenode处获取的storageID
+                对每个datanode来说是唯一的（但对于单个datanode中所有存储目录来说则是相同的），
+                namenode可用这个属性来区分不同datanode。
+            （2）cTime属性标记了datanode存储系统的创建时间，对于刚刚格式化的存储系统，这个属性为0；
+                但是在文件系统升级之后，该值会更新到新的时间戳。
+            （3）blockpoolID：一个block pool id标识一个block pool，并且是跨集群的全局唯一。 
+                当一个新的Namespace被创建的时候(format过程的一部分)会创建并持久化一个唯一ID。 
+                在创建过程构建全局唯一的BlockPoolID比人为的配置更可靠一些。 
+                NN将BlockPoolID持久化到磁盘中，在后续的启动过程中，会再次load并使用。 
+            （4）layoutVersion是一个负整数。通常只有HDFS增加新特性时才会更新这个版本号。
+    3、Datanode多目录配置
+        1）datanode也可以配置成多个目录，每个目录存储的数据不一样。即：数据不是副本。
+        2）hdfs-site.xml具体配置如下：
+            <property> 
+                <name>dfs.datanode.data.dir</name> 
+                <value>file:///${hadoop.tmp.dir}/dfs/data1,file:///${hadoop.tmp.dir}/dfs/data2</value> 
+            </property>
+
+            
+            

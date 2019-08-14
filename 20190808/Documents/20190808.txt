@@ -1,0 +1,14 @@
+20190808 
+1. Springboot + ECharts 
+    0. Springboot 环境的搭建
+        0. 创建 Maven 项目，并添加相关的 Springboot 的功能模块的依赖
+            借助 starter（官方、第三方）、parent 父项目描述
+        1. 官网上下载配置好的 Springboot 项目， 下载到本地，解压，以 Maven 项目的方式导入 IDE
+             Spring Initializr. https://start.spring.io/ 
+                选取需要功能模块、下载、解压、导入（Maven项目）
+        2. IDE 通过插件方式创建 Springboot 项目
+            -- Eclipse 
+                1 - 添加 Springboot plugin
+                2. - Springboot project 
+                    注意： 建议取消 Maven 配置中的 ali 的镜像功能
+2. Python MR 

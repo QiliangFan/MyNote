@@ -1,0 +1,414 @@
+Hadoop 集群环境基于 Hadoop Stream 的 Python 实现 MapReduce
+
+首先声明几个要点, 并给出一个典型例子.
+    0. 明确要点:
+        1. Linux (部分版本) 内置 Python, 版本往往是 2.x 
+            python --version 
+                程序语法会需要注意
+                print 没有 () 
+            特别的: Hadoop Streaming与python环境 
+                hadoop是基于集群的，因此MR任务是运行于集群中的各个节点上的，
+                    如果想用python来实现MapReduce，需要为各个节点配置好python环境。
+                让hadoop命令或者python脚本与集群环境一致。将涉及三个方面: 
+                    1 - 保证python安装正确并且能在每个集群节点上使用python命令行的方式启动python
+                    2 - 保证每个节点的python命令启动的节点中的python版本一致
+                        目前,暂时统一到多数Linux发行版内置的Python 2.x 的版本
+                    3 - 保证代码语法适应所有节点安装的python版本
+                python脚本的规范与陷阱
+                    python使用缩进来表示语句块，很可能将空格和Tab混用作缩进了。
+                            报错TabError: Inconsistent use of tabs and spaces in indentation。
+                        应该注意代码的规范，不要混用空格和Tab来完成缩进。
+                    尊重Linux使用的UTF-8字符集，
+                        在Windows上使用记事本之类的写代码还带中文注释的，传到集群上会报各种错误的，
+                        建议用notepad++转成UTF-8格式或者直接在 Linux 下编写代码。
+                可以把 Python 环境打包放在Hadoop集群上. --- 参看最后.
+        2. Linux 中的不支持中文, 注释中的中文也不支持.
+            其实, 是因为 Linux 使用 utf8 的编码.
+            推荐在 Linux 编写程序, 最好删除所有的中文内容(注释内容)
+        3. 关注权限:
+            1 - .py 的文件应该具有运行权限
+                省事的方法:
+                    chmod 777 *.py 
+            2 - HDFS 上的数据文件应该具有任何均可以操作的权限
+                体现在 Datanode 节点的 HDFS 映射在 Linux 的数据文件所在的目录权限的设置上. 
+                    chmod -R 777 Datanode节点上的数据目录中 dfs 中的 data 目录
+                    如,在 slave01 上执行:
+                        chmod -R 777 /home/icss/hadoopdata/dfs/data
+    1. 典型 WordCount 例子: 
+        0. 数据准备:
+            1 - 数据文件: words.txt 
+                aa bb cc dd aa bb cc
+                cc dd
+                ee
+            2 - 上传到 Linux 
+            3 - 上传到 HDFS 
+                hdfs dfs -put words.txt /input/py/wcinput
+                hdfs dfs -cat /input/py/wcinput/*
+        1. 实现程序(建议在 Linux 下使用 vi 编辑创建)
+            1 - Mapper 
+                vi mapper.py  # 需要删除中文注释
+                    # 导入内置 sys 模块
+                    import sys
+                    # 从标准输入读入每一行数据
+                    for line in sys.stdin:
+                        # 如果没有读入数据(到了文件末尾)则退出程序
+                        if not line:
+                            break
+                        # 去除前后的空白符(包括空格\回车等),然后使用空格进行拆分
+                        words = line.strip().split()
+                        # 遍历拆分后的每一个单词
+                        for word in words:
+                            # 输出单词计数 
+                            print "%s\t%s" % (word, 1)
+            2 - Reducer 
+                vi reducer.py  # 需要删除中文注释
+                    import sys
+                    # 当前单词置为 None
+                    current_word = None
+                    # 当前单词计数置为 0
+                    current_count = 0
+                    # 单词置为 None 
+                    word = None
+                    # 依次读入标准输入的每一行
+                    for line in sys.stdin:
+                        # 去除前后空白符
+                        line = line.strip()
+                        # 使用 \t 拆分每一行数据, 并分别放入 word 和 count 中
+                        word, count = line.split('\t')
+                        try:
+                            # count 转换为 整型
+                            count = int(count)
+                        except ValueError: 
+                            # 出错\异常, 继续下一个循环
+                            continue
+                        # 如果是第二次读入相同的单词, 则计数累加
+                        if current_word == word:
+                            current_count += count
+                        else:
+                            # 如果是一个新单词,需要将之前上一个单词的计数信息输出
+                            if current_word:
+                                print "%s\t%s" % (current_word, current_count)
+                            # 赋值新单词的计数值到当前单词计数值
+                            current_count = count
+                            # 赋值新单词到当前单词
+                            current_word = word
+                    # 针对最后一个单词是一个新单词的情况
+                    if word == current_word:  
+                        print "%s\t%s" % (current_word, current_count)
+            3 - 执行 (本机管道\集群环境)
+                1. 本机管道执行 
+                    cat words.txt | python mapper.py | sort -k 1 | python reducer.py
+                    理解: Stream|sort 
+                2. 集群执行
+                hadoop jar  /home/icss/hadoop3/share/hadoop/tools/lib/hadoop-streaming-3.1.2.jar -files 'mapper.py,reducer.py' -input /input/py/wcinput -output /output/py/wcoutput01 -mapper 'python mapper.py' -reducer 'python reducer.py'
+                格式说明: 
+                    hadoop 可执行程序, 完成 MR 任务的投入
+                    /home/icss/hadoop3/share/hadoop/tools/lib/hadoop-streaming-3.1.2.jar
+                        hadoop 的流机制文件, 不同的 Hadoop 的版本, 该文件的名称和位置会有所不同
+                    -files 'mapper.py,reducer.py' 
+                        指明本次需要分发到集群各个节点的文件(不一定仅是 py 文件)
+                        可以没有 ' 号, 也可以是 " 
+                        注意: 这个参数应该放在前面, 也可以使用 -file 文件名 -file 文件名 分别逐一指定多个文件
+                    -input /input/py/wcinput 
+                        指明输入的 HDFS 的 Path, 可以有多个目录 Path,并使用逗号(,)间隔, 也支持通配符
+                        如: -input /input/p*/wc* 
+                    -output /output/py/wcoutput01 
+                        指明输出的 HDFS 的 Path, 该 Path 初始不存在
+                    -mapper 'python mapper.py' 
+                        指明 Mapper 程序, 防止 Code 2 错误, 需要指明 python 命令.
+                    -reducer 'python reducer.py' 
+                        指明 Reducer 程序, 防止 Code 2 错误, 需要指明 python 命令.
+                看结果:
+                    hdfs dfs -cat /output/py/wcoutput01/*
+
+Python MR 讲解
+0. 综述
+    Hadoop Streaming 是 Hadoop 提供的一种流式机制的编程工具. 
+        允许任何可执行程序(Java jar)和脚本(Python .py) 作为 mapper 和 reducer 来完成Map/Reduce任务.
+        流: 上一个输出式下一个输入, 前一个输出是后一个输入, 所以需要从 sys.stdin 中读入
+
+1. hadoop streaming的工作方式
+    hadoop streaming的工作方式如图
+    标准的MapReduce(以下简称MR)是整个MR过程由mapper、[combiner]、reducer组成(其中combiner为可选加入)。
+    可以像使用java一样去用其他语言编写MR，只不过Mapper/Reducer的输入和输出并不是和java API，
+        而是通过该语言下的标准输入输出函数来进行。
+    应该关注并编写的mapper和reducer的位置。
+    
+    1. mapper的角色:
+        hadoop将用户提交的mapper可执行程序或脚本作为一个单独的进程加载起来，即:mapper进程. 
+            hadoop不断地将文件片段转换为行，传递到mapper进程中，
+            mapper进程通过标准输入的方式一行一行地获取这些数据，
+            然后将其转换为键值对，
+            再通过标准输出的形式将这些键值对按照一对儿一行的方式输出出去。
+
+        注意:
+        采用标准输出之后，key value是打印到一行作为结果输出(比如sys.stdout.write("%s\t%s\n"%(birthyear,gender)))，
+        为了保证hadoop能从中鉴别出键值对，键值对中一定要以分隔符'\t'即Tab(也可自定义分隔符)字符分隔，
+            保证hadoop正确地进行partitoner、shuffle等等过程。
+            
+    2. reducer的角色:
+        hadoop将用户提交的reducer可执行程序或脚本同样作为一个单独的进程加载起来，即:reducer进程. 
+            hadoop不断地将键值对(按键排序)按照一对儿一行的方式传递到reducer进程中，
+            reducer进程同样通过标准输入的方式按行获取这些键值对儿，
+            进行自定义计算后将结果通过标准输出的形式输出出去。
+
+        注意: 
+        传递进reducer的键值对是按照键排过序的，这是由MR框架的sort过程保证的，
+        因此如果读到一个键与前一个键不同，就可以知道当前key对应的pairs已经结束了，接下来将是新的key对应的pairs。
+
+2. Hadoop Streaming的使用方式
+                实际的hadoop的运行流程与以上类似，不过更加复杂：
+                1. 首先读取的文件是存储在HDFS上的，每个数据块大小默认128M(3.x规定)
+                    因此可能存在数据在存储时被切分错误。
+                    所以首先需要对读取的文件进行split和record操作。
+                    split默认按”\n”进行划分，record保证每行数据是完整的，该操作由框架完成。 
+    1. 命令: 
+        $HADOOP_HOME/bin/hadoop jar $HADOOP_HOME/.../hadoop-streaming.jar [genericOptions] [streamingOptions]
+        命令中其实是有先后顺序的: 
+            一定要保证[genericOptions]在[streamingOptions]之前，否则hadoop streaming命令将失效。
+        hadoop-streaming.jar，可能hadoop版本不同，这个jar的名称和位置也不同. 
+    2. 常用参数: 
+                ?? -cmdenv <name=value> \ # 可以传递环境变量，可以当作参数传入到任务中，可以配置多个
+        1 - 常用的genericOptions如下：
+            -D property=value 指定额外的配置信息变量，详情在后
+            -files file1,file2,... 指定需要拷贝到集群节点的文件，格式以逗号分隔，
+                通常为自己编写的mapper和reducer脚本或可执行程序，
+                因为mapper和reducer通常要由集群中不同的节点来执行，
+                    而很可能脚本或可执行程序仅仅存在于提交任务时所用的那个节点，
+                因此遇到这种情况便需要将它们分发出去，
+                -files其后的参数用不用引号括起来都可以。
+        2 - 常用的streamingOptions如下：
+            -file filename 指定需要拷贝到集群节点的文件，
+                与-files的功能类似，只不过如果使用-file的话，就需要一个文件一个文件地去上传，
+                如果要将mapper.py，reducer.py上传到集群上去运行，那就得需要两个-file参数。
+                而在实际使用-file时，hadoop会提示-file参数为降级参数,推荐使用 -files 参数
+                    -file 上传小数据量的文件
+                    -cacheFile 分发大数据量的文件
+                    -CacheArchive 分发文件目录（用法与-cacheFile相同）
+                -file 是为了将map.py和reduce.py代码分发到各个服务器上进行执行，也可以分发小数据量的配置文件、白名单等
+                如果数据量较大（如字典文件等），且存放到HDFS上，希望在计算时在每个计算节点上将该文件当做本地文件使用，可以使用-cacheFile
+                hdfs://host:port/path/to/file#linkname 选项在计算节点缓存文件，Streaming程序通过./linkname访问该文件。
+                如：
+                -CacheFile "hdfs://master:9000/cacheFile_dir/white_list.txt#aliasName"
+                然后在mapper中使用别名进行文件访问:
+                -mapper "python map.py aliasName"
+            -input myInputDirs 指定给mapreduce任务输入的文件位置，
+                通常为hdfs上的文件路径，多个文件或目录用逗号隔开, 可以支持通配符
+            -output myOutputDir 指定给mapreduce任务输出的目录，
+                通常为hdfs上的文件路径。
+                    输出数据压缩
+                        输出数据量较大时，可以使用Hadoop提供的压缩机制对数据压缩，减少网络传输带宽和存储的消耗
+                        可以对map的输出进行压缩（对中间结果进行压缩）
+                        可以对reduce的输出进行压缩（对最终结果进行压缩）
+                        可以指定是否压缩以及采用哪种压缩方式
+                        对map的压缩主要是为了减少shuffle过程中的网络传输数据量
+                        对reduce的结果压缩主要是为了减少输出结果占用的HDFS存储
+                
+            -mapper executable or JavaClassName 用于mapper的可执行程序或java类，
+                如果是脚本文件，应该以命令行完整调用的格式作为可执行程序参数并且须加引号，
+                    比如-mapper "python mapper.py" 
+            -reducer executable or JavaClassName 用于reducer的可执行程序或java类，
+                要求同上
+            -partitioner JavaClassName 自定义的partitionerjava类
+            -combiner streamingCommand or JavaClassName 自定义的combiner类或命令
+        3 - 常用的-D property=value如下：
+            -D mapred.job.name=jobname 指定作业名称
+            -D mapred.map.tasks=numofmap 每个Job运行map task的数量
+            -D mapred.reduce.tasks=numofreduce 每个Job运行reduce task的数量，
+                如果指定为0，则意味着提交了一个map only的任务
+            -D stream.map.input.field.separator 指定map输入时的分隔符，默认为"\t"
+            -D stream.map.output.field.separator 指定map输出时使用的key/value分隔符，默认为"\t"，
+                比如在mapper中，输出key/value pairs的标准输出语句很可能是这样的 
+                    sys.stdout.write("%s,%s\n"%(birthyear,gender))，
+                由于使用了非默认的分隔符，因此需要额外指定分隔符","。
+            -D stream.reduce.input.field.separator 指定reduce输入时的分隔符，默认为"\t"
+            -D stream.reduce.output.field.separator 指定reduce输入时的分隔符，默认为"\t"
+            -D stream.num.map.output.key.fields=num 指定map输出中第几个分隔符作为key和value的分隔点，默认为1
+            -D stream.num.reduce.output.fields=num 指定reduce输出中第几个分隔符作为key和value的分隔点，默认为1
+            -D stream.non.zero.exit.is.failure=false/true 
+                指定当mapper和reducer未返回0时，hadoop是否该认为此任务执行失败。默认为true。
+                当mapper和reducer的返回值不是0或没有返回值时，hadoop将认为该任务为异常任务，将被再次执行，默认尝试4次都不是0，整个job都将失败。
+                因此，如果在编写mapper和reducer未返回0时，则应该将该参数设置为false，否则hadoop streaming任务将报出异常。
+
+3. 样例程序
+    0. 需求: 
+        统计数据中每一年出生的男孩和女孩各是多少。
+    1. 数据: 
+        数据说明: 
+            sampletest.csv，第一个属性为用户id,birthday为用户的生日，gender表示男女，0为女，1为男，2为未知。
+        实际数据: (部分...) simpletest.csv
+            user_id,birthday,gender
+            2757,20130311,1
+            415971,20121111,0
+            1372572,20120130,1
+            ......
+            52529655,20130611,2
+    2. 流程解析
+        1 - mapper的思路: 
+            一行一行的获取MR传入的原始数据记录，
+            然后将记录分割成多个字段，获取其中的生日和性别字段，
+            之后将结果打印到标准输出中。
+            注意: 该段数据是有title的所以要跳过这段title，方法是判断如果读入的是id则跳过这一行数据。
+                不要在在代码中采用跳过mapper读到的第一行的方法，
+                    因为当MR任务的map task数量设置为2时，会少统计一个孩子的信息
+                    因为当任务设置为两个mapper时，MR将原文件数据分别发送给两个mapper节点，
+                        此时有两个节点在运行mapper程序，
+                        如果在mapper程序中简单的通过在for循环中continue掉第一轮循环的话，
+                        势必导致两个mapper都skip掉一行，
+                            那么其中一个mapper将skip掉title，
+                            另一个mapper则会skip掉一行数据。
+        2 - reducer的思路: 
+            一行一行地获取到按key排过序的key/value对儿(“排序行为”是MR框架做的，不需要自己指定)，
+            由于MR框架已经排好序，因此只要观察到当前行获得的key与上一行获得的key不一样，
+                即可判断是新的birthyear组，
+            然后累加每一组的男孩和女孩数，
+                遇到新的组时将上一birthyear组的男孩和女孩数目打印出来。
+    3. 程序 
+        1 - Mapper children_gender_mapper.py
+            import sys
+            for data in sys.stdin:
+                data = data.strip()
+                record = data.split(',')
+                user_id = record[0]
+                if user_id == "user_id":
+                    continue
+                birthyear = record[1][0:4]
+                gender = record[2]
+                sys.stdout.write("%s\t%s\n"%(birthyear,gender))
+        2 - Reducer children_gender_reducer.py 
+            import sys
+            numByGender = {'0':0,'1':0,'2':0}
+            lastKey = False
+            for data in sys.stdin:
+                data = data.strip()    
+                record = data.split('\t')
+                curKey = record[0]
+                gender = record[1]
+                if lastKey and curKey !=lastKey:
+                    sys.stdout.write("%s year:%s female,%s male \n"%(lastKey,numByGender['0'],numByGender['1']))
+                    lastKey = curKey
+                    numByGender = {'0':0,'1':0,'2':0}
+                    numByGender[gender] +=1
+                else:
+                    lastKey = curKey
+                    numByGender[gender] += 1
+            if lastKey:
+                sys.stdout.write("%s year:%s female,%s male \n"%(lastKey,numByGender['0'],numByGender['1']))
+    4. 执行
+        0. 上传 
+            数据上传 - Linux\HDFS(/input/py/cginput)
+            程序上传 - Linux 
+        1. 在本机管道下测试MapReduce程序
+            使用Linux的管道操作来测试编写的Mapper和Reducer。
+                Linux管道的功能: 
+                    可以连接两个毫不相关的程序，把一个程序的结果交给另一个来处理(不停地交接处理)，
+                    下面的管道命令含义为：
+                        将sampletest.csv的输出内容作为数据传递给mapper处理，
+                        再将处理后的数据进行排序，
+                        之后再把数据交给reducer处理。
+                    注意:
+                        (1) 需要python指令
+                        (2) sort为排序，
+                            -t表示指定分隔符，-t ' '表示用tab进行分隔，
+                            -k表示排序时指定的键是在分隔后的哪个field，
+                                -k 1表示按分隔符分隔后的第一个field，即在mapper中打印的key/value对儿中的key。
+                命令: 
+                    cat simpletest.csv | python children_gender_mapper.py | sort -t ' ' -k 1 | python children_gender_reducer.py
+                    或者: 因为默认的间隔符就是 \t 
+                    cat simpletest.csv | python children_gender_mapper.py | sort -k 1 | python children_gender_reducer.py
+        2. 在集群上运行MapReduce程序
+            把sampletest.csv上传到hdfs上，并使用hadoop streaming命令来在集群上运行程序。
+            注意: 
+                将-D，-files参数放在所有参数前面，genericOptions一定要放在streamingOptions前面，
+                    -files -D都属于genericOptions，
+                使用-D stream.non.zero.exit.is.failure=false 来避免MR未返回0时异常退出
+            命令: 
+                hadoop jar /home/icss/hadoop3/share/hadoop/tools/lib/hadoop-streaming-3.1.2.jar \
+                 -D stream.non.zero.exit.is.failure=false \
+                 -files /home/icss/children_gender_mapper.py,/home/icss/children_gender_reducer.py \
+                 -input /input/py/cginput \
+                 -output /output/py/cgoutput01 \
+                 -mapper "python children_gender_mapper.py" \
+                 -reducer "python children_gender_reducer.py"
+             查看结果: 
+                hdfs dfs -cat /output/py/cg*/*
+            !! 关注下程序执行输出的信息: (还可以在WebUI下查看)
+                Map input records=26 #mapper输入的记录数
+                Map output records=25 #mapper输出的记录数
+                Map output bytes=175 #mapper输出的数据的字节数
+                Reduce input records=25 #reducer输入的记录数
+                Reduce output records=8 #reducer输出的记录数
+                File Input Format Counters
+                Bytes Read=812 #任务输入的字节数
+                File Output Format Counters
+                Bytes Written=224 #任务输出的字节数
+
+4. 打包python环境到集群
+    将Python环境打包到集群可以解决为各个节点配置环境的问题，并在执行命令时分发到各个节点供其使用。
+        首先将python安装目录压缩，
+        然后上传到hdfs，
+        之后在hadoop streaming命令中可以把这个hdfs上的环境分发到集群上去运行了。
+        所需命令: 
+          -- 压缩Python\上传HDFS
+            #压缩Python-3.5.0文件夹(安装目录)至python35.tar.gz
+             tar czf python35.tar.gz Python-3.5.0
+            #在hdfs上新建一个目录
+             hdfs dfs -mkdir -p /env
+            #将压缩包上传到集群
+             hdfs dfs -put python35.tar.gz /env
+          -- 使用hadoop streaming命令，来使hdfs上的环境分发到集群去运行
+            hadoop jar /home/icss/hadoop3/share/hadoop/tools/lib/hadoop-streaming-3.1.2.jar \
+            -D stream.non.zero.exit.is.failure=false \
+            -files /home/icss/mapper.py,/home/icss/reducer.py \
+            -archives "hdfs://master/env/python35.tar.gz#py" \
+            -input /input/py/cginput/sampletest.csv \
+            -output /output/py/cgoutput01 \
+            -mapper "py/Python-3.5.0/bin/python3.5 mapper.py" \
+            -reducer "py/Python-3.5.0/bin/python3.5 reducer.py"
+            命令说明: 
+                -archives中的master，是hdfs的对应namenode的主机名称。
+                    "hdfs://master/env/python35.tar.gz#py"中的#py
+                        表示将hdfs上的这个文件分发到集群中各个节点之后再解压到名为py的文件夹中，
+                        因此需要在-mapper中使用解压后文件夹中的python程序来启动脚本。
+                            python35.tar.gz压缩前是叫Python-3.5.0的，而且它是个目录，
+                            Python-3.5.0/bin中原来是有python3.5的，
+                            现在Python-3.5.0目录被压缩成python35.tar.gz，
+                            然后把python35.tar.gz上传到了hdfs，
+                            现在把hdfs上的python35.tar.gz分发到集群中，命令其解压到py文件夹中，
+                            需要从py/Python-3.5.0/bin中找到python3.5程序。
+                            
+                            
+/** 一些额外:
+    说明及错误解释
+        1，如过是win平台上传 .py文件 ./无法运行，报没有文件夹等问题，是文件的编码有问题，
+            在#!/usr/bin/env python 后面的换行是有问题的，解决办法是删除了vim建立新的文件
+        2，PipeMapRed.waitOutputThreads(): subprocess failed with code 1
+            代码有问题，运行错误
+        3，PipeMapRed.waitOutputThreads(): subprocess failed with code 2
+            文件对于空格和tab，换行等符号有问题
+        4，PipeMapRed.waitOutputThreads(): subprocess failed with code 127
+            没有找到可以执行的python解释器，一般要添加#!/usr/bin/env python
+            使用#!/usr/bin/python 也是无法运行的，可能是hadoop是使用./运行程序
+            测试时一定要测试 ./ 是否可以运行
+        5，运行完之后失败请 hadoop fs -rmr 你的文件 将文件夹删除 -output 后面是文件夹目录
+        6，hadoop-streaming-x.x.x.jar 文件的位置要注意下，使用bin/hadoop jar 命令时文件以当前的位置为相对位置 
+        7，如果命令报找不到文件，加 -file 文件位置
+        8，一定要检查代码的正确性，map进行数据的清洗和处理，如果格式不清楚，多次reduce -print出格式，hadoop job 
+        --------------------- 
+
+    执行MapReduce任务，输出结果文件制定为/output/word
+        hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-x.x.x.jar -files 'mapper.py,reducer.py' -input /inputpath -output /outputpath -mapper ./mapper.py -reducer ./reducer.py
+        参数说明：
+        /usr/local/hadoop-2.6.4/bin/hadoop jar /usr/local/hadoop-2.6.4/share/hadoop/tools/lib/hadoop-streaming-2.6.4.jar \
+        -input <输入目录> \ # 可以指定多个输入路径，例如：-input '/user/foo/dir1' -input '/user/foo/dir2'
+        -inputformat <输入格式 JavaClassName> \
+        -output <输出目录> \
+        -outputformat <输出格式 JavaClassName> \
+        -mapper <mapper executable or JavaClassName> \
+        -reducer <reducer executable or JavaClassName> \
+        -combiner <combiner executable or JavaClassName> \
+        -partitioner <JavaClassName> \
+        -cmdenv <name=value> \ # 可以传递环境变量，可以当作参数传入到任务中，可以配置多个
+        -file <依赖的文件> \ # 配置文件，字典等依赖
+        -D <name=value> \ # 作业的属性配置
+**/

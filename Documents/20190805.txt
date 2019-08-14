@@ -1,0 +1,38 @@
+20190805 HDFS 操作
+0. 虚拟化技术&常用的软件
+    1. VMWare 
+        ESXi - Server
+        Workstation
+    2. VistualBox 
+    3. MS Virtual
+        Virtual PC
+        Hyper-v
+            卸载 Hyper-v ： https://blog.csdn.net/eric503630/article/details/72981385
+                控制面板、windows 功能 禁用 Hyper-v
+                禁用 Hyper - V 服务
+                命令：取消自动启动
+                卸载对应的虚拟网卡
+            重启
+    -- Mac Pa...
+    -- Docker 
+
+1. HDFS CLI 
+    0. Hadoop 集群准备 
+        启动VMWare 
+        启动 Master、slave01、slave02
+        XShell 
+    1. 启动 Hadoop 集群
+        start-dfs.sh 
+            验证： 
+                日志文件：查找&使用
+                jps
+
+2. Java&Python API <--> HDFS 
+
+
+#####
+1. 配置文件
+    1. 应用程序的环境配置文件
+    2. 应用程序的xml配置文件
+    3. Linux 系统的(用户)环境配置文件
+    4. (可选)配置资源节点的信息

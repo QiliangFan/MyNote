@@ -1,0 +1,317 @@
+Hadoop 常用命令：
+
+1. 命令分类
+    第一部分：运维命令
+        start-dfs.sh   启动namenode，datanode，启动文件系统
+        stop-dfs.sh   关闭文件系统
+        start-yarn.sh  启动resourcemanager,nodemanager
+        stop-yarn.sh  关闭resourcemanager,nodemanager
+        start-all.sh    启动hdfs，yarn
+        stop-all.sh    关闭hdfs，yarn
+        hdfs-daemon.sh start datanode  单独启动datanode
+        start-balancer.sh -t 10% 启动负载均衡，尽量不要在namenode节点使用
+        hdfs namenode -format  格式化文件系统
+        hdfs namenode -upgrade  分发新的hdfs版本之后，namenode应以upgrade选项启动
+        hdfs namenode -rollback  将namenode回滚到前一版本，这个选项要在停止集群，分发老的hdfs版本之后执行
+        hdfs namenode -finalize  finalize会删除文件系统的前一状态。最近的升级会被持久化，rollback选项将再不可用，升级终结操作之后，它会停掉namenode，分发老的hdfs版本后使用
+        hdfs namenode -importCheckpoint 从检查点目录装载镜像并保存到当前检查点目录，检查点目录由fs.checkpoint.dir指定
+
+    第二部分：hdfs文件系统命令
+        第一类：文件路径增删改查系列：
+            hdfs dfs -mkdir dir  创建文件夹
+            hdfs dfs -rmr dir  删除文件夹dir
+            hdfs dfs -ls  查看目录文件信息
+            hdfs dfs -lsr  递归查看文件目录信息
+            hdfs dfs -stat path 返回指定路径的信息
+        第二类：空间大小查看系列命令：
+            hdfs dfs -du -h dir 按照适合阅读的形式人性化显示文件大小
+            hdfs dfs -dus uri  递归显示目标文件的大小
+            hdfs dfs -du path/file显示目标文件file的大小
+        第三类:权限管理类：
+            hdfs dfs -chgrp  group path  改变文件所属组
+            hdfs dfs -chgrp -R /dir  递归更改dir目录的所属组
+            hdfs dfs -chmod [-R] 权限 -path  改变文件的权限
+            hdfs dfs -chown owner[-group] /dir 改变文件的所有者
+            hdfs dfs -chown -R  owner[-group] /dir  递归更改dir目录的所属用户
+        第四类：文件操作（上传下载复制）系列：
+            hdfs dfs -touchz a.txt 创建长度为0的空文件a.txt
+            hdfs dfs -rm file   删除文件file
+            hdfs dfs -put file dir  向dir文件上传file文件
+            hdfs dfs -put filea dir/fileb 向dir上传文件filea并且把filea改名为fileb
+            hdfs dfs -get file dir  下载file到本地文件夹
+            hdfs dfs -getmerge hdfs://Master:9000/data/SogouResult.txt CombinedResult  把hdfs里面的多个文件合并成一个文件，合并后文件位于本地系统
+            hdfs dfs -cat file   查看文件file
+            hdfs fs -text /dir/a.txt  如果文件是文本格式，相当于cat，如果文件是压缩格式，则会先解压，再查看
+            hdfs fs -tail /dir/a.txt查看dir目录下面a.txt文件的最后1000字节
+            hdfs dfs -copyFromLocal localsrc path 从本地复制文件
+            hdfs dfs -copyToLocal /hdfs/a.txt /local/a.txt  从hdfs拷贝到本地
+            hdfs dfs -copyFromLocal /dir/source /dir/target  把文件从原路径拷贝到目标路径
+            hdfs dfs -mv /path/a.txt /path/b.txt 把文件从a目录移动到b目录，可用于回收站恢复文件
+        第五类：判断系列：
+            hdfs fs -test -e /dir/a.txt 判断文件是否存在，正0负1
+            hdfs fs -test -d /dir  判断dir是否为目录，正0负1
+            hdfs fs -test -z /dir/a.txt  判断文件是否为空，正0负1
+        第六类：系统功能管理类：
+            hdfs dfs -expunge 清空回收站
+            hdfs dfsadmin -safemode enter 进入安全模式
+            hdfs dfsadmin -sfaemode leave 离开安全模式
+            hdfs dfsadmin -decommission datanodename 关闭某个datanode节点
+            hdfs dfsadmin -finalizeUpgrade 终结升级操作
+            hdfs dfsadmin -upgradeProcess status 查看升级操作状态
+            hdfs version 查看hdfs版本
+            hdfs daemonlog -getlevel <host:port> <name>  打印运行在<host:port>的守护进程的日志级别
+            hdfs daemonlog -setlevel <host:port> <name> <level>  设置运行在<host:port>的守护进程的日志级别
+            hdfs dfs -setrep -w 副本数 -R path 设置文件的副本数
+
+    第三部分：hdfs系统检查工具fsck
+        hdfs fsck <path> -move    移动受损文件到/lost+found
+        hdfs fsck <path> -delete   删除受损文件。
+        hdfs fsck <path> -openforwrite   打印出写打开的文件。
+        hdfs fsck <path> -files     打印出正被检查的文件。
+        hdfs fsck <path> -blocks     打印出块信息报告。
+        hdfs fsck <path> -locations     打印出每个块的位置信息。
+        hdfs fsck <path> -racks    打印出data-node的网络拓扑结构。
+
+    第四部分：mapreduce命令
+        hdfs jar file.jar 执行jar包程序
+        hdfs job -kill job_201005310937_0053  杀死正在执行的jar包程序
+        hdfs job -submit <job-file>  提交作业
+        hdfs job -status <job-id>   打印map和reduce完成百分比和所有计数器。
+        hdfs job -counter <job-id> <group-name> <counter-name>  打印计数器的值。
+        hdfs job -kill <job-id>  杀死指定作业。
+        hdfs job -events <job-id> <from-event-#> <#-of-events> 打印给定范围内jobtracker接收到的事件细节。
+        hdfs job -history [all] <jobOutputDir>     
+        hdfs job -history <jobOutputDir> 打印作业的细节、失败及被杀死原因的细节。更多的关于一个作业的细节比如成功的任务，做过的任务尝试等信息可以通过指定[all]选项查看。
+        hdfs job -list [all]  显示所有作业。-list只显示将要完成的作业。
+        hdfs job -kill -task <task-id>   杀死任务。被杀死的任务不会不利于失败尝试。
+        hdfs job -fail -task <task-id>   使任务失败。被失败的任务会对失败尝试不利。
+
+    第五部分：运行pipies作业
+        hdfs pipes -conf <path> 作业的配置
+        hdfs pipes -jobconf <key=value>, <key=value>, ...  增加/覆盖作业的配置项
+        hdfs pipes -input <path>  输入目录
+        hdfs pipes -output <path> 输出目录
+        hdfs pipes -jar <jar file> Jar文件名
+        hdfs pipes -inputformat <class> InputFormat类
+        hdfs pipes -map <class> Java Map类
+        hdfs pipes -partitioner <class> Java Partitioner
+        hdfs pipes -reduce <class> Java Reduce类
+        hdfs pipes -writer <class> Java RecordWriter
+        hdfs pipes -program <executable> 可执行程序的URI
+        hdfs pipes -reduces <num> reduce个数
+
+2. 运维命令
+    整体启动：
+        命令：
+            一次性：
+                start-all.sh、stop-all.sh
+            分功能（推荐）：
+                [hdfs] start-dfs.sh、stop-dfs.sh
+                    master: NameNode(NN)、SecondaryNamenode(SNN)
+                    slave(s): DataNode(DN)
+                [yarn] start-yarn.sh、stop-yarn.sh
+                    master: ResourceManager(RM)
+                    slave(s): NodeManager(NM)
+            集群服务守护进程
+                jps 查看
+
+        背后的逻辑：
+            /soft/hadoop/sbin/start-all.sh   
+            --------------    
+                bin=`dirname "${BASH_SOURCE-$0}"`   //{BASH_SOURCE-$0}代表取得当前执行的shell文件所在的完整路径：/soft/hadoop/sbin/start-all.sh
+                libexec/hadoop-config.sh
+                hadoop/sbin/start-dfs.sh
+                hadoop/sbin/start-yarn.sh
+
+            sbin/start-dfs.sh
+            --------------
+                libexec/hadoop-config.sh
+                sbin/hadoop-daemons.sh --config .. --hostname .. start namenode ...
+                sbin/hadoop-daemons.sh --config .. --hostname .. start datanode ...
+                sbin/hadoop-daemons.sh --config .. --hostname .. start sescondarynamenode ...
+                sbin/hadoop-daemons.sh --config .. --hostname .. start zkfc ...         //
+
+            sbin/start-yarn.sh
+            --------------  
+                libexec/yarn-config.sh
+                sbin/yarn-daemon.sh --config $YARN_CONF_DIR  start resourcemanager
+                sbin/yarn-daemons.sh  --config $YARN_CONF_DIR  start nodemanager
+
+            sbin/hadoop-daemons.sh
+            ----------------------
+                libexec/hadoop-config.sh
+                slaves
+                hadoop-daemon.sh
+
+            sbin/hadoop-daemon.sh
+            -----------------------
+                libexec/hadoop-config.sh
+                bin/hdfs ....
+
+            sbin/yarn-daemon.sh
+            -----------------------
+                libexec/yarn-config.sh
+                bin/yarn
+
+    单独启动和关闭hadoop服务
+        1）启动名称节点
+            hadoop-daemon.sh start namenode
+        2）启动数据节点
+            1.在名称节点上进行启动用：hadoop-daemons.sh start datanode      //可一次性启动全部数据节点
+            2.在数据节点上进行单个启动用：hadoop-daemon.sh start datanode     //可逐一启动全部数据节点
+        3）启动次要名称节点      
+            hadoop-daemon.sh start secondarynamenode                    //名称节点上启用
+       4）停止一个数据节点
+            hadoop-daemon.sh stop datanode //在数据节点上单点操作 
+            hadoop-daemons.sh stop datanode //在名称节点上多点操作
+        5）启动resourcemanager
+            yarn-daemon.sh start resourcemanager //名称节点上启用
+        6）启动nodemanager 
+            bin/yarn-daemons.sh start nodemanager           //在名称节点上启用全部数据节点
+ 
+    安全模式： 
+        NameNode在启动时会自动进入安全模式，安全模式是NameNode的一种状态，在这个阶段，文件系统不允许有任何修改。
+        系统显示Name node in safe mode，说明系统正处于安全模式，这时只需要等待几十秒即可。
+        1. 退出安全模式：
+            hadoop dfsadmin -safemode leave
+        2. 进入安全模式：
+            hadoop dfsadmin -safemode enter
+ 
+3. 常用 hadoop 和 hdfs 命令
+    bin/hadoop
+    ------------------------
+        hadoop verion       //版本
+        hadoop fs           //运行一个常用的文件系统客户端.
+        hadoop jar          //运行jar包
+        distcp              ？//递归拷贝文件或目录
+        hadoop classpath    //设置类路径
+        hadoop checknative  //检测本地的库文件
+
+    bin/hdfs
+    ------------------------
+        dfs                     // === hadoop fs
+        classpath          
+        namenode -format   
+        secondarynamenode  
+        namenode           
+        journalnode        
+        zkfc               
+        datanode           
+        dfsadmin           
+        haadmin            
+        fsck               
+        balancer           
+        jmxget             
+        mover              
+
+        oiv                
+        oiv_legacy         
+        oev                
+        fetchdt            
+        getconf            
+        groups             
+        snapshotDiff       
+
+        lsSnapshottableDir 
+
+        portmap            
+        nfs3               
+        cacheadmin         
+        crypto             
+        storagepolicies    
+        version 
+    hdfs 常用命令举例： 
+        $>hdfs dfs -mkdir - p /user/icss/hadoop                 //p递归创建
+        $>hdfs dfs -ls -R /user/icss/hadoop                    //-R递归
+        $>hdfs dfs -rm -r -f /user/icss/hadoop                // 强制？删除目录
+            hdfs 都发生 -rmr /user/icss/hadoop 
+            删除hadoop上指定文件
+                hdfs  dfs –rm [文件地址]
+                    hdfs dfs –rm /user/t/ok.txt
+            删除hadoop上指定文件夹（包含子目录等）
+                hdfs dfs –rm [目录地址]
+                    hdfs dfs –rmr /user/t
+        $>hdfs dfs --help                       //查看帮助
+        $>hdfs dfs -ls -R   /                   //显示目录结构
+        $>hdfs dfs -lsr /                       //显示目录结构
+        $>hdfs dfs -put 1.txt 2.txt /user/icss    //本地文件上传到hdfs文件
+        $>hdfs dfs -get /user/icss/1.txt a.txt    //下载hdfs文件到本地
+        $>hdfs dfs –getmerge /user /home/t      //将hadoop指定目录下所有内容保存为一个文件，同时down至本地
+        $>hdfs dfs -cat /hdfs上一个文本文件        //显示hdfs上文件内容
+        $>hdfs dfs -touchz /hdfs上一个文件名      //在hdfs上新建一个空文件
+        $>hdfs dfs -mv /data/test03.txt /data/test.txt      //将hadoop上某个文件重命名
+        $>hadoop job –kill  [job-id]        //将正在运行的hadoop作业kill掉
+        
+    补充
+        1.对hdfs操作的命令格式是hdfs dfs
+            1.1 -ls 表示对hdfs下一级目录的查看
+            1.2 -lsr 表示对hdfs目录的递归查看
+            1.3 -mkdir 创建目录
+            1.4 -put 从Linux上传文件到hdfs
+            1.5 -get 从hdfs下载文件到linux
+            1.6 -text 查看文件内容
+            1.7 -rm 表示删除文件
+            1.7 -rmr 表示递归删除文件
+        2.hdfs在对数据存储进行block划分时，如果文件大小超过block，那么按照block大小进行划分；不如block size的，划分为一个块，是实际数据大小。
+        3.hadoop常用命令：
+/**
+    （1）-help：输出这个命令参数 
+    （2）-ls: 显示目录信息 -lsr: 显示完整目录信息 hadoop fs -ls / 递归查看： hadoop fs -lsr / 
+    （3）-mkdir：在hdfs上创建目录 hadoop fs -mkdir -p /user/admin/mapreduce/wordcount/test 
+    （4）-moveFromLocal从本地剪切粘贴到hdfs(本地的会被删除) hadoop fs -moveFromLocal wc.input /user/admin/mapreduce/wordcount/test 
+    （5）-moveToLocal：从hdfs剪切粘贴到本地(尚未实现) hadoop fs -moveToLocal /user/admin/mapreduce/wordcount/test/wc.input 
+    （6）-appendToFile ：追加一个文件到已经存在的文件末尾 hadoop fs -appendToFile ./11.txt /user/admin/mapreduce/wordcount/test/wc.input 
+    （7）-cat ：显示文件内容 hadoop fs -cat /user/admin/mapreduce/wordcount/test/wc.input 
+    （8）-tail：显示一个文件的末尾 hadoop fs -tail /user/admin/mapreduce/wordcount/test/wc.input 
+    （9）-chgrp 、-chmod、-chown：linux文件系统中的用法一样，修改文件所属权限 
+    （10）-copyFromLocal：从本地文件系统中拷贝文件到hdfs路径去 hadoop fs -copyFromLocal 11.txt /user/admin/mapreduce/wordcount/test/ 
+    （12）-cp ：从hdfs的一个路径拷贝到hdfs的另一个路径 hadoop fs -cp /user/admin/mapreduce/wordcount/test/11.txt /user/admin/mapreduce/wordcount/input 
+    （13）-mv：在hdfs目录中移动文件 hadoop fs -mv /user/admin/mapreduce/wordcount/test/11.txt /user/admin/mapreduce/wordcount/input 
+    （14）-get：等同于copyToLocal，就是从hdfs下载文件到本地 hadoop fs -get /user/admin/mapreduce/wordcount/test/11.txt 
+    （15）-getmerge ：合并下载多个文件，比如hdfs的目录 /aaa/下有多个文件:log.1, log.2,log.3,... [admin@hadoop14 hadoop-2.7.2]$ hadoop fs -getmerge /user/admin/mapreduce/wordcount/input/11.txt /user/admin/mapreduce/wordcount/input/wc.input ./22.txt [admin@hadoop14 hadoop-2.7.2]$ ll 总用量 68 -rw-r--r--. 1 admin admin 7 10月 14 19:40 11.txt -rw-r--r--. 1 admin admin 1088 10月 14 19:44 22.txt 
+    （16）-put：等同于copyFromLocal hadoop fs -put 11.txt /user/admin/mapreduce/wordcount/test 
+    （17）-rm：删除文件或文件夹 hadoop fs -rm /user/admin/mapreduce/wordcount/test/11.txt 
+    （18）-rmdir：删除空目录 hadoop fs -rm /user/admin/mapreduce/wordcount/test 
+    （19）-df ：统计文件系统的可用空间信息，-h：格式化打印 [admin@hadoop14 hadoop-2.7.2]$ hadoop fs -df -h / Filesystem Size Used Available Use% hdfs://hadoop14:9000 43.9 G 758.6 M 28.8 G 2% 
+    （20）-du统计文件夹的大小信息：-s:总大小，去掉则表示分别列出文件夹大小 [admin@hadoop14 hadoop-2.7.2]$ hadoop fs -du -s -h /user 188.5 M /user 
+    （21）-count：统计一个指定目录下的文件节点数量 [admin@hadoop14 hadoop-2.7.2]$ hadoop fs -count -h /user 6 4 188.5 M /user （22）-setrep：设置hdfs中文件的副本数量 副本数.png 注意：这里设置的副本数只是记录在namenode的元数据中，是否真的会有这么多副本，还得看datanode的数量。因为目前只有3台设备，最多也就3个副本，只有节点数的增加到10台时，副本数才能达到10。
+    --------------------- 
+**/
+            hdfs dfs  查看Hadoop HDFS支持的所有命令   
+            hdfs dfs –ls  列出目录及文件信息   
+            hdfs dfs –lsr  循环列出目录、子目录及文件信息      
+            hdfs dfs –tail /user/icss/test.txt  查看最后1KB的内容   
+            hdfs dfs –copyFromLocal test.txt /user/icss/test.txt  从本地文件系统复制文件到HDFS文件系统，等同于put命令   
+            hdfs dfs –copyToLocal /user/icss/test.txt test.txt  从HDFS文件系统复制文件到本地文件系统，等同于get命令   
+            hdfs dfs –chgrp [-R] /user/icss  修改HDFS系统中/user/icss目录所属群组，选项-R递归执行，跟linux命令一样   
+            hdfs dfs –chown [-R] /user/icss  修改HDFS系统中/user/icss目录拥有者，选项-R递归执行   
+            hdfs dfs –chmod [-R] MODE /user/icss  修改HDFS系统中/user/sunlightcs目录权限，MODE可以为相应权限的3位数或+/-{rwx}，选项-R递归执行
+            hdfs dfs –count [-q] PATH  查看PATH目录下，子目录数、文件数、文件大小、文件名/目录名   
+            hdfs dfs –cp SRC [SRC …] DST       将文件从SRC复制到DST，如果指定了多个SRC，则DST必须为一个目录   
+            hdfs dfs –du PATH  显示该目录中每个文件或目录的大小   
+            hdfs dfs –dus PATH  类似于du，PATH为目录时，会显示该目录的总大小   
+            hdfs dfs –expunge  清空回收站，文件被删除时，它首先会移到临时目录.Trash/中，当超过延迟时间之后，文件才会被永久删除   
+            hdfs dfs –getmerge SRC [SRC …] LOCALDST [addnl]   获取由SRC指定的所有文件，将它们合并为单个文件，并写入本地文件系统中的LOCALDST，选项addnl将在每个文件的末尾处加上一个换行符   
+            hdfs dfs –test –[ezd] PATH     对PATH进行如下类型的检查：-e PATH是否存在，如果PATH存在，返回0，否则返回1；-z 文件是否为空，如果长度为0，返回0，否则返回1； -d 是否为目录，如果PATH为目录，返回0，否则返回1  
+            hdfs dfs –text PATH  显示文件的内容，当文件为文本文件时，等同于cat；文件为压缩格式（gzip以及hadoop的二进制序列文件格式）时，会先解压缩    
+            hdfs dfs –help ls  查看某个[ls]命令的帮助文档
+
+        
+Hadoop 3 端口号的改变
+    分类 	应用 	Haddop 2.x port 	Haddop 3 port
+    NNPorts 	Namenode 	8020 	9820
+    NNPorts 	NN HTTP UI 	50070 	9870
+    NNPorts 	NN HTTPS UI 	50470 	9871
+    SNN ports 	SNN HTTP 	50091 	9869
+    SNN ports 	SNN HTTP UI 	50090 	9868
+    DN ports 	DN IPC 	50020 	9867
+    DN ports 	DN 	50010 	9866
+    DN ports 	DN HTTP UI 	50075 	9864
+    DN ports 	Namenode 	50475 	9865
+  https://blog.csdn.net/qq_27231343/article/details/51470216
+    
+
+
+https://blog.csdn.net/weixin_43215250/article/details/84819692
+    https://www.csdn.net/gather_25/MtTaYg0sNDI3Mi1ibG9n.html
+

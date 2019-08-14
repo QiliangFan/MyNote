@@ -1,0 +1,104 @@
+实践操作：
+        
+1. 集群操作(Hadoop 集群安装后验证的演示)
+    1. 整体：
+        start-all.sh & stop-all.sh 
+    2. 分步：
+        start-dfs.sh & stop-dfs.sh 
+        start-yarn.sh & stop-yarn.sh 
+    3. 单独：
+        1. NameNode : 在名称节点上执行
+            hadoop-daemon.sh start namenode
+            hadoop-daemon.sh stop namenode
+        2. SecondaryNameNode：在名称节点上执行 
+            hadoop-daemon.sh start secondarynamenode
+            hadoop-daemon.sh stop secondarynamenode
+        3. DataNode
+            在名称节点上执行：
+                hadoop-daemons.sh start datanode      //可一次性启动全部数据节点
+                hadoop-daemons.sh stop datanode     //在多点操作停止全部数据节点
+            在某个数据节点上执行：
+                hadoop-daemon.sh start datanode     //可逐一单个启动全部数据节点
+                hadoop-daemon.sh stop datanode     //在数据节点上单点操作
+        4. ResourceManager：在名称节点上执行
+            yarn-daemon.sh start resourcemanager
+            yarn-daemon.sh stop resourcemanager
+        5. NodeManager 
+             在名称节点上执行：
+                yarn-daemons.sh start nodemanager           //启用全部NM节点
+                yarn-daemons.sh stop nodemanager           //停止全部NM节点
+        /** 上述命令 hadoop-daemon(s).sh 等是降级的命令，可以替换为以下命令：
+            1 - 整体 : NN 
+                start-all.sh
+                stop-all.sh
+            2 - 分步：NN
+                start-dfs.sh    stop-dfs.sh
+                start-yarn.sh   stop-yarn.sh
+            3 - 单独 
+                1. NameNode ： NN
+                    hadoop-daemon.sh start|stop namenode
+                        hdfs --daemon start|stop namenode
+                2. SecondaryNameNode : SNN
+                    hadoop-daemon.sh start|stop secondarynamenode
+                        hdfs --daemon start|stop secondarynamenode
+                3. DataNode
+                    NN : 
+                        hadoop-daemons.sh start|stop datanode
+                            hdfs --workers --daemon stop datanode
+                    DN:
+                        hadoop-daemon.sh start|stop datanode
+                            hdfs --daemon start|stop datanode
+                4. ResourceManager ： RM
+                    yarn --daemon start resourcemanager
+                5. NodeManager：
+                    RM ： 
+                        yarn --worker --daemon start|stop nodemanager
+                    NM
+                        yarn --daemon start|stop nodemanager
+        **/
+2. MR(Hadoop 集群安装后验证的演示) 
+    1. 算 pi 
+        hadoop jar hadoop3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.0.3.jar pi 5 5
+    2. Wordcount 
+        hdfs dfs -put  ~/hadoop3/etc/hadoop/*.xml  /user/icss/input
+        hadoop jar hadoop3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.0.3.jar grep /user/icss/input /output/xml 'dfs[a-z.]+'
+        hdfs dfs -cat /output/xml/*
+        
+3. HDFS 操作
+    hdfs dfs  查看Hadoop HDFS支持的所有命令
+    hdfs dfs –help ls  查看某个[ls]命令的帮助文档
+
+    hadoop dfsadmin –report #检查HDFS状态，包括DN信息
+
+    hadoop dfsadmin –safemode enter | leave | get
+
+    hadoop fsck /                   #检查HDFS块状态，是否损坏
+    hadoop fsck / -delete      #检查HDFS块状态，删除损坏块
+            
+    hdfs dfs –du PATH  显示该目录中每个文件或目录的大小   
+    hdfs dfs –dus PATH  类似于du，PATH为目录时，会显示该目录的总大小 
+        hdfs dfs -du -s /
+
+    hdfs dfs –expunge  清空回收站，文件被删除时，它首先会移到临时目录.Trash/中，当超过延迟时间之后，文件才会被永久删除
+        需要结合 PPT 中的回收站相关的内容演练
+
+    hdfs dfs -mkdir /user
+    hdfs dfs -mkdir - p /user/icss/hadoop                 //-p递归创建
+    hdfs dfs -ls -R /user/icss/hadoop                       //-R递归 
+        hdfs dfs -lsr /
+    hdfs dfs -rm -r -f /user/icss/hadoop                // 强制？删除目录
+        hdfs dfs -rmr -f /user/icss/hadoop                // 强制？删除目录
+        
+    hdfs dfs -put 1.txt 2.txt /user/icss    //本地文件上传到hdfs文件
+        hdfs dfs –copyFromLocal test.txt /user/sunlightcs/test.txt  从本地文件系统复制文件到HDFS文件系统，等同于put命令   
+    hdfs dfs -get /user/icss/1.txt a.txt    //下载hdfs文件到本地
+        hdfs dfs –copyToLocal /user/sunlightcs/test.txt test.txt  从HDFS文件系统复制文件到本地文件系统，等同于get命令   
+    hdfs dfs –getmerge /user /home/t      //将hadoop指定目录下所有内容保存为一个文件，同时down至本地 
+    hdfs dfs –cp SRC [SRC …] DST       将文件从SRC复制到DST，如果指定了多个SRC，则DST必须为一个目录
+        等同于 HDFS 上的文件复制命令
+
+    hdfs dfs -cat /hdfs上一个文本文件        //显示hdfs上文件内容
+    hdfs dfs -touchz /hdfs上一个文件名      //在hdfs上新建一个空文件
+    hdfs dfs -mv /data/test03.txt /data/test.txt      //将hadoop上某个文件重命名 
+        等同于 HDFS 上的移动命令
+

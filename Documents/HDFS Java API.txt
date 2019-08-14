@@ -1,0 +1,447 @@
+Java API 操作 HDFS 
+/// 加入 HDFS Java API
+FileSystem的create()方法用于新建文件,返回FSDataOutputStream对象。 Progressable()用于传递回掉窗口，可以用来把数据写入datanode的进度通知给应用。
+
+0. 主要介绍：
+    1. Maven 安装
+    2. Java API 操作 HDFS
+    
+0. Java API 运行方式：
+    1. 运行位置：
+        Local ： 安装Hadoop Linux Server
+        Remote : 
+            OS ： Windows
+            OS ： Linux
+            访问方式： hdfs://Hadoop主机:9000/path
+    2. 运行方式：
+        jar：
+            Local : 
+                hadoop jar xxx.jar 
+                java jar xxx.jar    === remote
+        rpc:
+            HDFS : hdfs://Hadoop master主机:9000/path
+    3. 开发工具：
+        Eclipse 等
+    结论：
+        remote、windows、eclipse 开发并运行
+1. Maven 安装 
+    1. 下载\解压\设置环境变量\指明path
+        下载：
+            http://maven.apache.org/
+                http://maven.apache.org/download.cgi
+                    apache-maven-3.6.0-bin.zip
+        解压
+        设置环境变量：
+            echo %M2_HOME%          // Maven 2.0 的环境变量
+            echo %MAVEN_HOME%   // Maven 1.x 的环境变量 
+            如果没有，这是如上的环境变量
+                M2_HOME=解压的目录
+                MAVEN_HOME=解压的目录
+        设置path
+            %M2_HOME%\bin
+    2. 验证
+        mvn -version
+        当前用户目录下 .m2 是所有的本地软件仓库
+    3. 创建 Maven 项目，两种方式：
+            new maven project -> 选骨架。。。
+            new web project -> configurare -> convert to maven
+            *推荐: 转换为 Maven 项目
+2. Java API 操作 HDFS 
+    00. 借助 Hadoop URL 读取数据 - TestHDFSByURL
+            static {
+                // 开启HDFS协议, 让Java 识别 Hadoop HDFS url 地址， 每个jvm智能调用一次该方法，故此放在静态方法中完成调用
+                URL.setURLStreamHandlerFactory(new FsUrlStreamHandlerFactory());
+            }
+            // 指定hdfs格式的url, master在hosts中设置，指定 RPC 端口号 9000
+            private static String hdfsURL = "hdfs://master:9000/user/icss/input/core-site.xml";
+            
+            private static void copyToLocal(String hdfsURL) throws Exception {
+                // 获取输入流
+                URL url = new URL(hdfsURL);
+        //		InputStream is = url.openStream();	// 直接获取输入流
+                URLConnection urlConnection = url.openConnection();	// 获取url连接
+                InputStream is = urlConnection.getInputStream();
+                // Hadoop中 IOUtils 工具类, 指定输入流、输出流、缓冲区大小、是否自动关闭输出流(System.out不需关闭)
+                IOUtils.copyBytes(is, System.out, 4096, false);
+                // 关闭输入流
+                IOUtils.closeStream(is);
+            }
+        缺陷：
+            1. URL.setURLStreamHandlerFactory在整个项目中只能用一次，不灵活。
+            2. 只能获取单向输入流，不支持输出流，只能从 HDFS 上获取文件。
+        结论：
+            使用 Hadoop FileSystem API 实现交互。 
+            
+    0. 准备工作：
+        1. 借助 Maven 给项目添加 Hadoop 依赖
+            导入 jar 包， 指明依赖
+            baidu : mvn hadoop
+                选 hadoop-client
+                    会自动导入所需的全部依赖
+                找到对应的 Hadoop 版，复制 Maven 标签中内容到当前项目的 pom.xml 中
+                保存后，自动下载所有的依赖 jar 包
+            <!-- https://mvnrepository.com/artifact/org.apache.hadoop/hadoop-client -->
+            <!-- Hadoop Client 依赖 -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>3.0.3</version>
+            </dependency>
+            
+        2. 设置 Hadoop 用户
+            Linux 中有 Hadoop 用户，远程 client 访问也是要以该用户访问。
+            设置方式两种：
+                1. 在 client 的 os 设置环境变量 HADOOP_USER_NAME 值为 Linux 中 Hadoop 用户 icss （不推荐）
+                2. 在 java 代码中设置宿主机系统环境变量属性的key&value （推荐）
+                    如何设置？ -引申-> Java 如何获取？
+                        // 获取宿主机中所有的系统环境变量属性信息
+                        private static void getSystemProperties() {
+                            Properties properties = System.getProperties();
+                            Set<Entry<Object, Object>> entrySet = properties.entrySet();
+                            Iterator<Entry<Object, Object>> iterator = entrySet.iterator();
+                            while(iterator.hasNext()) {
+                                Entry<Object, Object> entry = iterator.next();
+                                // 关注 os.name - Windows 10
+                                System.out.println(entry.getKey() + " - " + entry.getValue());
+                        }
+                        // 放在类的静态代码块中
+                        static {
+                            // 设置宿主机系统环境变量 HADOOP_USER_NAME - icss
+                            System.setProperty("HADOOP_USER_NAME", "icss");
+                        }
+                
+        3. 
+        
+    
+    1. 使用 FileSystem API
+        0. 基本概念：
+            1. Path 
+                使用 Hadoop Path 对象(而非java.io.File)表示 HDFS 中的文件，看成 URI，如：hdfs://master:9000/user/icss/test.txt 
+                    new Path(uri)
+            2. 获取 FileSystem - 使用静态工厂方法：
+                FileSystem fs = FileSystem.get(conf);
+                FileSystem fs = FileSystem.get(uri, conf, "icss");
+                /**
+                    默认情况下，hdfs客户端api会从jvm中获取一个参数来作为自己的用户身份：
+                        在 Run As 中选 Run Configurations... (x)=Arguments标签中的 VM arguments: 文本框中，填入：
+                        -DHADOOP_USER_NAME=admin
+                **/
+                * FileSystem fs = FileSystem.get(uri, conf);
+            3. 获取输入流 
+                FSDataInputStream open(Path file)   // 默认 buffersize = 4k
+                FSDataInputStream open(Path file, int buffersize)
+                    .seek(long pos) - void , 开销大，慎用
+                    .getPos()   - long
+            4. 获取输出流
+                FSDataOutputStream  create(Path path)
+                FSDataOutputStream  append(Path path)
+            5. 获取目录 & 文件状态信息
+                mkdirs - create()方法时会自动创建父目录
+                getFileStauts()
+                exists()
+                FileStatus[] listStatus(Path path)
+                FileStatus[] listStatus(Path path, PathFilter filter)
+                FileStatus[]  listStatus(Path[] paths)
+                FileStatus[] istStatus(Path[] paths, PathFilter filter)
+                Path[] FileUtil.stat2Paths(FileStatus[] status)
+                
+                
+         -- TestHDFSFileSystem
+        1. 借助 FileSystem 连接HDFS，获取状态信息
+            // 获取 HDFS 文件系统
+            public static FileSystem getHDFSFileSystem(String hdfsURI) throws Exception {
+                URI uri = new URI(hdfsURI);
+                Configuration conf = new Configuration();
+                // 1 获取文件系统 
+                // 1 - 借助配置文件在集群上运行 
+                //configuration.set("fs.defaultFS", "hdfs://hadoop14:9000"); 
+                //FileSystem fileSystem = FileSystem.get(configuration); 
+                // 2 - 直接配置访问集群的路径和访问集群的用户名称 
+                //FileSystem fs = FileSystem.get(uri, conf, "icss");
+                // 3 - 必须借助放置在静态代码块中的：System.setProperty("HADOOP_USER_NAME", "icss");
+                FileSystem fs = FileSystem.get(uri, conf);
+                // 记得需要关闭资源
+                // fs.close();
+                return fs;
+            }
+            
+            // 获取文件系统状态信息 已用|剩余空间
+            public static void getFsStatus(FileSystem fs) throws Exception {
+                FsStatus fsStatus = fs.getStatus();
+                long used = fsStatus.getUsed();
+                long remaining = fsStatus.getRemaining();
+                // 类同于 hdfs dfs -df 命令
+                System.out.println(used + " " + remaining);
+            }
+        2. 借助 FileSystem 完成文件的上传、下载
+            1. 借助 IO 流实现，重访前例
+                // 完成文件的下载
+                public static void copyToLocal(String hdfsURI) throws Exception {
+                    Configuration conf = new Configuration();
+                    // 获取文件系统
+                    FileSystem fs = FileSystem.get(URI.create(hdfsURI), conf);
+                    // 获取输入流
+                    FSDataInputStream is = fs.open(new Path(hdfsURI));
+                    IOUtils.copyBytes(is, System.out, 1024*1024*64, false);
+                    IOUtils.closeStream(is);	//is.close();
+                }
+            2. 借助API实现
+                下载：fs.copyToLocalFile，可能会报错：
+                    java.io.FileNotFoundException: HADOOP_HOME and hadoop.home.dir are unset.
+                        程序运行方式和位置：
+                        1. 启动了Hadoop集群的某个集群节点上，Hadoop用户提交运行
+                        * 2. 在没有运行Hadoop的Linux上以任意方式提交运行
+                            1. 设置 HADOOP_HOME 环境变量
+                            2. HADOOP_HOME 对应的目录中，拷贝进 集群Hadoop的安装目录
+                        * 3. 在Windows提交运行
+                            https://wiki.apache.org/hadoop/WindowsProblems
+                                https://github.com/steveloughran/winutils
+                                https://github.com/steveloughran
+                            1. 设置 HADOOP_HOME 环境变量
+                            2. 在保证在Windows有一个Hadoop的系统，其中包含windows下执行的hadoop相关命令
+                                在 windows 安装 Hadoop
+                                在 windows 中设置 winutils 
+                                    下载、解压、拷贝
+                * 下载？的时候，需要 
+                    // copyToLocalFile本质上是下载到Linux上，而现在是Windows Client，所以需要设置环境变量
+                    // Hadoop 源码中 先找 hadoop.home.dir, 然后才找 HADOOP_HOME 环境变量
+                    // 此外还需要  !! 在 windows 中安装 Hadoop ! HDFS -> Windows
+                        https://wiki.apche.org/hadoop/WindowsProblems
+                    // 判断是否运行在 Windows 上，如果是才设置
+                    if (System.getProperty("os.name").toLowerCase().indexOf("windows") != -1)
+                        System.setProperty("hadoop.home.dir", "c:/dev/hadoop");
+                    String hdfsURI = "hdfs://master:9000/";
+                    Configuration conf = new Configuration();
+                    URI uri = URI.create(hdfsURI);
+                    FileSystem fs = FileSystem.get(uri, conf);
+                    String coreSiteXml = "hdfs://master:9000/user/icss/input/core-site.xml";
+                    Path src = new Path(coreSiteXml);
+                    Path dst = new Path("d:\\1.xml");
+                    //fs.copyToLocalFile(src, dst);
+                    fs.copyFromLocalFile(new Path("d://1.html"), new Path("/data"));
+                * 借助API实现
+                    fs.copyFromLocalFile(new Path("f:\\data.ser"), new Path("/user/icss/temp"));
+                    fs.copyToLocalFile(new Path("/user/icss/temp/data.ser"), new Path("d:/bb.ser"));
+            3. 获取 HDFS 系统状态信息
+                // 0. 声明HDFS文件系统根目录
+                String hdfsURI = "hdfs://master:9000/";
+                //URI uri = new URI(hdfsURI);
+                URI uri = URI.create(hdfsURI);
+                Configuration conf = new Configuration();
+                // 1. 获取FileSystem
+                FileSystem fs = FileSystem.get(uri, conf);
+                // 2. 获取根目录的状态信息
+                FsStatus fsStatus = fs.getStatus();
+                // 3. 获取已用、剩余、总容量信息
+                long used = fsStatus.getUsed();
+                long remaining = fsStatus.getRemaining();
+                long capacity = fsStatus.getCapacity();
+                System.out.println(used + "  " + remaining + " - " + capacity);
+                
+                RemoteIterator<LocatedFileStatus> iterator = fs.listFiles(new Path("/"), true);
+                
+
+            
+使用delete()方法来永久性删除文件或目录。
+FileSystem的其它一些方法：
+    public boolean mkdirs(Path f)  throws IOException  用来创建目录，创建成功返回true。
+    public FileStatus getFileStates(Path f) throws FIleNotFoundException 用来获取文件或目录的FileStatus对象。
+    public FileStatus[ ] listStatus(Path f)throws IOException  列出目录中的内容
+    public FileStatus[ ] globStatu(Path pathPattern) throws IOException 返回与其路径匹配于指定模式的所有文件的FileStatus对象数组，并按路径排序 
+    
+    
+    
+    
+            0. 重访前例 借助 IOStream 方式完成文件下载
+                import org.apache.hadoop.fs.FSDataInputStream;
+            1. 借助 FS API 实现文件的上传、下载
+                下载：fs.copyToLocalFile
+                    java.io.FileNotFoundException: HADOOP_HOME and hadoop.home.dir are unset.
+                        1. 启动了Hadoop集群的某个集群节点上，Hadoop用户提交运行
+                        * 2. 在没有运行Hadoop的Linux上以任意用于提交运行
+                            1. 设置 HADOOP_HOME 环境变量
+                            2. HADOOP_HOME 对应的目录中，拷贝进 集群Hadoop的安装目录
+                        * 3. 在Windows提交运行
+                            https://wiki.apache.org/hadoop/WindowsProblems
+                                https://github.com/steveloughran/winutils
+                                https://github.com/steveloughran
+                            1. 设置 HADOOP_HOME 环境变量
+                            2. 在保证在Windows有一个Hadoop的系统，其中包含windows下执行的hadoop相关命令
+                                在 windows 安装 Hadoop
+                                在 windows 中设置 winutils 
+                                    下载、解压、拷贝
+            2. 借助 HDFS 的输出流实现文件的写入和追加
+                FSDataOutputStream os = fs.create(new Path("/data/1.log"));
+                FSDataOutputStream os2 = fs.append(new Path("2.log"));
+        3. FileSystem API
+            1. 文件、目录相关信息
+                fs.getFileStatus(f)
+                FileStatus[] fss = fs.listStatus(Path path)
+                    fs.listStatus(Path path, PathFilter pathFilter)
+                FileStatus[] fss = fs.listStatus(Path[] path)
+                    fs.listStatus(Path[] path, PathFilter pathFilter)
+                Path[] paths = FileUtil.stat2Paths(fss);
+            2. 文件、目录操作信息
+                boolen isExist = fs.exists(Path path)
+                fs.mkdirs(Path path)
+                    fs.create(new Path("/data/1.log"));
+        4. 借助 FileSystem API 实现 HDFS 读写原理。。
+        5.写数据一致性&持久性
+                os2.hsync() —— 保证DN HDD真实被写入。
+                os2.hflush() —— 不能保证持久性
+            public void writeFile() throws Exception{
+                // 1 创建配置信息对象
+                Configuration configuration = new Configuration();
+                fs = FileSystem.get(configuration);
+                // 2 创建文件输出流
+                Path path = new Path("hdfs://master:9000/user/icss/hello.txt");
+                FSDataOutputStream fos = fs.create(path);
+                // 3 写数据
+                fos.write("hello".getBytes());
+                   // 4 一致性刷新
+                fos.hflush();
+                fos.close();
+            }
+
+            总结：写入数据时，如果希望数据被其他client立即可见，调用如下方法
+            FsDataOutputStream. hflush ();		//清理客户端缓冲区数据，被其他client立即可见
+
+                            
+/** HDFS 的 FileSystem 常用操作
+    public class HDFSTest {
+        
+        private FileSystem fileSystem;
+        private Configuration configuration;
+        
+        @Before
+        public void initHDFS() throws IOException, InterruptedException, URISyntaxException {
+            // 1 创建配置信息对象
+            configuration = new Configuration();
+            //设置副本数
+            //configuration.set("dfs.replication", "2");
+            /*参数优先级： 1、客户端代码中设置的值  2、classpath下的用户自定义配置文件 3、然后是服务器的默认配置*/
+            
+            // 2 获取文件系统
+            fileSystem = FileSystem.get(new URI("hdfs://hadoop14:9000"),configuration, "admin");
+            
+            // 3 打印文件系统
+            System.out.println("==========================="+fileSystem.toString());
+        }
+        
+        /**
+         * 上传
+         * @throws Exception
+         */
+        @Test
+        public void HDFSUpLoad() throws Exception{
+            //上传文件
+            fileSystem.copyFromLocalFile(new Path("G:/yang.jpg")
+                    , new Path("/user/admin/mapreduce/wordcount/input/yang3.jpg"));
+            
+            //关闭资源
+            fileSystem.close();
+            System.out.println("over==================================");
+        }
+        
+        /**
+         * 下载
+         * @throws Exception
+         */
+        @Test
+        public void getFileFromHDFS() throws Exception{
+            // boolean delSrc 指是否将原文件删除
+            // Path src 指要下载的文件路径
+            // Path dst 指将文件下载到的路径
+            // boolean useRawLocalFileSystem 是否开启文件效验
+            // 2 下载文件
+            fileSystem.copyToLocalFile(false, new Path("hdfs://hadoop14:9000//user/admin/mapreduce/wordcount/input/yang3.jpg"), 
+                                       new Path("G:/yang3.jpg"), true);
+            fileSystem.close();
+        }
+        
+        /**
+         * 创建目录
+         * @throws Exception
+         */
+        @Test
+        public void mkdirAtHDFS() throws Exception{
+            //创建目录
+            fileSystem.mkdirs(new Path("hdfs://hadoop14:9000/admin"));
+        }
+        
+        /**
+         * 删除文件夹
+         * @throws Exception
+         */
+        @Test
+        public void deleteAtHDFS() throws Exception{
+            //删除文件夹 ，如果是非空文件夹，参数2是否递归删除，true递归
+            fileSystem.delete(new Path("hdfs://hadoop14:9000/admin"), true);
+        }
+        
+        /**
+         * 重命名文件或文件夹
+         * @throws Exception
+         */
+        @Test
+        public void renameAtHDFS() throws Exception{
+            //重命名文件或文件夹
+            fileSystem.rename(new Path("hdfs://hadoop14:9000/user/admin/mapreduce/wordcount/test/wc.input"), 
+                              new Path("hdfs://hadoop14:9000/user/admin/mapreduce/wordcount/test/wc1.input"));
+        }
+        
+        /**
+         * 查看文件名称、权限、长度、块信息
+         * @throws Exception
+         */
+        @Test
+        public void readListFiles() throws Exception {
+            // 思考：为什么返回迭代器，而不是List之类的容器：减少内存损耗
+            RemoteIterator&lt;LocatedFileStatus&gt; listFiles = fileSystem.listFiles(new Path("/"), true);
+            
+            while (listFiles.hasNext()) {
+                LocatedFileStatus fileStatus = listFiles.next();
+                System.out.println(fileStatus.getPath().getName());
+                System.out.println(fileStatus.getBlockSize());
+                System.out.println(fileStatus.getPermission());
+                System.out.println(fileStatus.getLen());
+                    
+                BlockLocation[] blockLocations = fileStatus.getBlockLocations();
+                for (BlockLocation bl : blockLocations) {
+                        
+                    System.out.println("block-offset:" + bl.getOffset());
+                        
+                    String[] hosts = bl.getHosts();
+                        
+                    for (String host : hosts) {
+                        System.out.println(host);
+                    }
+                }
+                    
+                System.out.println("--------------李冰冰的分割线--------------");
+            }
+        }
+        
+        /**
+         * 判断是文件还是文件夹
+         * @throws Exception
+         * @throws IllegalArgumentException
+         * @throws IOException
+         */
+        @Test
+        public void findAtHDFS() throws Exception, IllegalArgumentException, IOException{
+                
+            //获取查询路径下的文件状态信息
+            FileStatus[] listStatus = fileSystem.listStatus(new Path("/"));
+
+            //遍历所有文件状态
+            for (FileStatus status : listStatus) {
+                if (status.isFile()) {
+                    System.out.println("f--" + status.getPath().getName());
+                } else {
+                    System.out.println("d--" + status.getPath().getName());
+                }
+            }
+        }
+    }
+**/
